@@ -20,7 +20,7 @@ namespace caffe {
 	class CAFFE_DLL CaffeBinding {
 	public:
 		CaffeBinding();
-		int AddNet(std::string prototxt_path, std::string weights_path, int gpu_id = 0);
+		int AddNet(const std::string &prototxt_path, const std::string &weights_path, int gpu_id = 0);
 		std::unordered_map<std::string, DataBlob> Forward(int net_id);
 		std::unordered_map<std::string, DataBlob> Forward(std::vector<cv::Mat>&& input_image, int net_id);
 		std::unordered_map<std::string, DataBlob> Forward(std::vector<cv::Mat>& input_image, int net_id) {

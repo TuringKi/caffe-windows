@@ -14,7 +14,7 @@ CaffeBinding::CaffeBinding() {
 	FLAGS_minloglevel = google::FATAL;
 }
 
-int CaffeBinding::AddNet(string model_definition, string weights, int gpu_id) {
+int CaffeBinding::AddNet(const string &model_definition, const string &weights, int gpu_id) {
 	SetDevice(gpu_id);
 	auto new_net = new Net<float>(model_definition, Phase::TEST);//boost::make_shared<Net<float> >(model_definition, Phase::TEST);
 	new_net->CopyTrainedLayersFrom(weights);
