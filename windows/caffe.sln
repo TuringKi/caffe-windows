@@ -44,6 +44,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "classification", "classific
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "siamese-fc", "siamese-fc\siamese-fc.vcxproj", "{8019F5B9-063E-4197-A9FA-984CBF5DF3B0}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "caffe.binding", "caffe.binding\caffe.binding.vcxproj", "{48E1BAE6-F9E1-4E9A-A3A1-75C1B2D1B12E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -134,6 +136,16 @@ Global
 		{8019F5B9-063E-4197-A9FA-984CBF5DF3B0}.Release|Win32.ActiveCfg = Release|x64
 		{8019F5B9-063E-4197-A9FA-984CBF5DF3B0}.Release|x64.ActiveCfg = Release|x64
 		{8019F5B9-063E-4197-A9FA-984CBF5DF3B0}.Release|x64.Build.0 = Release|x64
+		{48E1BAE6-F9E1-4E9A-A3A1-75C1B2D1B12E}.Debug|Mixed Platforms.ActiveCfg = Debug|x64
+		{48E1BAE6-F9E1-4E9A-A3A1-75C1B2D1B12E}.Debug|Mixed Platforms.Build.0 = Debug|x64
+		{48E1BAE6-F9E1-4E9A-A3A1-75C1B2D1B12E}.Debug|Win32.ActiveCfg = Debug|x64
+		{48E1BAE6-F9E1-4E9A-A3A1-75C1B2D1B12E}.Debug|x64.ActiveCfg = Debug|x64
+		{48E1BAE6-F9E1-4E9A-A3A1-75C1B2D1B12E}.Debug|x64.Build.0 = Debug|x64
+		{48E1BAE6-F9E1-4E9A-A3A1-75C1B2D1B12E}.Release|Mixed Platforms.ActiveCfg = Release|x64
+		{48E1BAE6-F9E1-4E9A-A3A1-75C1B2D1B12E}.Release|Mixed Platforms.Build.0 = Release|x64
+		{48E1BAE6-F9E1-4E9A-A3A1-75C1B2D1B12E}.Release|Win32.ActiveCfg = Release|x64
+		{48E1BAE6-F9E1-4E9A-A3A1-75C1B2D1B12E}.Release|x64.ActiveCfg = Release|x64
+		{48E1BAE6-F9E1-4E9A-A3A1-75C1B2D1B12E}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

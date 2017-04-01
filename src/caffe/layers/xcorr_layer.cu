@@ -38,8 +38,8 @@ void CrossCorrelationLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& botto
 		const int* strides = stride_.gpu_data();
 		im2col_gpu<Dtype>(input, this->channels_,
 			this->height_, this->width_, this->filter_height_, this->filter_width_,
-			pads[0], pads[1],
-			strides[0], strides[1], 1, 1,
+			0, 0,
+			1, 1, 1, 1,
 			col_buffer_.mutable_gpu_data());
 
 		const Dtype* col_buff = col_buffer_.gpu_data();
