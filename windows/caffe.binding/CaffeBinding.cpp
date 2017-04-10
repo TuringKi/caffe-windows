@@ -69,7 +69,32 @@ void CaffeBinding::SetBlobData(std::string blob_name, std::vector<int> blob_shap
 	}
 	auto* predictor = (*predictors_[net_id]).get();
 	predictor->blob_by_name(blob_name)->Reshape(blob_shape);
+
 	predictor->blob_by_name(blob_name)->set_cpu_data(data);
+}
+
+void caffe::CaffeBinding::SetBlobData(std::string blob_name,
+	std::vector<int> blob_shape, 
+	std::vector<cv::Mat> channels, int net_id)
+{
+	if (!(*predictors_[net_id]).get()) {
+		auto predictor =
+			std::make_unique<caffe::Net<float>>(prototxts[net_id], Phase::TEST);
+		predictor->ShareTrainedLayersWith(nets_[net_id]);
+		(*predictors_[net_id]).reset(predictor.release());
+	}
+	auto* predictor = (*predictors_[net_id]).get();
+	predictor->blob_by_name(blob_name)->Reshape(blob_shape);
+	auto input = predictor->blob_by_name(blob_name)->mutable_cpu_data();
+
+	for (int i = 0; i < channels.size(); i++)
+	{
+		cv::Mat channel(blob_shape[2], blob_shape[3], CV_32FC1, input);
+		channels[i].copyTo(channel);
+		input += blob_shape[3] * blob_shape[2];
+	}
+	 input = predictor->blob_by_name(blob_name)->mutable_cpu_data();
+
 }
 
 DataBlob CaffeBinding::GetBlobData(std::string blob_name, int net_id) {

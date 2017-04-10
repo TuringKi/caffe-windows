@@ -414,8 +414,14 @@ message LayerParameter {
     optional XCorrParameter xcorr_param = 201;
 
      optional PredictBoxParameter predict_box_param = 202;
+     optional FlipParameter flip_param = 203;
 }
 
+
+message FlipParameter {
+  optional bool flip_width = 1 [default = true];
+  optional bool flip_height = 2 [default = false];
+}
 
 message PredictBoxParameter {
   optional uint32 stride = 1 [default = 2];
