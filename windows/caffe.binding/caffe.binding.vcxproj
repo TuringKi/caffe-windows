@@ -43,7 +43,7 @@
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <TargetName>$(ProjectName)</TargetName>
+    <TargetName>$(ProjectName)d</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
@@ -56,6 +56,10 @@
       <PreprocessorDefinitions>CAFFEBINDING_EXPORTS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>F:\CoreLib\opencv\3.1.0\windows\include;</AdditionalIncludeDirectories>
     </ClCompile>
+    <PostBuildEvent>
+      <Command>xcopy $(BuildDir)\$(Platform)\$(Configuration)\$(ProjectName)d.dll F:\CoreLib\CaffeBinding\bin\$(ProjectName)d.dll;
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
@@ -68,6 +72,10 @@
       <PreprocessorDefinitions>;CAFFEBINDING_EXPORTS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>F:\CoreLib\opencv\3.1.0\windows\include;</AdditionalIncludeDirectories>
     </ClCompile>
+    <PostBuildEvent>
+      <Command>xcopy $(BuildDir)\$(Platform)\$(Configuration)\$(ProjectName).dll F:\CoreLib\CaffeBinding\bin\$(ProjectName).dll;
+ F:\CoreLib\CaffeBinding\lib\$(ProjectName).lib;</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ProjectReference Include="..\libcaffe\libcaffe.vcxproj">

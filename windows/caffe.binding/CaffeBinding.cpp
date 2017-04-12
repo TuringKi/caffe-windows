@@ -129,4 +129,5 @@ CaffeBinding::~CaffeBinding() {
 
 		}
 	}
+	predictors_.clear();
 }
