@@ -54,11 +54,11 @@
     <ClCompile>
       <TreatWarningAsError>false</TreatWarningAsError>
       <PreprocessorDefinitions>CAFFEBINDING_EXPORTS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>F:\CoreLib\opencv\3.1.0\windows\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\include;$(SolutionDir)..\include\caffe\proto;F:\CoreLib\opencv\3.1.0\windows\include;</AdditionalIncludeDirectories>
     </ClCompile>
     <PostBuildEvent>
-      <Command>xcopy $(BuildDir)\$(Platform)\$(Configuration)\$(ProjectName)d.dll F:\CoreLib\CaffeBinding\bin\$(ProjectName)d.dll;
-</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -70,11 +70,11 @@
     <ClCompile>
       <TreatWarningAsError>false</TreatWarningAsError>
       <PreprocessorDefinitions>;CAFFEBINDING_EXPORTS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>F:\CoreLib\opencv\3.1.0\windows\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\include;$(SolutionDir)..\include\caffe\proto;F:\CoreLib\opencv\3.1.0\windows\include;</AdditionalIncludeDirectories>
     </ClCompile>
     <PostBuildEvent>
-      <Command>xcopy $(BuildDir)\$(Platform)\$(Configuration)\$(ProjectName).dll F:\CoreLib\CaffeBinding\bin\$(ProjectName).dll;
- F:\CoreLib\CaffeBinding\lib\$(ProjectName).lib;</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

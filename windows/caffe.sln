@@ -46,6 +46,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "siamese-fc", "siamese-fc\si
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "caffe.binding", "caffe.binding\caffe.binding.vcxproj", "{48E1BAE6-F9E1-4E9A-A3A1-75C1B2D1B12E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mini-caffe", "mini-caffe\mini-caffe.vcxproj", "{59BEDB6E-6B9D-4718-AFF4-5FDDA09CBB6D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -146,6 +148,16 @@ Global
 		{48E1BAE6-F9E1-4E9A-A3A1-75C1B2D1B12E}.Release|Win32.ActiveCfg = Release|x64
 		{48E1BAE6-F9E1-4E9A-A3A1-75C1B2D1B12E}.Release|x64.ActiveCfg = Release|x64
 		{48E1BAE6-F9E1-4E9A-A3A1-75C1B2D1B12E}.Release|x64.Build.0 = Release|x64
+		{59BEDB6E-6B9D-4718-AFF4-5FDDA09CBB6D}.Debug|Mixed Platforms.ActiveCfg = Debug|x64
+		{59BEDB6E-6B9D-4718-AFF4-5FDDA09CBB6D}.Debug|Mixed Platforms.Build.0 = Debug|x64
+		{59BEDB6E-6B9D-4718-AFF4-5FDDA09CBB6D}.Debug|Win32.ActiveCfg = Debug|x64
+		{59BEDB6E-6B9D-4718-AFF4-5FDDA09CBB6D}.Debug|x64.ActiveCfg = Debug|x64
+		{59BEDB6E-6B9D-4718-AFF4-5FDDA09CBB6D}.Debug|x64.Build.0 = Debug|x64
+		{59BEDB6E-6B9D-4718-AFF4-5FDDA09CBB6D}.Release|Mixed Platforms.ActiveCfg = Release|x64
+		{59BEDB6E-6B9D-4718-AFF4-5FDDA09CBB6D}.Release|Mixed Platforms.Build.0 = Release|x64
+		{59BEDB6E-6B9D-4718-AFF4-5FDDA09CBB6D}.Release|Win32.ActiveCfg = Release|x64
+		{59BEDB6E-6B9D-4718-AFF4-5FDDA09CBB6D}.Release|x64.ActiveCfg = Release|x64
+		{59BEDB6E-6B9D-4718-AFF4-5FDDA09CBB6D}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
