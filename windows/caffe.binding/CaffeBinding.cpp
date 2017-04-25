@@ -2,7 +2,7 @@
 #include <caffe\caffe.hpp>
 #include <caffe\layers\memory_data_layer.hpp>
 #include <boost/thread.hpp>
-
+#include "caffe/blob.hpp"
 using namespace caffe;
 using namespace std;
 
@@ -94,6 +94,13 @@ void caffe::CaffeBinding::SetBlobData(std::string blob_name,
 		input += blob_shape[3] * blob_shape[2];
 	}
 	 input = predictor->blob_by_name(blob_name)->mutable_cpu_data();
+
+}
+
+void caffe::CaffeBinding::GetBlobDataFromBinaryProto(const std::string &file)
+{
+	//auto blob = caffe::ReadBlobFromFile(file);
+	//return{ predictor->blob_by_name(blob_name)->cpu_data(), blob->shape(), blob_name };
 
 }
 

@@ -37,6 +37,7 @@ namespace caffe {
 			std::vector<cv::Mat> channels,
 			int net_id);
 
+		void GetBlobDataFromBinaryProto(const std::string &file);
 		
 		DataBlob GetBlobData(std::string blob_name, int net_id);
 		void SetDevice(int gpu_id);
