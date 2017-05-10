@@ -366,6 +366,9 @@
     <ClCompile Include="..\..\src\caffe\layers\normalize_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\caffe\cpm_data_transformer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\caffe\proto\caffe.pb.h">
@@ -688,6 +691,9 @@
     </ClInclude>
     <ClInclude Include="..\..\include\caffe\layers\normalize_layer.hpp">
       <Filter>include\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\caffe\cpm_data_transformer.hpp">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
