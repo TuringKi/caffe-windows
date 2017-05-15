@@ -615,11 +615,12 @@ void Net<Dtype>::ForwardDebugInfo(const int layer_id) {
     const Blob<Dtype>& blob = *top_vecs_[layer_id][top_id];
     const string& blob_name = blob_names_[top_id_vecs_[layer_id][top_id]];
     const Dtype data_abs_val_mean = blob.asum_data() / blob.count();
-    LOG_IF(INFO, Caffe::root_solver())
-        << "    [Forward] "
-        << "Layer " << layer_names_[layer_id]
-        << ", top blob " << blob_name
-        << " data: " << data_abs_val_mean;
+	LOG_IF(INFO, Caffe::root_solver())
+		<< "    [Forward] "
+		<< "Layer " << layer_names_[layer_id]
+		<< ", top blob " << blob_name
+		<< " data: " << data_abs_val_mean
+		<< "shape(width X height): [" << blob.width() << ", " << blob.height() <<"]";
   }
   for (int param_id = 0; param_id < layers_[layer_id]->blobs().size();
        ++param_id) {

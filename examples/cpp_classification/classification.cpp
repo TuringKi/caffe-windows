@@ -9,8 +9,8 @@ int main(int argc, char** argv)
 {
 	caffe::Caffe::set_mode(caffe::Caffe::GPU);
 
-	caffe::Net<float> net("F:/HandPose/CPM_Hands/experiments/test.prototxt",caffe::TRAIN);
-	for (int i = 0; i < 8; i++)
+	caffe::Net<float> net("F:/HandPose/CPM_Hands/experiments/pose_train_test.prototxt",caffe::TRAIN);
+	for (int i = 0; i < 1; i++)
 	{
 		net.Forward();
 	}

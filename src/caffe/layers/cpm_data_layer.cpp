@@ -108,7 +108,7 @@ namespace caffe {
 
 		// Reshape on single input batches for inputs of varying dimension.
 		const int batch_size = this->layer_param_.data_param().batch_size();
-		const int crop_size = this->layer_param_.cpm_transform_param().crop_size();
+		const int crop_size = this->layer_param_.cpm_transform_param().crop_size_x();
 		bool force_color = this->layer_param_.data_param().force_encoded_color();
 		if (batch_size == 1 && crop_size == 0) {
 			Datum& datum = *(reader_.full().peek());
@@ -161,11 +161,56 @@ namespace caffe {
 			const int offset_data = batch->data_.offset(item_id);
 			const int offset_label = batch->label_.offset(item_id);
 			this->transformed_data_.set_cpu_data(top_data + offset_data);
+		
 			this->transformed_label_.set_cpu_data(top_label + offset_label);
 			if (datum.encoded()) {
 				this->cpm_data_transformer_->Transform(cv_img, &(this->transformed_data_));
 			}
 			else {
+
+				// for debug
+				/*	const int height = datum.height();
+
+				const int width = datum.width();
+				const int channel = datum.channels();
+				*/
+				Dtype *vis_data_0 = this->transformed_data_.mutable_cpu_data();
+
+				vector<cv::Mat > vis_channels_0;
+				for (int i = 0; i < 6; i++)
+				{
+					cv::Mat vis_transformed_data(368, 368, CV_32FC1, vis_data_0);
+					vis_transformed_data = vis_transformed_data * 256 + 128.0;
+					vis_transformed_data.convertTo(vis_transformed_data, CV_8U);
+					vis_channels_0.push_back(vis_transformed_data);
+					vis_data_0 += 368 * 368;
+				}
+				const int height = datum.height();
+
+				const int width = datum.width();
+				const int stride = this->layer_param_.cpm_transform_param().stride();
+				int num_parts = this->layer_param_.cpm_transform_param().num_parts();
+
+				Dtype *vis_data = this->transformed_label_.mutable_cpu_data();
+				vector<cv::Mat > vis_channels;
+				for (int i = 0; i < 2 * (num_parts + 1); i++)
+				{
+					cv::Mat vis_transformed_data(368 / stride, 368 / stride, CV_32FC1, vis_data);
+
+					vis_channels.push_back(vis_transformed_data);
+					vis_data += 368 * 368 / (stride* stride);
+					cv::Mat tmp;
+					vis_transformed_data.copyTo(tmp);
+					tmp = tmp * 256;
+
+					tmp.convertTo(tmp, CV_8U);
+					char zz[256];
+					sprintf_s(zz, "F:/CoreLib/caffe-windows/Build/x64/Debug/%04d.jpg", i);
+					std::string str(zz);
+					imwrite(str, tmp);
+				}
+
+
 				this->cpm_data_transformer_->Transform_nv(datum,
 					&(this->transformed_data_),
 					&(this->transformed_label_), cnt);

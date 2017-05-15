@@ -408,7 +408,7 @@ namespace caffe {
 		generateLabelMap(transformed_label, img_aug, meta);
 
 		VLOG(2) << "  putGauss+genLabel: " << timer1.MicroSeconds() / 1000.0 << " ms";
-		std::cout << "\n";
+		//std::cout << "\n";
 	}
 
 
