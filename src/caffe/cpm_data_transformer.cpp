@@ -1143,6 +1143,12 @@ void CPMDataTransformer<Dtype>::generateLabelMap(Dtype* transformed_label, Mat& 
   int channelOffset = grid_y * grid_x;
   int mode = 5; // TO DO: make this as a parameter
 
+  //for debug
+
+
+  //---------
+
+
   for (int g_y = 0; g_y < grid_y; g_y++){
     for (int g_x = 0; g_x < grid_x; g_x++){
       for (int i = np+1; i < 2*(np+1); i++){

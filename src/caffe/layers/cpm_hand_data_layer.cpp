@@ -7,7 +7,7 @@
 #include <string>
 
 #include "caffe/common.hpp"
-#include "caffe/layers/cpm_data_layer.hpp"
+#include "caffe/layers/cpm_hand_data_layer.hpp"
 #include "caffe/layer.hpp"
 #include "caffe/proto/caffe.pb.h"
 #include "caffe/util/benchmark.hpp"
@@ -18,22 +18,22 @@
 namespace caffe {
 
 	template <typename Dtype>
-	CPMDataLayer<Dtype>::CPMDataLayer(const LayerParameter& param)
+	CPMHandDataLayer<Dtype>::CPMHandDataLayer(const LayerParameter& param)
 		: BasePrefetchingDataLayer<Dtype>(param),
 		reader_(param),
-		cpm_transform_param_(param.cpm_transform_param()){
+		cpm_transform_param_(param.cpm_hand_transform_param()){
 	}
 
 	template <typename Dtype>
-	CPMDataLayer<Dtype>::~CPMDataLayer() {
+	CPMHandDataLayer<Dtype>::~CPMHandDataLayer() {
 		this->StopInternalThread();
 	}
 
 	template <typename Dtype>
-	void CPMDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
+	void CPMHandDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top) {
 		cpm_data_transformer_.reset(
-			new CPMDataTransformer<Dtype>(cpm_transform_param_, this->phase_));
+			new CPMHandDataTransformer<Dtype>(cpm_transform_param_, this->phase_));
 		cpm_data_transformer_->InitRand();
 
 
@@ -48,7 +48,7 @@ namespace caffe {
 		}
 
 		// image
-		const int crop_size = this->layer_param_.cpm_transform_param().crop_size();
+		const int crop_size = this->layer_param_.cpm_hand_transform_param().crop_size();
 		const int batch_size = this->layer_param_.data_param().batch_size();
 		if (crop_size > 0) {
 			// top[0]->Reshape(batch_size, datum.channels(), crop_size, crop_size);
@@ -60,9 +60,9 @@ namespace caffe {
 		}
 		else {
 			const int height = this->phase_ != TRAIN ? datum.height() :
-				this->layer_param_.cpm_transform_param().crop_size_y();
+				this->layer_param_.cpm_hand_transform_param().crop_size_y();
 			const int width = this->phase_ != TRAIN ? datum.width() :
-				this->layer_param_.cpm_transform_param().crop_size_x();
+				this->layer_param_.cpm_hand_transform_param().crop_size_x();
 			LOG(INFO) << "PREFETCH_COUNT is " << this->PREFETCH_COUNT;
 			top[0]->Reshape(batch_size, datum.channels(), height, width);
 			for (int i = 0; i < this->PREFETCH_COUNT; ++i) {
@@ -77,13 +77,13 @@ namespace caffe {
 
 		// label
 		if (this->output_labels_) {
-			const int stride = this->layer_param_.cpm_transform_param().stride();
+			const int stride = this->layer_param_.cpm_hand_transform_param().stride();
 			const int height = this->phase_ != TRAIN ? datum.height() :
-				this->layer_param_.cpm_transform_param().crop_size_y();
+				this->layer_param_.cpm_hand_transform_param().crop_size_y();
 			const int width = this->phase_ != TRAIN ? datum.width() :
-				this->layer_param_.cpm_transform_param().crop_size_x();
+				this->layer_param_.cpm_hand_transform_param().crop_size_x();
 
-			int num_parts = this->layer_param_.cpm_transform_param().num_parts();
+			int num_parts = this->layer_param_.cpm_hand_transform_param().num_parts();
 			top[1]->Reshape(batch_size, 2 * (num_parts + 1), height / stride, width / stride);
 			for (int i = 0; i < this->PREFETCH_COUNT; ++i) {
 				this->prefetch_[i].label_.Reshape(batch_size, 2 * (num_parts + 1), height / stride, width / stride);
@@ -94,7 +94,7 @@ namespace caffe {
 
 	// This function is called on prefetch thread
 	template<typename Dtype>
-	void CPMDataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
+	void CPMHandDataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
 
 		CPUTimer batch_timer;
 		batch_timer.Start();
@@ -108,7 +108,7 @@ namespace caffe {
 
 		// Reshape on single input batches for inputs of varying dimension.
 		const int batch_size = this->layer_param_.data_param().batch_size();
-		const int crop_size = this->layer_param_.cpm_transform_param().crop_size();
+		const int crop_size = this->layer_param_.cpm_hand_transform_param().crop_size();
 		bool force_color = this->layer_param_.data_param().force_encoded_color();
 		if (batch_size == 1 && crop_size == 0) {
 			Datum& datum = *(reader_.full().peek());
@@ -175,32 +175,33 @@ namespace caffe {
 			// for debug
 			/*	const int height = datum.height();
 
-					const int width = datum.width();
-					const int channel = datum.channels();
-					*/
-					Dtype *vis_data_0 = this->transformed_data_.mutable_cpu_data();
+			const int width = datum.width();
+			const int channel = datum.channels();
+			*/
+			Dtype *vis_data_0 = this->transformed_data_.mutable_cpu_data();
 
-					vector<cv::Mat > vis_channels_0;
-					for (int i = 0; i < 6; i ++)
-					{
-						cv::Mat vis_transformed_data(368, 368, CV_32FC1, vis_data_0);
-					vis_transformed_data = vis_transformed_data * 256 + 128.0;
-					vis_transformed_data.convertTo(vis_transformed_data, CV_8U);
-					vis_channels_0.push_back(vis_transformed_data);
-					vis_data_0 += 368 * 368;
-					}
+			vector<cv::Mat > vis_channels_0;
+			for (int i = 0; i < 4; i++)
+			{
+				cv::Mat vis_transformed_data(368, 368, CV_32FC1, vis_data_0);
+				vis_transformed_data = vis_transformed_data * 256 + 128.0;
+				vis_transformed_data.convertTo(vis_transformed_data, CV_8U);
+				vis_channels_0.push_back(vis_transformed_data);
+				vis_data_0 += 368 * 368;
+			}
 			const int height = datum.height();
 
 			const int width = datum.width();
-			const int stride = this->layer_param_.cpm_transform_param().stride();
-			int num_parts = this->layer_param_.cpm_transform_param().num_parts();
+
+			const int stride = this->layer_param_.cpm_hand_transform_param().stride();
+			int num_parts = this->layer_param_.cpm_hand_transform_param().num_parts();
 
 			Dtype *vis_data = this->transformed_label_.mutable_cpu_data();
 			vector<cv::Mat > vis_channels;
-			for (int i = 0; i < 2 * (num_parts + 1); i++)
+			for (int i = 0; i < 62; i++)
 			{
 				cv::Mat vis_transformed_data(368 / stride, 368 / stride, CV_32FC1, vis_data);
-		
+
 				vis_channels.push_back(vis_transformed_data);
 				vis_data += 368 * 368 / (stride* stride);
 				cv::Mat tmp;
@@ -216,9 +217,9 @@ namespace caffe {
 
 			//-----
 
-			// if (this->output_labels_) {
-			//   top_label[item_id] = datum.label();
-			// }
+			if (this->output_labels_) {
+				top_label[item_id] = datum.label();
+			}
 			trans_time += timer.MicroSeconds();
 
 			reader_.free().push(const_cast<Datum*>(&datum));
@@ -231,7 +232,7 @@ namespace caffe {
 		VLOG(2) << "Transform time: " << trans_time / 1000 << " ms.";
 	}
 
-	INSTANTIATE_CLASS(CPMDataLayer);
-	REGISTER_LAYER_CLASS(CPMData);
+	INSTANTIATE_CLASS(CPMHandDataLayer);
+	REGISTER_LAYER_CLASS(CPMHandData);
 
 }  // namespace caffe
