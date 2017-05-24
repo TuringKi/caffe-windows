@@ -476,6 +476,11 @@ message CPMHandTransformationParameter {
   optional uint32 gray = 34 [default = 0];
   optional uint32 np_in_lmdb = 35 [default = 16];
   optional bool transform_body_joint = 38 [default = true];
+
+  optional float hand_padding = 39 [default = 1.2];
+
+   optional bool do_aug = 40 [default = false];
+
 }
 
 

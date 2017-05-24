@@ -23,7 +23,7 @@ void BasePrefetchingDataLayer<Dtype>::Forward_gpu(
   // Ensure the copy is synchronous wrt the host, so that the next batch isn't
   // copied in meanwhile.
   CUDA_CHECK(cudaStreamSynchronize(cudaStreamDefault));
-/*
+
   Dtype *vis_data_0 = top[0]->mutable_cpu_data();
 
   vector<cv::Mat > vis_channels_0;
@@ -37,7 +37,7 @@ void BasePrefetchingDataLayer<Dtype>::Forward_gpu(
 	  vis_channels_0.push_back(tmp);
 	  vis_data_0 += 368 * 368;
   }
-
+  
   int stride =8;
 
 
@@ -60,7 +60,7 @@ void BasePrefetchingDataLayer<Dtype>::Forward_gpu(
 	  imwrite(str, tmp);
   }
 
-*/
+
 
   prefetch_free_.push(batch);
 }

@@ -384,7 +384,41 @@ namespace caffe {
 		VLOG(2) << "  ReadMeta: " << timer1.MicroSeconds() / 1000.0 << " ms";
 		timer1.Start();
 		cv::Mat img_aug;
-		ResizeToFixedSize(img, img_aug, meta);
+
+		Mat img_temp, img_temp2, img_temp3;
+		
+		
+		
+		// 数据增强
+		AugmentSelection as = {
+			false,
+			0.0,
+			Size(),
+			0,
+		};
+		if (phase_ == TRAIN && param_.do_aug()) {
+			
+			
+
+			//
+
+			as.scale = augmentation_scale(img, img_temp, meta);
+
+			as.degree = augmentation_rotate(img_temp, img_temp2, meta);
+
+		as.crop = augmentation_croppad(img_temp2, img_temp3, meta);
+		
+		as.flip = augmentation_flip(img_temp3, img_aug, meta);
+		
+		} else {
+			img_aug = img.clone();
+			as.scale = 1;
+			as.crop = Size();
+			as.flip = 0;
+			as.degree = 0;
+		}
+
+		ResizeToFixedSize(img_aug, img_aug, meta);
 
 		VLOG(2) << "  ResizeToFixedSize: " << timer1.MicroSeconds() / 1000.0 << " ms";
 		timer1.Start();
@@ -423,8 +457,11 @@ namespace caffe {
 		int grid_y = rezY / stride;
 		int channelOffset = grid_y * grid_x;
 
-		int mid_1[20] = {0, 1, 2, 3, 0, 5, 6, 7, 0, 9,  10, 11,  0,  13,  14, 15,  0,17, 18, 19};
-		int mid_2[20] = {1, 2,3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,18, 19, 20};
+		//int mid_1[20] = {0, 1, 2, 3, 0, 5, 6, 7, 0, 9,  10, 11,  0,  13,  14, 15,  0,17, 18, 19};
+		//int mid_2[20] = {1, 2,3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,18, 19, 20};
+
+		int mid_1[20] = { 0, 4, 3, 2, 0, 8, 7, 6, 0, 12, 11, 10, 0, 16, 15, 14, 0, 20, 19, 18 };
+		int mid_2[20] = {4, 3,2, 1, 8, 7, 6, 5, 12, 11, 10, 9, 16, 15, 14, 13, 20,19, 18, 17};
 
 		// put Gaussian
 		for (int i = 40; i < 61; i++)
@@ -469,17 +506,17 @@ namespace caffe {
 		float fixed_height = param_.crop_size_y();
 		
 		assert(fixed_width == fixed_height);
-		assert(meta.img_size.width == meta.img_size.height);
+		//assert(meta.img_size.width == meta.img_size.height);
 
-		float scale = fixed_width / (float)meta.img_size.width;
-
-		resize(img, img_aug, Size(), scale, scale, INTER_CUBIC);
+		float scale_w = fixed_width / (float)img.cols;
+		float scale_h = fixed_height / (float)img.rows;
+		resize(img, img_aug, Size(), scale_w, scale_h, INTER_CUBIC);
 
 		//modify meta data
-		meta.objpos *= scale;
+		meta.objpos.x *= scale_w; meta.objpos.y *= scale_h;
 		for (int i = 0; i < meta.joint_self.joints.size(); i++){
-			meta.joint_self.joints[i] *= scale;
-
+			meta.joint_self.joints[i].x *= scale_w;
+			meta.joint_self.joints[i].y *= scale_h;
 			//for test:
 			//circle(img_aug, meta.joint_self.joints[i], 2, cv::Scalar(0, 255, 255), -1);
 
@@ -739,20 +776,19 @@ namespace caffe {
 			float dice2 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX); //[0,1]
 			scale_multiplier = (param_.scale_max() - param_.scale_min()) * dice2 + param_.scale_min(); //linear shear into [scale_min, scale_max]
 		}
-		float scale_abs = param_.target_dist() / meta.scale_self;
+		float scale_abs = ( (1 + param_.hand_padding())) * 
+			(float)(max(param_.crop_size_x(), param_.crop_size_y() )
+			/
+			(float)max(img_src.cols, img_src.rows)
+			);
 		float scale = scale_abs * scale_multiplier;
 		resize(img_src, img_temp, Size(), scale, scale, INTER_CUBIC);
 		//modify meta data
 		meta.objpos *= scale;
-		for (int i = 0; i < np; i++){
+		for (int i = 0; i < meta.joint_self.joints.size(); i++){
 			meta.joint_self.joints[i] *= scale;
 		}
-		for (int p = 0; p < meta.numOtherPeople; p++){
-			meta.objpos_other[p] *= scale;
-			for (int i = 0; i < np; i++){
-				meta.joint_others[p].joints[i] *= scale;
-			}
-		}
+
 		return scale_multiplier;
 	}
 
@@ -795,15 +831,10 @@ namespace caffe {
 		//modify meta data
 		Point2f offset(offset_left, offset_up);
 		meta.objpos += offset;
-		for (int i = 0; i < np; i++){
+		for (int i = 0; i < meta.joint_self.joints.size(); i++){
 			meta.joint_self.joints[i] += offset;
 		}
-		for (int p = 0; p < meta.numOtherPeople; p++){
-			meta.objpos_other[p] += offset;
-			for (int i = 0; i < np; i++){
-				meta.joint_others[p].joints[i] += offset;
-			}
-		}
+		
 
 		return Size(x_offset, y_offset);
 	}
@@ -857,24 +888,18 @@ namespace caffe {
 		}
 
 		if (doflip){
-			flip(img_src, img_aug, 1);
+			flip(img_src, img_aug, 0);
+			flip(img_aug, img_aug, 1);
 			int w = img_src.cols;
-
+			int h = img_src.rows;
 			meta.objpos.x = w - 1 - meta.objpos.x;
-			for (int i = 0; i < np; i++){
+			meta.objpos.y = h - 1 - meta.objpos.y;
+			for (int i = 0; i < meta.joint_self.joints.size(); i++){
 				meta.joint_self.joints[i].x = w - 1 - meta.joint_self.joints[i].x;
+				meta.joint_self.joints[i].y = h - 1 - meta.joint_self.joints[i].y;
 			}
-			if (param_.transform_body_joint())
-				swapLeftRight(meta.joint_self);
+			
 
-			for (int p = 0; p < meta.numOtherPeople; p++){
-				meta.objpos_other[p].x = w - 1 - meta.objpos_other[p].x;
-				for (int i = 0; i < np; i++){
-					meta.joint_others[p].joints[i].x = w - 1 - meta.joint_others[p].joints[i].x;
-				}
-				if (param_.transform_body_joint())
-					swapLeftRight(meta.joint_others[p]);
-			}
 		}
 		else {
 			img_aug = img_src.clone();
@@ -921,15 +946,10 @@ namespace caffe {
 
 		//adjust meta data
 		RotatePoint(meta.objpos, R);
-		for (int i = 0; i < np; i++){
+		for (int i = 0; i < meta.joint_self.joints.size(); i++){
 			RotatePoint(meta.joint_self.joints[i], R);
 		}
-		for (int p = 0; p < meta.numOtherPeople; p++){
-			RotatePoint(meta.objpos_other[p], R);
-			for (int i = 0; i < np; i++){
-				RotatePoint(meta.joint_others[p].joints[i], R);
-			}
-		}
+	
 		return degree;
 	}
 
