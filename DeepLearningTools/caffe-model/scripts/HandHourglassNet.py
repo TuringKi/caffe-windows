@@ -66,7 +66,7 @@ class HandHourglassNet(object):
         transform_param = dict(stride=stride, crop_size_x=input_w, crop_size_y=input_h,
                                     scale_prob=1, scale_min=0.5, scale_max=1.1,
                                  max_rotate_degree=40, center_perterb_max=20, hand_padding=1.2,
-                                 do_aug=True, np_in_lmdb=np_in_lmdb, num_parts=num_paf + np_in_lmdb + 1)
+                                 do_aug=False, np_in_lmdb=np_in_lmdb, num_parts=num_paf + np_in_lmdb + 1)
         
        
         num_parts = transform_param['num_parts']
@@ -75,6 +75,8 @@ class HandHourglassNet(object):
             n.data, n.tops['label'] = L.CPMHandData(data_param=dict(backend=1, source=data_source, batch_size=batch_size), 
                                                     cpm_hand_transform_param=transform_param, ntop=2)
             n.tops[label_name[0]], n.tops[label_name[1]] = L.Slice(n.label, slice_param=dict(axis=1, slice_point=[40]), ntop=2)
+            n.notuse0 =  L.Slice(n.tops[label_name[0]])
+           
         else:
             input = "data"
             dim1 = 1
@@ -87,7 +89,7 @@ class HandHourglassNet(object):
 
         
         n.image, n.center_map = L.Slice(n.data, slice_param=dict(axis=1, slice_point=3), ntop=2)
-
+        n.notuse1 =  L.Slice(n.center_map)
         conv1 = \
         self.LC.ConvBnReLU(n.image, num_output=64, kernel_size=7, stride=2, pad=3)  # 64 x input_w/2 x input_h/2
         # n.pool1 = L.Pooling(n.conv1, kernel_size=3, stride=2, pool=P.Pooling.MAX)  # 64 x input_w/4 x input_h/4

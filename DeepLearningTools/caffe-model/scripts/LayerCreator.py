@@ -278,7 +278,7 @@ class LayerCreator(object):
         return output
     
     def EuclideanLoss(self, l1, l2):
-        eloss_string = 'self.n.loss(loss_idx) = L.EuclideanLoss(l1, l2)'
+        eloss_string = 'self.n.loss(loss_idx) = L.EuclideanLoss(l1, l2,loss_weight=1)'
         eloss_string = self.str_replace(eloss_string,'loss_idx', str(self.loss_idx))
         exec eloss_string
 

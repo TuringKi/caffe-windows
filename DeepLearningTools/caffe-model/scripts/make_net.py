@@ -24,11 +24,11 @@ def demo():
 if __name__ == '__main__':
     # demo()
 
-    model = HandHourglassNet.HandHourglassNet('D:/dataset/Hand/TopRHD/TopRHD/lmdb')
+    model = HandHourglassNet.HandHourglassNet('/data1/maxiao/dataset/TopRHD/lmdb')
     train_proto = model.layers_proto()
-    save_proto(train_proto, 'hand_train.prototxt')
+    save_proto(train_proto, 'pose_train_test.prototxt')
 
-    model = HandHourglassNet.HandHourglassNet('D:/dataset/Hand/TopRHD/TopRHD/lmdb')
+    model = HandHourglassNet.HandHourglassNet('/data1/maxiao/dataset/TopRHD/lmdb')
     test_proto = model.layers_proto(phase='TEST')
 
 
