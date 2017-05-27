@@ -31,5 +31,5 @@ if __name__ == '__main__':
     model = HandHourglassNet.HandHourglassNet('D:/dataset/Hand/TopRHD/TopRHD/lmdb')
     test_proto = model.layers_proto(phase='TEST')
 
-   
+
     save_proto(test_proto, 'hand_test.prototxt')    

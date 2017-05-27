@@ -2,6 +2,7 @@ import caffe
 from caffe import layers as L
 from caffe import params as P
 
+import math
 
 def conv_bn_scale_relu(bottom, num_output=64, kernel_size=3, stride=1, pad=0):
     conv = L.Convolution(bottom, num_output=num_output, kernel_size=kernel_size, stride=stride, pad=pad,
@@ -96,11 +97,18 @@ branch_shortcut_string = 'n.res(stage)a_branch1, n.res(stage)a_branch1_bn, n.res
 
 
 class LayerCreator(object):
-    def __init__(self, net, start_pool_idx = 0, start_residual_idx = 0):
+    def __init__(self, net, start_pool_idx = 0, start_residual_idx = 0, start_deconv_idx = 0, start_add_idx = 0):
         self.n = net
         
         self.pool_idx = start_pool_idx
         self.residual_idx = start_residual_idx
+        self.deconv_idx = start_deconv_idx
+        self.add_idx = start_add_idx
+        self.conv_idx = 0
+        self.bn_idx = 0
+        self.concat_idx = 0
+        self.relu_idx = 0
+        self.loss_idx = 0
     
     def str_replace(self, exe_str, param_name, param_str):
         
@@ -138,7 +146,116 @@ class LayerCreator(object):
 
         self.residual_idx += 1
         return out_layer
+
+    def Upsamping(self, input, num_output = 64, factor = 2):
+        kernel_size = (int)(2 * factor - factor % 2)
+        stride = factor
+        pad = (int)(math.ceil((factor - 1) / 2.))
+        deconv_string = "self.n.deconv(deconv_idx) = L.Deconvolution(input, \
+        param=[dict(lr_mult=0, decay_mult=0)],\
+        convolution_param=dict(num_output=(num_output), kernel_size=(kernel_size), \
+                        stride=(stride), pad=(pad),\
+                         weight_filler=dict(type='bilinear'),\
+                         bias_term=False))"
+
+        deconv_string = self.str_replace(deconv_string, 'deconv_idx', str(self.deconv_idx))
+        deconv_string = self.str_replace(deconv_string, 'num_output', str(num_output))
+        deconv_string = self.str_replace(deconv_string, 'pad', str(pad))
+        deconv_string = self.str_replace(deconv_string, 'stride', str(stride))
+        deconv_string = self.str_replace(deconv_string, 'kernel_size', str(kernel_size))
+
+        exec deconv_string
+        output = None
+        val_string = 'output = self.n.deconv(deconv_idx)'
+        val_string = self.str_replace(val_string, 'deconv_idx', str(self.deconv_idx))
+        exec val_string
+
+        self.deconv_idx += 1
+        return output
+
+    
+    def Conv(self, input,num_output=64, kernel_size=1, stride=1, pad=0):
+        conv_string = "self.n.conv(conv_idx) = L.Convolution(input, num_output=(num_output), \
+                        kernel_size=(kernel_size), stride=(stride), pad=(pad),\
+                         param=[dict(lr_mult=1, decay_mult=1), dict(lr_mult=2, decay_mult=0)],\
+                         weight_filler=dict(type='xavier', std=0.01),\
+                         bias_filler=dict(type='constant', value=0))"
+        conv_string = self.str_replace(conv_string, 'conv_idx', str(self.conv_idx))
+        conv_string = self.str_replace(conv_string, 'num_output', str(num_output))
+        conv_string = self.str_replace(conv_string, 'pad', str(pad))
+        conv_string = self.str_replace(conv_string, 'stride', str(stride))
+        conv_string = self.str_replace(conv_string, 'kernel_size', str(kernel_size))
+
+        exec conv_string
+        output = None
+        val_string = 'output = self.n.conv(conv_idx)'
+        val_string = self.str_replace(val_string, 'conv_idx', str(self.conv_idx))
+        exec val_string
+
+        self.conv_idx += 1
+        return output
+    
+    def BatchNorm(self,input):
+        bn_string = "self.n.bn(bn_idx) = L.BatchNorm(input, use_global_stats=False, in_place=True)"
+        bn_string = self.str_replace(bn_string, 'bn_idx', str(self.bn_idx))
+        scale_string = "self.n.scale(bn_idx) = L.Scale(input, scale_param=dict(bias_term=True), in_place=True)"
+        scale_string = self.str_replace(scale_string, 'bn_idx', str(self.bn_idx))
+        exec bn_string
+        exec scale_string
+        self.bn_idx += 1
+        return input
+    
+    def ReLU(self, input):
+        relu_string = "self.n.relu(relu_idx) = L.ReLU(input, in_place=True)"
+        relu_string = self.str_replace(relu_string, 'relu_idx', str(self.relu_idx))
+
+        exec relu_string
+        self.relu_idx += 1
+        return input
+    
+    def ConvBnReLU(self, input,num_output=64, kernel_size=1, stride=1, pad=0):
+        conv = self.Conv(input, num_output, kernel_size, stride, pad)
+        conv = self.BatchNorm(conv)
+        conv = self.ReLU(conv)
+        return conv
+
+    def Deconv(self, input,num_output=64, kernel_size=7, stride=1, pad=0):
+        deconv_string = "self.n.deconv(deconv_idx) = L.Deconvolution(input, \
+        param=[dict(lr_mult=1, decay_mult=1), dict(lr_mult=2, decay_mult=0)],\
+        convolution_param=dict(num_output=(num_output), kernel_size=(kernel_size), \
+                        stride=(stride), pad=(pad),\
+                         weight_filler=dict(type='xavier', std=0.01),\
+                         bias_filler=dict(type='constant', value=0)))"
         
+        deconv_string = self.str_replace(deconv_string, 'deconv_idx', str(self.deconv_idx))
+        deconv_string = self.str_replace(deconv_string, 'num_output', str(num_output))
+        deconv_string = self.str_replace(deconv_string, 'pad', str(pad))
+        deconv_string = self.str_replace(deconv_string, 'stride', str(stride))
+        deconv_string = self.str_replace(deconv_string, 'kernel_size', str(kernel_size))
+
+        exec deconv_string
+        output = None
+        val_string = 'output = self.n.deconv(deconv_idx)'
+        val_string = self.str_replace(val_string, 'deconv_idx', str(self.deconv_idx))
+        exec val_string
+
+        self.deconv_idx += 1
+        return output
+
+    
+    def Add(self, l1, l2):
+        add_string  = "self.n.add(add_idx) = L.Eltwise(l1, l2, eltwise_param=dict(operation=1))"
+        add_string = self.str_replace(add_string,'add_idx', str(self.add_idx))
+
+        exec add_string
+
+        output = None
+        val_string = 'output = self.n.add(add_idx)'
+        val_string = self.str_replace(val_string, 'add_idx', str(self.add_idx))
+        exec val_string
+
+        self.add_idx += 1
+        return output
 
 
     def Pool(self, input, kernel_size=2, stride=2, pool=P.Pooling.MAX):
@@ -158,4 +275,16 @@ class LayerCreator(object):
 
         self.pool_idx += 1
 
+        return output
+    
+    def EuclideanLoss(self, l1, l2):
+        eloss_string = 'self.n.loss(loss_idx) = L.EuclideanLoss(l1, l2)'
+        eloss_string = self.str_replace(eloss_string,'loss_idx', str(self.loss_idx))
+        exec eloss_string
+
+        output = None
+        val_string = 'output = self.n.loss(loss_idx)'
+        val_string = self.str_replace(val_string, 'loss_idx', str(self.loss_idx))
+        exec val_string
+        self.loss_idx += 1
         return output
