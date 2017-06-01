@@ -2,7 +2,7 @@ import caffe
 from caffe import layers as L
 from caffe import params as P
 
-import  LayerCreator
+import  LayerCreatorWithoutBN as LayerCreator
 
 
 def conv_relu(bottom, num_output=64, kernel_size=3, stride=1, pad=1):
@@ -21,7 +21,7 @@ class HandHourglassNet(object):
         self.LC = LayerCreator.LayerCreator(self.n)
 
     def linear(self, input, num_output):
-        output = self.LC.ConvBnReLU(input, num_output)
+        output = self.LC.ConvReLU(input, num_output)
         return output
     def hourglass(self, level, dim, n_modules, input):
     
@@ -97,7 +97,7 @@ class HandHourglassNet(object):
         n.image, n.center_map = L.Slice(n.data, slice_param=dict(axis=1, slice_point=3), ntop=2)
         n.notuse1 =  L.Silence(n.center_map)
         conv1 = \
-        self.LC.ConvBnReLU(n.image, num_output=64, kernel_size=7, stride=2, pad=3)  # 64 x input_w/2 x input_h/2
+        self.LC.ConvReLU(n.image, num_output=64, kernel_size=7, stride=2, pad=3)  # 64 x input_w/2 x input_h/2
         # n.pool1 = L.Pooling(n.conv1, kernel_size=3, stride=2, pool=P.Pooling.MAX)  # 64 x input_w/4 x input_h/4
         
         r1 = self.LC.Residual(conv1, 64, 128)

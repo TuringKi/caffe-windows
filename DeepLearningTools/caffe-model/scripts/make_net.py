@@ -3,8 +3,9 @@ sys.path.append('../../../Build/x64/Release/pycaffe')
 
 import inception_v3
 
-import HandHourglassNet
+# import HandHourglassNetWithoutBN as HandHourglassNet
 
+import  HandHourglassNet
 
 def save_proto(proto, prototxt):
     with open(prototxt, 'w') as f:
@@ -24,12 +25,20 @@ def demo():
 if __name__ == '__main__':
     # demo()
 
-    model = HandHourglassNet.HandHourglassNet('/data1/maxiao/dataset/TopRHD/lmdb')
+    model = HandHourglassNet.HandHourglassNet('/home/maxiao/Works/HandPose/data/dataset_2/lmdb')
     train_proto = model.layers_proto()
-    save_proto(train_proto, 'pose_train_test.prototxt')
+    save_proto(train_proto, 'prototxt/pose_train_test.prototxt')
 
     model = HandHourglassNet.HandHourglassNet('/data1/maxiao/dataset/TopRHD/lmdb')
     test_proto = model.layers_proto(phase='TEST')
 
 
-    save_proto(test_proto, 'hand_test.prototxt')    
+    save_proto(test_proto, 'prototxt/hand_test.prototxt')
+
+    model = HandHourglassNet.HandHourglassNet('/home/maxiao/Works/HandPose/data/dataset_2/lmdb')
+    train_vgg_proto = model.vgg_proto()
+    save_proto(train_vgg_proto, 'prototxt/vgg_pose_train_test.prototxt')
+
+    model = HandHourglassNet.HandHourglassNet('/home/maxiao/Works/HandPose/data/dataset_2/lmdb')
+    test_vgg_proto = model.vgg_proto(phase='TEST')
+    save_proto(test_vgg_proto, 'prototxt/vgg_depoly.prototxt')
