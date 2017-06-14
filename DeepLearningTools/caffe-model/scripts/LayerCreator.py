@@ -7,7 +7,7 @@ import math
 def conv_bn_scale_relu(bottom, num_output=64, kernel_size=3, stride=1, pad=0):
     conv = L.Convolution(bottom, num_output=num_output, kernel_size=kernel_size, stride=stride, pad=pad,
                          param=[dict(lr_mult=1, decay_mult=1), dict(lr_mult=2, decay_mult=0)],
-                         weight_filler=dict(type='msra', std=0.01),
+                         weight_filler=dict(type='xavier', std=0.01),
                          bias_filler=dict(type='constant', value=0))
     conv_bn = L.BatchNorm(conv, use_global_stats=False, in_place=True)
     conv_scale = L.Scale(conv, scale_param=dict(bias_term=True), in_place=True)
@@ -19,7 +19,7 @@ def conv_bn_scale_relu(bottom, num_output=64, kernel_size=3, stride=1, pad=0):
 def conv_bn_scale(bottom, num_output=64, kernel_size=3, stride=1, pad=0):
     conv = L.Convolution(bottom, num_output=num_output, kernel_size=kernel_size, stride=stride, pad=pad,
                          param=[dict(lr_mult=1, decay_mult=1), dict(lr_mult=2, decay_mult=0)],
-                         weight_filler=dict(type='msra', std=0.01),
+                         weight_filler=dict(type='xavier', std=0.01),
                          bias_filler=dict(type='constant', value=0.2))
     conv_bn = L.BatchNorm(conv, use_global_stats=False, in_place=True)
     conv_scale = L.Scale(conv, scale_param=dict(bias_term=True), in_place=True)
@@ -32,6 +32,17 @@ def eltwize_relu(bottom1, bottom2):
     residual_eltwise_relu = L.ReLU(residual_eltwise, in_place=True)
 
     return residual_eltwise, residual_eltwise_relu
+
+def fire_block(bottom, output = 128):
+    conv_1x1, conv_1x1_bn, conv_1x1_scale, conv_1x1_relu = conv_bn_scale_relu(bottom, num_output=output / 8, kernel_size=1)
+    conv_3x3_1, conv_3x3_1_bn, conv_3x3_1_scale, conv_3x3_1_relu = conv_bn_scale_relu(conv_1x1, num_output=output / 2, kernel_size=1)
+    conv_3x3_2, conv_3x3_2_bn, conv_3x3_2_scale, conv_3x3_2_relu = conv_bn_scale_relu(conv_1x1, num_output=output / 2, kernel_size=3, pad=1)
+    concat = L.Concat(conv_3x3_1, conv_3x3_2)
+   
+    return conv_1x1, conv_1x1_bn, conv_1x1_scale, conv_1x1_relu, \
+    conv_3x3_1, conv_3x3_1_bn, conv_3x3_1_scale, conv_3x3_1_relu,\
+    conv_3x3_2, conv_3x3_2_bn, conv_3x3_2_scale, conv_3x3_2_relu,\
+    concat
 
 
 def residual_branch(bottom, base_output=64, num_output=256):
@@ -54,6 +65,8 @@ def residual_branch(bottom, base_output=64, num_output=256):
 
     return branch2a, branch2a_bn, branch2a_scale, branch2a_relu, branch2b, branch2b_bn, branch2b_scale, branch2b_relu, \
            branch2c, branch2c_bn, branch2c_scale, residual, residual_relu
+
+
 
 
 def residual_branch_shortcut(bottom, stride=2, base_output=64, num_output = 256):
@@ -96,6 +109,8 @@ branch_shortcut_string = 'n.res(stage)a_branch1, n.res(stage)a_branch1_bn, n.res
 
 
 
+
+
 class LayerCreator(object):
     def __init__(self, net, start_pool_idx = 0, start_residual_idx = 0, start_deconv_idx = 0, start_add_idx = 0):
         self.n = net
@@ -109,6 +124,8 @@ class LayerCreator(object):
         self.concat_idx = 0
         self.relu_idx = 0
         self.loss_idx = 0
+        self.concat_idx = 0
+        self.fire_idx = 0
     
     def str_replace(self, exe_str, param_name, param_str):
         
@@ -147,6 +164,39 @@ class LayerCreator(object):
         self.residual_idx += 1
         return out_layer
 
+    def FireBlock(self, bottom, dim = 128, kernel_size=3, stride=1, pad=0):
+        n = self.n
+        fire_block_string = \
+'n.fire(fire_idx)_squeeze1x1,n.fire(fire_idx)_squeeze1x1_bn, n.fire(fire_idx)_squeeze1x1_scale,n.fire(fire_idx)_squeeze1x1_relu,\
+n.fire(fire_idx)_expand1x1, n.fire(fire_idx)_expand1x1_bn, n.fire(fire_idx)_expand1x1_scale, n.fire(fire_idx)_expand1x1_relu,\
+n.fire(fire_idx)_expand3x3, n.fire(fire_idx)_expand3x3_bn, n.fire(fire_idx)_expand3x3_scale, n.fire(fire_idx)_expand3x3_relu,\
+n.fire(fire_idx)_concat = fire_block(bottom, (dim))'
+
+        fire_block_string = self.str_replace(fire_block_string, 'fire_idx', str(self.fire_idx))
+        fire_block_string = self.str_replace(fire_block_string, 'dim', str(dim))
+        exec fire_block_string
+        output = None
+        val_string = 'output = self.n.fire(fire_idx)_concat'
+        val_string = self.str_replace(val_string, 'fire_idx', str(self.fire_idx))
+        exec val_string
+
+        self.fire_idx += 1
+        return output
+    
+    def Concat(self, L1, L2):
+        concat_string = "self.n.concat(concat_idx)= L.Concat(L1, L2)"
+        concat_string = self.str_replace(concat_string, 'concat_idx', str(self.concat_idx))
+
+        exec concat_string
+
+        output = None
+        val_string = 'output = self.n.concat(concat_idx)'
+        val_string = self.str_replace(val_string, 'concat_idx', str(self.concat_idx))
+        exec val_string
+
+        self.concat_idx += 1
+        return output
+
     def Upsamping(self, input, num_output = 64, factor = 2):
         # kernel_size = (int)(2 * factor - factor % 2)
         kernel_size = factor
@@ -180,7 +230,7 @@ class LayerCreator(object):
         conv_string = "self.n.conv(conv_idx) = L.Convolution(input, num_output=(num_output), \
                         kernel_size=(kernel_size), stride=(stride), pad=(pad),\
                          param=[dict(lr_mult=1, decay_mult=1), dict(lr_mult=2, decay_mult=0)],\
-                         weight_filler=dict(type='msra', std=0.01),\
+                         weight_filler=dict(type='xavier', std=0.01),\
                          bias_filler=dict(type='constant', value=0))"
         conv_string = self.str_replace(conv_string, 'conv_idx', str(self.conv_idx))
         conv_string = self.str_replace(conv_string, 'num_output', str(num_output))

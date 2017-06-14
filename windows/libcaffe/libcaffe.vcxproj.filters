@@ -378,6 +378,9 @@
     <ClCompile Include="..\..\src\caffe\cpm_hand_data_transformer.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\caffe\layers\conv_dw_layer.cpp">
+      <Filter>src\layers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\caffe\proto\caffe.pb.h">
@@ -713,6 +716,9 @@
     <ClInclude Include="..\..\include\caffe\cpm_hand_data_transformer.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\caffe\layers\conv_dw_layer.hpp">
+      <Filter>include\layers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\..\src\caffe\layers\contrastive_loss_layer.cu">
@@ -915,6 +921,9 @@
     </CudaCompile>
     <CudaCompile Include="..\..\src\caffe\layers\normalize_layer.cu">
       <Filter>cu\layers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\..\src\caffe\layers\conv_dw_layer.cu">
+      <Filter>cu</Filter>
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>

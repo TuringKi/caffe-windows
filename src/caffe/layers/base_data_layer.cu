@@ -27,8 +27,8 @@ void BasePrefetchingDataLayer<Dtype>::Forward_gpu(
   Dtype *vis_data_0 = top[0]->mutable_cpu_data();
 
   vector<cv::Mat > vis_channels_0;
-  int crop_size = 256;
-  int stride = 4;
+  int crop_size = 368;
+  int stride = 8;
 
   for (int i = 0; i < 4; i++)
   {
@@ -38,7 +38,7 @@ void BasePrefetchingDataLayer<Dtype>::Forward_gpu(
 	  tmp = tmp * 256 + 128.0;
 	  tmp.convertTo(tmp, CV_8U);
 	  vis_channels_0.push_back(tmp);
-	  vis_data_0 += 368 * 368;
+	  vis_data_0 += crop_size * crop_size;
   }
   
 

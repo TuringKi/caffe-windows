@@ -15,10 +15,22 @@ def conv_relu(bottom, num_output=64, kernel_size=3, stride=1, pad=1):
 
 
 class HandHourglassNet(object):
-    def __init__(self, lmdb_train):
+
+    def FeatureBlock(self, input, n_modules, dim):
+        output = input 
+        for i in range(0, n_modules):
+            if self.use_fireblock:
+                output = self.LC.FireBlock(output, dim)
+            else:
+                output = self.LC.Residual(output, dim, dim)
+        return output
+
+
+    def __init__(self, lmdb_train, use_fireblock = False):
         self.train_data = lmdb_train
         self.n = caffe.NetSpec()
         self.LC = LayerCreator.LayerCreator(self.n)
+        self.use_fireblock = use_fireblock
 
     def linear(self, input, num_output):
         output = self.LC.ConvBnReLU(input, num_output)
@@ -27,26 +39,21 @@ class HandHourglassNet(object):
     
         # upper branch:
         up1 = input
-        for i in range(0, n_modules):
-  
-            up1 = self.LC.Residual(up1, dim, dim)
+        up1 = self.FeatureBlock(up1,n_modules, dim)
         
         # lower branch:
         low1 = self.LC.Pool(input)
         
-        for i in range(0, n_modules):
-            low1 = self.LC.Residual(low1, dim, dim)
+        low1 = self.FeatureBlock(low1,n_modules,dim)
         if level > 1:
             low2 = self.hourglass(level - 1, dim, n_modules, low1)
             # print low2
         else:
             low2 = low1
-            for i in range(0, n_modules):
-                low2 = self.LC.Residual(low2, dim, dim)
+            low2 = self.FeatureBlock(low2,n_modules, dim)
         
         low3 = low2
-        for i in range(0, n_modules):
-            low3 = self.LC.Residual(low3, dim, dim)
+        low3 = self.FeatureBlock(low3,n_modules, dim)
         up2 = self.LC.Upsamping(low3, dim)
 
         up = self.LC.Add(up1, up2)
@@ -60,7 +67,7 @@ class HandHourglassNet(object):
         stride = 4
         np_in_lmdb = 21
         num_paf = (np_in_lmdb - 1) * 2
-        stacks = 6
+        stacks = 3
         n_modules = 1 #number of residual blocks for each feature extraction block
         dim = 128
 
@@ -115,8 +122,7 @@ class HandHourglassNet(object):
             
             ll = hg
             # Residual layers at output resolution
-            for i in range(0, n_modules):
-                ll = self.LC.Residual(ll, dim, dim)
+            ll = self.FeatureBlock(ll, n_modules, dim)
             
             ll = self.linear(ll,dim)
 

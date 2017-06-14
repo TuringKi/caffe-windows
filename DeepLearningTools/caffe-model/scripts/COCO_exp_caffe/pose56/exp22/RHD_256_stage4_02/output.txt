@@ -1,0 +1,3316 @@
+I0601 13:36:35.125821 29727 caffe.cpp:217] Using GPUs 2
+I0601 13:36:35.267561 29727 caffe.cpp:222] GPU 2: Graphics Device
+I0601 13:36:36.331998 29727 solver.cpp:48] Initializing solver from parameters: 
+base_lr: 0.00025
+display: 20
+max_iter: 600000
+lr_policy: "fixed"
+momentum: 0.9
+snapshot: 2000
+snapshot_prefix: "./model/hand"
+solver_mode: GPU
+device_id: 2
+net: "pose_train_test.prototxt"
+train_state {
+  level: 0
+  stage: ""
+}
+momentum2: 0.999
+type: "Adam"
+I0601 13:36:36.332214 29727 solver.cpp:91] Creating training net from net file: pose_train_test.prototxt
+I0601 13:36:36.338101 29727 net.cpp:58] Initializing net from parameters: 
+state {
+  phase: TRAIN
+  level: 0
+  stage: ""
+}
+layer {
+  name: "data"
+  type: "CPMHandData"
+  top: "data"
+  top: "label"
+  data_param {
+    source: "/home/maxiao/Works/HandPose/data/dataset_3/lmdb"
+    batch_size: 12
+    backend: LMDB
+  }
+  cpm_hand_transform_param {
+    stride: 8
+    max_rotate_degree: 40
+    crop_size_x: 256
+    crop_size_y: 256
+    scale_prob: 1
+    scale_min: 0.5
+    scale_max: 1.1
+    center_perterb_max: 15
+    num_parts: 62
+    np_in_lmdb: 21
+    hand_padding: 1.2
+    do_aug: true
+  }
+}
+layer {
+  name: "label_slice"
+  type: "Slice"
+  bottom: "label"
+  top: "label_vec"
+  top: "label_heat"
+  slice_param {
+    slice_point: 40
+    axis: 1
+  }
+}
+layer {
+  name: "image"
+  type: "Slice"
+  bottom: "data"
+  top: "image"
+  top: "center_map"
+  slice_param {
+    slice_point: 3
+    axis: 1
+  }
+}
+layer {
+  name: "silence2"
+  type: "Silence"
+  bottom: "center_map"
+}
+layer {
+  name: "conv1_1"
+  type: "Convolution"
+  bottom: "image"
+  top: "conv1_1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 64
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu1_1"
+  type: "ReLU"
+  bottom: "conv1_1"
+  top: "conv1_1"
+}
+layer {
+  name: "conv1_2"
+  type: "Convolution"
+  bottom: "conv1_1"
+  top: "conv1_2"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 64
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu1_2"
+  type: "ReLU"
+  bottom: "conv1_2"
+  top: "conv1_2"
+}
+layer {
+  name: "pool1_stage1"
+  type: "Pooling"
+  bottom: "conv1_2"
+  top: "pool1_stage1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "conv2_1"
+  type: "Convolution"
+  bottom: "pool1_stage1"
+  top: "conv2_1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu2_1"
+  type: "ReLU"
+  bottom: "conv2_1"
+  top: "conv2_1"
+}
+layer {
+  name: "conv2_2"
+  type: "Convolution"
+  bottom: "conv2_1"
+  top: "conv2_2"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu2_2"
+  type: "ReLU"
+  bottom: "conv2_2"
+  top: "conv2_2"
+}
+layer {
+  name: "pool2_stage1"
+  type: "Pooling"
+  bottom: "conv2_2"
+  top: "pool2_stage1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "conv3_1"
+  type: "Convolution"
+  bottom: "pool2_stage1"
+  top: "conv3_1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 256
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu3_1"
+  type: "ReLU"
+  bottom: "conv3_1"
+  top: "conv3_1"
+}
+layer {
+  name: "conv3_2"
+  type: "Convolution"
+  bottom: "conv3_1"
+  top: "conv3_2"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 256
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu3_2"
+  type: "ReLU"
+  bottom: "conv3_2"
+  top: "conv3_2"
+}
+layer {
+  name: "conv3_3"
+  type: "Convolution"
+  bottom: "conv3_2"
+  top: "conv3_3"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 256
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu3_3"
+  type: "ReLU"
+  bottom: "conv3_3"
+  top: "conv3_3"
+}
+layer {
+  name: "conv3_4"
+  type: "Convolution"
+  bottom: "conv3_3"
+  top: "conv3_4"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 256
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu3_4"
+  type: "ReLU"
+  bottom: "conv3_4"
+  top: "conv3_4"
+}
+layer {
+  name: "pool3_stage1"
+  type: "Pooling"
+  bottom: "conv3_4"
+  top: "pool3_stage1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "conv4_1"
+  type: "Convolution"
+  bottom: "pool3_stage1"
+  top: "conv4_1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 512
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu4_1"
+  type: "ReLU"
+  bottom: "conv4_1"
+  top: "conv4_1"
+}
+layer {
+  name: "conv4_2"
+  type: "Convolution"
+  bottom: "conv4_1"
+  top: "conv4_2"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 512
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu4_2"
+  type: "ReLU"
+  bottom: "conv4_2"
+  top: "conv4_2"
+}
+layer {
+  name: "conv4_3_HandCPM"
+  type: "Convolution"
+  bottom: "conv4_2"
+  top: "conv4_3_HandCPM"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 256
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu4_3_HandCPM"
+  type: "ReLU"
+  bottom: "conv4_3_HandCPM"
+  top: "conv4_3_HandCPM"
+}
+layer {
+  name: "conv4_4_HandCPM"
+  type: "Convolution"
+  bottom: "conv4_3_HandCPM"
+  top: "conv4_4_HandCPM"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu4_4_HandCPM"
+  type: "ReLU"
+  bottom: "conv4_4_HandCPM"
+  top: "conv4_4_HandCPM"
+}
+layer {
+  name: "conv5_1_HandCPM_L1"
+  type: "Convolution"
+  bottom: "conv4_4_HandCPM"
+  top: "conv5_1_HandCPM_L1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu5_1_HandCPM_L1"
+  type: "ReLU"
+  bottom: "conv5_1_HandCPM_L1"
+  top: "conv5_1_HandCPM_L1"
+}
+layer {
+  name: "conv5_1_HandCPM_L2"
+  type: "Convolution"
+  bottom: "conv4_4_HandCPM"
+  top: "conv5_1_HandCPM_L2"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu5_1_HandCPM_L2"
+  type: "ReLU"
+  bottom: "conv5_1_HandCPM_L2"
+  top: "conv5_1_HandCPM_L2"
+}
+layer {
+  name: "conv5_2_HandCPM_L1"
+  type: "Convolution"
+  bottom: "conv5_1_HandCPM_L1"
+  top: "conv5_2_HandCPM_L1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu5_2_HandCPM_L1"
+  type: "ReLU"
+  bottom: "conv5_2_HandCPM_L1"
+  top: "conv5_2_HandCPM_L1"
+}
+layer {
+  name: "conv5_2_HandCPM_L2"
+  type: "Convolution"
+  bottom: "conv5_1_HandCPM_L2"
+  top: "conv5_2_HandCPM_L2"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu5_2_HandCPM_L2"
+  type: "ReLU"
+  bottom: "conv5_2_HandCPM_L2"
+  top: "conv5_2_HandCPM_L2"
+}
+layer {
+  name: "conv5_3_HandCPM_L1"
+  type: "Convolution"
+  bottom: "conv5_2_HandCPM_L1"
+  top: "conv5_3_HandCPM_L1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu5_3_HandCPM_L1"
+  type: "ReLU"
+  bottom: "conv5_3_HandCPM_L1"
+  top: "conv5_3_HandCPM_L1"
+}
+layer {
+  name: "conv5_3_HandCPM_L2"
+  type: "Convolution"
+  bottom: "conv5_2_HandCPM_L2"
+  top: "conv5_3_HandCPM_L2"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu5_3_HandCPM_L2"
+  type: "ReLU"
+  bottom: "conv5_3_HandCPM_L2"
+  top: "conv5_3_HandCPM_L2"
+}
+layer {
+  name: "conv5_4_HandCPM_L1"
+  type: "Convolution"
+  bottom: "conv5_3_HandCPM_L1"
+  top: "conv5_4_HandCPM_L1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 512
+    pad: 0
+    kernel_size: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu5_4_HandCPM_L1"
+  type: "ReLU"
+  bottom: "conv5_4_HandCPM_L1"
+  top: "conv5_4_HandCPM_L1"
+}
+layer {
+  name: "conv5_4_HandCPM_L2"
+  type: "Convolution"
+  bottom: "conv5_3_HandCPM_L2"
+  top: "conv5_4_HandCPM_L2"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 512
+    pad: 0
+    kernel_size: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu5_4_HandCPM_L2"
+  type: "ReLU"
+  bottom: "conv5_4_HandCPM_L2"
+  top: "conv5_4_HandCPM_L2"
+}
+layer {
+  name: "conv5_5_HandCPM_L1"
+  type: "Convolution"
+  bottom: "conv5_4_HandCPM_L1"
+  top: "conv5_5_HandCPM_L1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 40
+    pad: 0
+    kernel_size: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "conv5_5_HandCPM_L2"
+  type: "Convolution"
+  bottom: "conv5_4_HandCPM_L2"
+  top: "conv5_5_HandCPM_L2"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 22
+    pad: 0
+    kernel_size: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "loss_stage1_L1"
+  type: "EuclideanLoss"
+  bottom: "conv5_5_HandCPM_L1"
+  bottom: "label_vec"
+  top: "loss_stage1_L1"
+  loss_weight: 1
+}
+layer {
+  name: "loss_stage1_L2"
+  type: "EuclideanLoss"
+  bottom: "conv5_5_HandCPM_L2"
+  bottom: "label_heat"
+  top: "loss_stage1_L2"
+  loss_weight: 1
+}
+layer {
+  name: "concat_stage2"
+  type: "Concat"
+  bottom: "conv5_5_HandCPM_L1"
+  bottom: "conv5_5_HandCPM_L2"
+  bottom: "conv4_4_HandCPM"
+  top: "concat_stage2"
+  concat_param {
+    axis: 1
+  }
+}
+layer {
+  name: "HandMconv1_stage2_L1"
+  type: "Convolution"
+  bottom: "concat_stage2"
+  top: "HandMconv1_stage2_L1"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu1_stage2_L1"
+  type: "ReLU"
+  bottom: "HandMconv1_stage2_L1"
+  top: "HandMconv1_stage2_L1"
+}
+layer {
+  name: "HandMconv1_stage2_L2"
+  type: "Convolution"
+  bottom: "concat_stage2"
+  top: "HandMconv1_stage2_L2"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu1_stage2_L2"
+  type: "ReLU"
+  bottom: "HandMconv1_stage2_L2"
+  top: "HandMconv1_stage2_L2"
+}
+layer {
+  name: "HandMconv2_stage2_L1"
+  type: "Convolution"
+  bottom: "HandMconv1_stage2_L1"
+  top: "HandMconv2_stage2_L1"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu2_stage2_L1"
+  type: "ReLU"
+  bottom: "HandMconv2_stage2_L1"
+  top: "HandMconv2_stage2_L1"
+}
+layer {
+  name: "HandMconv2_stage2_L2"
+  type: "Convolution"
+  bottom: "HandMconv1_stage2_L2"
+  top: "HandMconv2_stage2_L2"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu2_stage2_L2"
+  type: "ReLU"
+  bottom: "HandMconv2_stage2_L2"
+  top: "HandMconv2_stage2_L2"
+}
+layer {
+  name: "HandMconv3_stage2_L1"
+  type: "Convolution"
+  bottom: "HandMconv2_stage2_L1"
+  top: "HandMconv3_stage2_L1"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu3_stage2_L1"
+  type: "ReLU"
+  bottom: "HandMconv3_stage2_L1"
+  top: "HandMconv3_stage2_L1"
+}
+layer {
+  name: "HandMconv3_stage2_L2"
+  type: "Convolution"
+  bottom: "HandMconv2_stage2_L2"
+  top: "HandMconv3_stage2_L2"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu3_stage2_L2"
+  type: "ReLU"
+  bottom: "HandMconv3_stage2_L2"
+  top: "HandMconv3_stage2_L2"
+}
+layer {
+  name: "HandMconv4_stage2_L1"
+  type: "Convolution"
+  bottom: "HandMconv3_stage2_L1"
+  top: "HandMconv4_stage2_L1"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu4_stage2_L1"
+  type: "ReLU"
+  bottom: "HandMconv4_stage2_L1"
+  top: "HandMconv4_stage2_L1"
+}
+layer {
+  name: "HandMconv4_stage2_L2"
+  type: "Convolution"
+  bottom: "HandMconv3_stage2_L2"
+  top: "HandMconv4_stage2_L2"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu4_stage2_L2"
+  type: "ReLU"
+  bottom: "HandMconv4_stage2_L2"
+  top: "HandMconv4_stage2_L2"
+}
+layer {
+  name: "HandMconv5_stage2_L1"
+  type: "Convolution"
+  bottom: "HandMconv4_stage2_L1"
+  top: "HandMconv5_stage2_L1"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu5_stage2_L1"
+  type: "ReLU"
+  bottom: "HandMconv5_stage2_L1"
+  top: "HandMconv5_stage2_L1"
+}
+layer {
+  name: "HandMconv5_stage2_L2"
+  type: "Convolution"
+  bottom: "HandMconv4_stage2_L2"
+  top: "HandMconv5_stage2_L2"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu5_stage2_L2"
+  type: "ReLU"
+  bottom: "HandMconv5_stage2_L2"
+  top: "HandMconv5_stage2_L2"
+}
+layer {
+  name: "HandMconv6_stage2_L1"
+  type: "Convolution"
+  bottom: "HandMconv5_stage2_L1"
+  top: "HandMconv6_stage2_L1"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 0
+    kernel_size: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu6_stage2_L1"
+  type: "ReLU"
+  bottom: "HandMconv6_stage2_L1"
+  top: "HandMconv6_stage2_L1"
+}
+layer {
+  name: "HandMconv6_stage2_L2"
+  type: "Convolution"
+  bottom: "HandMconv5_stage2_L2"
+  top: "HandMconv6_stage2_L2"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 0
+    kernel_size: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu6_stage2_L2"
+  type: "ReLU"
+  bottom: "HandMconv6_stage2_L2"
+  top: "HandMconv6_stage2_L2"
+}
+layer {
+  name: "HandMconv7_stage2_L1"
+  type: "Convolution"
+  bottom: "HandMconv6_stage2_L1"
+  top: "HandMconv7_stage2_L1"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 40
+    pad: 0
+    kernel_size: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMconv7_stage2_L2"
+  type: "Convolution"
+  bottom: "HandMconv6_stage2_L2"
+  top: "HandMconv7_stage2_L2"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 22
+    pad: 0
+    kernel_size: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "loss_stage2_L1"
+  type: "EuclideanLoss"
+  bottom: "HandMconv7_stage2_L1"
+  bottom: "label_vec"
+  top: "loss_stage2_L1"
+  loss_weight: 1
+}
+layer {
+  name: "loss_stage2_L2"
+  type: "EuclideanLoss"
+  bottom: "HandMconv7_stage2_L2"
+  bottom: "label_heat"
+  top: "loss_stage2_L2"
+  loss_weight: 1
+}
+layer {
+  name: "concat_stage3"
+  type: "Concat"
+  bottom: "HandMconv7_stage2_L1"
+  bottom: "HandMconv7_stage2_L2"
+  bottom: "conv4_4_HandCPM"
+  top: "concat_stage3"
+  concat_param {
+    axis: 1
+  }
+}
+layer {
+  name: "HandMconv1_stage3_L1"
+  type: "Convolution"
+  bottom: "concat_stage3"
+  top: "HandMconv1_stage3_L1"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu1_stage3_L1"
+  type: "ReLU"
+  bottom: "HandMconv1_stage3_L1"
+  top: "HandMconv1_stage3_L1"
+}
+layer {
+  name: "HandMconv1_stage3_L2"
+  type: "Convolution"
+  bottom: "concat_stage3"
+  top: "HandMconv1_stage3_L2"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu1_stage3_L2"
+  type: "ReLU"
+  bottom: "HandMconv1_stage3_L2"
+  top: "HandMconv1_stage3_L2"
+}
+layer {
+  name: "HandMconv2_stage3_L1"
+  type: "Convolution"
+  bottom: "HandMconv1_stage3_L1"
+  top: "HandMconv2_stage3_L1"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu2_stage3_L1"
+  type: "ReLU"
+  bottom: "HandMconv2_stage3_L1"
+  top: "HandMconv2_stage3_L1"
+}
+layer {
+  name: "HandMconv2_stage3_L2"
+  type: "Convolution"
+  bottom: "HandMconv1_stage3_L2"
+  top: "HandMconv2_stage3_L2"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu2_stage3_L2"
+  type: "ReLU"
+  bottom: "HandMconv2_stage3_L2"
+  top: "HandMconv2_stage3_L2"
+}
+layer {
+  name: "HandMconv3_stage3_L1"
+  type: "Convolution"
+  bottom: "HandMconv2_stage3_L1"
+  top: "HandMconv3_stage3_L1"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu3_stage3_L1"
+  type: "ReLU"
+  bottom: "HandMconv3_stage3_L1"
+  top: "HandMconv3_stage3_L1"
+}
+layer {
+  name: "HandMconv3_stage3_L2"
+  type: "Convolution"
+  bottom: "HandMconv2_stage3_L2"
+  top: "HandMconv3_stage3_L2"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu3_stage3_L2"
+  type: "ReLU"
+  bottom: "HandMconv3_stage3_L2"
+  top: "HandMconv3_stage3_L2"
+}
+layer {
+  name: "HandMconv4_stage3_L1"
+  type: "Convolution"
+  bottom: "HandMconv3_stage3_L1"
+  top: "HandMconv4_stage3_L1"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu4_stage3_L1"
+  type: "ReLU"
+  bottom: "HandMconv4_stage3_L1"
+  top: "HandMconv4_stage3_L1"
+}
+layer {
+  name: "HandMconv4_stage3_L2"
+  type: "Convolution"
+  bottom: "HandMconv3_stage3_L2"
+  top: "HandMconv4_stage3_L2"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu4_stage3_L2"
+  type: "ReLU"
+  bottom: "HandMconv4_stage3_L2"
+  top: "HandMconv4_stage3_L2"
+}
+layer {
+  name: "HandMconv5_stage3_L1"
+  type: "Convolution"
+  bottom: "HandMconv4_stage3_L1"
+  top: "HandMconv5_stage3_L1"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu5_stage3_L1"
+  type: "ReLU"
+  bottom: "HandMconv5_stage3_L1"
+  top: "HandMconv5_stage3_L1"
+}
+layer {
+  name: "HandMconv5_stage3_L2"
+  type: "Convolution"
+  bottom: "HandMconv4_stage3_L2"
+  top: "HandMconv5_stage3_L2"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu5_stage3_L2"
+  type: "ReLU"
+  bottom: "HandMconv5_stage3_L2"
+  top: "HandMconv5_stage3_L2"
+}
+layer {
+  name: "HandMconv6_stage3_L1"
+  type: "Convolution"
+  bottom: "HandMconv5_stage3_L1"
+  top: "HandMconv6_stage3_L1"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 0
+    kernel_size: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu6_stage3_L1"
+  type: "ReLU"
+  bottom: "HandMconv6_stage3_L1"
+  top: "HandMconv6_stage3_L1"
+}
+layer {
+  name: "HandMconv6_stage3_L2"
+  type: "Convolution"
+  bottom: "HandMconv5_stage3_L2"
+  top: "HandMconv6_stage3_L2"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 0
+    kernel_size: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu6_stage3_L2"
+  type: "ReLU"
+  bottom: "HandMconv6_stage3_L2"
+  top: "HandMconv6_stage3_L2"
+}
+layer {
+  name: "HandMconv7_stage3_L1"
+  type: "Convolution"
+  bottom: "HandMconv6_stage3_L1"
+  top: "HandMconv7_stage3_L1"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 40
+    pad: 0
+    kernel_size: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMconv7_stage3_L2"
+  type: "Convolution"
+  bottom: "HandMconv6_stage3_L2"
+  top: "HandMconv7_stage3_L2"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 22
+    pad: 0
+    kernel_size: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "loss_stage3_L1"
+  type: "EuclideanLoss"
+  bottom: "HandMconv7_stage3_L1"
+  bottom: "label_vec"
+  top: "loss_stage3_L1"
+  loss_weight: 1
+}
+layer {
+  name: "loss_stage3_L2"
+  type: "EuclideanLoss"
+  bottom: "HandMconv7_stage3_L2"
+  bottom: "label_heat"
+  top: "loss_stage3_L2"
+  loss_weight: 1
+}
+layer {
+  name: "concat_stage4"
+  type: "Concat"
+  bottom: "HandMconv7_stage3_L1"
+  bottom: "HandMconv7_stage3_L2"
+  bottom: "conv4_4_HandCPM"
+  top: "concat_stage4"
+  concat_param {
+    axis: 1
+  }
+}
+layer {
+  name: "HandMconv1_stage4_L1"
+  type: "Convolution"
+  bottom: "concat_stage4"
+  top: "HandMconv1_stage4_L1"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu1_stage4_L1"
+  type: "ReLU"
+  bottom: "HandMconv1_stage4_L1"
+  top: "HandMconv1_stage4_L1"
+}
+layer {
+  name: "HandMconv1_stage4_L2"
+  type: "Convolution"
+  bottom: "concat_stage4"
+  top: "HandMconv1_stage4_L2"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu1_stage4_L2"
+  type: "ReLU"
+  bottom: "HandMconv1_stage4_L2"
+  top: "HandMconv1_stage4_L2"
+}
+layer {
+  name: "HandMconv2_stage4_L1"
+  type: "Convolution"
+  bottom: "HandMconv1_stage4_L1"
+  top: "HandMconv2_stage4_L1"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu2_stage4_L1"
+  type: "ReLU"
+  bottom: "HandMconv2_stage4_L1"
+  top: "HandMconv2_stage4_L1"
+}
+layer {
+  name: "HandMconv2_stage4_L2"
+  type: "Convolution"
+  bottom: "HandMconv1_stage4_L2"
+  top: "HandMconv2_stage4_L2"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "HandMrelu2_stage4_L2"
+  type: "ReLU"
+  bottom: "HandMconv2_stage4_L2"
+  top: "HandMconv2_stage4_L2"
+}
+layer {
+  name: "HandMconv3_stage4_L1"
+  type: "Convolution"
+  bottom: "HandMconv2_stage4_L1"
+  top: "HandMconv3_stage4_L1"
+  param {
+    lr_mult: 4
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 8
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 3
+    k
+I0601 13:36:36.338786 29727 layer_factory.hpp:77] Creating layer data
+I0601 13:36:36.339342 29727 net.cpp:100] Creating Layer data
+I0601 13:36:36.339478 29727 net.cpp:408] data -> data
+I0601 13:36:36.339596 29727 net.cpp:408] data -> label
+I0601 13:36:36.339673 29727 cpm_hand_data_transformer.cpp:147] CPMHandDataTransformer constructor done.
+I0601 13:36:36.341289 29733 db_lmdb.cpp:35] Opened lmdb /home/maxiao/Works/HandPose/data/dataset_3/lmdb
+I0601 13:36:36.341547 29727 cpm_hand_data_layer.cpp:42] 136 136 4
+I0601 13:36:36.341578 29727 cpm_hand_data_layer.cpp:66] PREFETCH_COUNT is 3
+I0601 13:36:36.460557 29727 cpm_hand_data_layer.cpp:74] output data size: 12,4,256,256
+I0601 13:36:36.508136 29727 net.cpp:150] Setting up data
+I0601 13:36:36.508180 29727 net.cpp:157] Top shape: 12 4 256 256 (3145728)
+I0601 13:36:36.508188 29727 net.cpp:157] Top shape: 12 62 32 32 (761856)
+I0601 13:36:36.508193 29727 net.cpp:165] Memory required for data: 15630336
+I0601 13:36:36.508208 29727 layer_factory.hpp:77] Creating layer label_slice
+I0601 13:36:36.508240 29727 net.cpp:100] Creating Layer label_slice
+I0601 13:36:36.508249 29727 net.cpp:434] label_slice <- label
+I0601 13:36:36.508270 29727 net.cpp:408] label_slice -> label_vec
+I0601 13:36:36.508285 29727 net.cpp:408] label_slice -> label_heat
+I0601 13:36:36.508406 29727 net.cpp:150] Setting up label_slice
+I0601 13:36:36.508416 29727 net.cpp:157] Top shape: 12 40 32 32 (491520)
+I0601 13:36:36.508421 29727 net.cpp:157] Top shape: 12 22 32 32 (270336)
+I0601 13:36:36.508424 29727 net.cpp:165] Memory required for data: 18677760
+I0601 13:36:36.508429 29727 layer_factory.hpp:77] Creating layer label_vec_label_slice_0_split
+I0601 13:36:36.508440 29727 net.cpp:100] Creating Layer label_vec_label_slice_0_split
+I0601 13:36:36.508445 29727 net.cpp:434] label_vec_label_slice_0_split <- label_vec
+I0601 13:36:36.508451 29727 net.cpp:408] label_vec_label_slice_0_split -> label_vec_label_slice_0_split_0
+I0601 13:36:36.508458 29727 net.cpp:408] label_vec_label_slice_0_split -> label_vec_label_slice_0_split_1
+I0601 13:36:36.508464 29727 net.cpp:408] label_vec_label_slice_0_split -> label_vec_label_slice_0_split_2
+I0601 13:36:36.508471 29727 net.cpp:408] label_vec_label_slice_0_split -> label_vec_label_slice_0_split_3
+I0601 13:36:36.508564 29727 net.cpp:150] Setting up label_vec_label_slice_0_split
+I0601 13:36:36.508576 29727 net.cpp:157] Top shape: 12 40 32 32 (491520)
+I0601 13:36:36.508580 29727 net.cpp:157] Top shape: 12 40 32 32 (491520)
+I0601 13:36:36.508585 29727 net.cpp:157] Top shape: 12 40 32 32 (491520)
+I0601 13:36:36.508589 29727 net.cpp:157] Top shape: 12 40 32 32 (491520)
+I0601 13:36:36.508592 29727 net.cpp:165] Memory required for data: 26542080
+I0601 13:36:36.508596 29727 layer_factory.hpp:77] Creating layer label_heat_label_slice_1_split
+I0601 13:36:36.508602 29727 net.cpp:100] Creating Layer label_heat_label_slice_1_split
+I0601 13:36:36.508605 29727 net.cpp:434] label_heat_label_slice_1_split <- label_heat
+I0601 13:36:36.508612 29727 net.cpp:408] label_heat_label_slice_1_split -> label_heat_label_slice_1_split_0
+I0601 13:36:36.508620 29727 net.cpp:408] label_heat_label_slice_1_split -> label_heat_label_slice_1_split_1
+I0601 13:36:36.508627 29727 net.cpp:408] label_heat_label_slice_1_split -> label_heat_label_slice_1_split_2
+I0601 13:36:36.508632 29727 net.cpp:408] label_heat_label_slice_1_split -> label_heat_label_slice_1_split_3
+I0601 13:36:36.508692 29727 net.cpp:150] Setting up label_heat_label_slice_1_split
+I0601 13:36:36.508697 29727 net.cpp:157] Top shape: 12 22 32 32 (270336)
+I0601 13:36:36.508702 29727 net.cpp:157] Top shape: 12 22 32 32 (270336)
+I0601 13:36:36.508705 29727 net.cpp:157] Top shape: 12 22 32 32 (270336)
+I0601 13:36:36.508709 29727 net.cpp:157] Top shape: 12 22 32 32 (270336)
+I0601 13:36:36.508713 29727 net.cpp:165] Memory required for data: 30867456
+I0601 13:36:36.508716 29727 layer_factory.hpp:77] Creating layer image
+I0601 13:36:36.508724 29727 net.cpp:100] Creating Layer image
+I0601 13:36:36.508728 29727 net.cpp:434] image <- data
+I0601 13:36:36.508734 29727 net.cpp:408] image -> image
+I0601 13:36:36.508740 29727 net.cpp:408] image -> center_map
+I0601 13:36:36.508772 29727 net.cpp:150] Setting up image
+I0601 13:36:36.508779 29727 net.cpp:157] Top shape: 12 3 256 256 (2359296)
+I0601 13:36:36.508782 29727 net.cpp:157] Top shape: 12 1 256 256 (786432)
+I0601 13:36:36.508785 29727 net.cpp:165] Memory required for data: 43450368
+I0601 13:36:36.508790 29727 layer_factory.hpp:77] Creating layer silence2
+I0601 13:36:36.508798 29727 net.cpp:100] Creating Layer silence2
+I0601 13:36:36.508801 29727 net.cpp:434] silence2 <- center_map
+I0601 13:36:36.508808 29727 net.cpp:150] Setting up silence2
+I0601 13:36:36.508811 29727 net.cpp:165] Memory required for data: 43450368
+I0601 13:36:36.508816 29727 layer_factory.hpp:77] Creating layer conv1_1
+I0601 13:36:36.508839 29727 net.cpp:100] Creating Layer conv1_1
+I0601 13:36:36.508843 29727 net.cpp:434] conv1_1 <- image
+I0601 13:36:36.508849 29727 net.cpp:408] conv1_1 -> conv1_1
+I0601 13:36:37.327811 29727 net.cpp:150] Setting up conv1_1
+I0601 13:36:37.327872 29727 net.cpp:157] Top shape: 12 64 256 256 (50331648)
+I0601 13:36:37.327883 29727 net.cpp:165] Memory required for data: 244776960
+I0601 13:36:37.327958 29727 layer_factory.hpp:77] Creating layer relu1_1
+I0601 13:36:37.327986 29727 net.cpp:100] Creating Layer relu1_1
+I0601 13:36:37.328002 29727 net.cpp:434] relu1_1 <- conv1_1
+I0601 13:36:37.328016 29727 net.cpp:395] relu1_1 -> conv1_1 (in-place)
+I0601 13:36:37.328480 29727 net.cpp:150] Setting up relu1_1
+I0601 13:36:37.328500 29727 net.cpp:157] Top shape: 12 64 256 256 (50331648)
+I0601 13:36:37.328508 29727 net.cpp:165] Memory required for data: 446103552
+I0601 13:36:37.328517 29727 layer_factory.hpp:77] Creating layer conv1_2
+I0601 13:36:37.328547 29727 net.cpp:100] Creating Layer conv1_2
+I0601 13:36:37.328557 29727 net.cpp:434] conv1_2 <- conv1_1
+I0601 13:36:37.328570 29727 net.cpp:408] conv1_2 -> conv1_2
+I0601 13:36:37.336872 29727 net.cpp:150] Setting up conv1_2
+I0601 13:36:37.336890 29727 net.cpp:157] Top shape: 12 64 256 256 (50331648)
+I0601 13:36:37.336907 29727 net.cpp:165] Memory required for data: 647430144
+I0601 13:36:37.336920 29727 layer_factory.hpp:77] Creating layer relu1_2
+I0601 13:36:37.336928 29727 net.cpp:100] Creating Layer relu1_2
+I0601 13:36:37.336958 29727 net.cpp:434] relu1_2 <- conv1_2
+I0601 13:36:37.336966 29727 net.cpp:395] relu1_2 -> conv1_2 (in-place)
+I0601 13:36:37.342497 29727 net.cpp:150] Setting up relu1_2
+I0601 13:36:37.342546 29727 net.cpp:157] Top shape: 12 64 256 256 (50331648)
+I0601 13:36:37.342555 29727 net.cpp:165] Memory required for data: 848756736
+I0601 13:36:37.342563 29727 layer_factory.hpp:77] Creating layer pool1_stage1
+I0601 13:36:37.342592 29727 net.cpp:100] Creating Layer pool1_stage1
+I0601 13:36:37.342599 29727 net.cpp:434] pool1_stage1 <- conv1_2
+I0601 13:36:37.342665 29727 net.cpp:408] pool1_stage1 -> pool1_stage1
+I0601 13:36:37.342784 29727 net.cpp:150] Setting up pool1_stage1
+I0601 13:36:37.342797 29727 net.cpp:157] Top shape: 12 64 128 128 (12582912)
+I0601 13:36:37.342803 29727 net.cpp:165] Memory required for data: 899088384
+I0601 13:36:37.342808 29727 layer_factory.hpp:77] Creating layer conv2_1
+I0601 13:36:37.342839 29727 net.cpp:100] Creating Layer conv2_1
+I0601 13:36:37.342845 29727 net.cpp:434] conv2_1 <- pool1_stage1
+I0601 13:36:37.342856 29727 net.cpp:408] conv2_1 -> conv2_1
+I0601 13:36:37.362803 29727 net.cpp:150] Setting up conv2_1
+I0601 13:36:37.362829 29727 net.cpp:157] Top shape: 12 128 128 128 (25165824)
+I0601 13:36:37.362848 29727 net.cpp:165] Memory required for data: 999751680
+I0601 13:36:37.362924 29727 layer_factory.hpp:77] Creating layer relu2_1
+I0601 13:36:37.362936 29727 net.cpp:100] Creating Layer relu2_1
+I0601 13:36:37.362942 29727 net.cpp:434] relu2_1 <- conv2_1
+I0601 13:36:37.362949 29727 net.cpp:395] relu2_1 -> conv2_1 (in-place)
+I0601 13:36:37.364037 29727 net.cpp:150] Setting up relu2_1
+I0601 13:36:37.364058 29727 net.cpp:157] Top shape: 12 128 128 128 (25165824)
+I0601 13:36:37.364063 29727 net.cpp:165] Memory required for data: 1100414976
+I0601 13:36:37.364068 29727 layer_factory.hpp:77] Creating layer conv2_2
+I0601 13:36:37.364157 29727 net.cpp:100] Creating Layer conv2_2
+I0601 13:36:37.364179 29727 net.cpp:434] conv2_2 <- conv2_1
+I0601 13:36:37.364205 29727 net.cpp:408] conv2_2 -> conv2_2
+I0601 13:36:37.375200 29727 net.cpp:150] Setting up conv2_2
+I0601 13:36:37.375239 29727 net.cpp:157] Top shape: 12 128 128 128 (25165824)
+I0601 13:36:37.375247 29727 net.cpp:165] Memory required for data: 1201078272
+I0601 13:36:37.375260 29727 layer_factory.hpp:77] Creating layer relu2_2
+I0601 13:36:37.375272 29727 net.cpp:100] Creating Layer relu2_2
+I0601 13:36:37.375283 29727 net.cpp:434] relu2_2 <- conv2_2
+I0601 13:36:37.375293 29727 net.cpp:395] relu2_2 -> conv2_2 (in-place)
+I0601 13:36:37.376153 29727 net.cpp:150] Setting up relu2_2
+I0601 13:36:37.376176 29727 net.cpp:157] Top shape: 12 128 128 128 (25165824)
+I0601 13:36:37.376183 29727 net.cpp:165] Memory required for data: 1301741568
+I0601 13:36:37.376190 29727 layer_factory.hpp:77] Creating layer pool2_stage1
+I0601 13:36:37.376226 29727 net.cpp:100] Creating Layer pool2_stage1
+I0601 13:36:37.376255 29727 net.cpp:434] pool2_stage1 <- conv2_2
+I0601 13:36:37.376274 29727 net.cpp:408] pool2_stage1 -> pool2_stage1
+I0601 13:36:37.376374 29727 net.cpp:150] Setting up pool2_stage1
+I0601 13:36:37.376387 29727 net.cpp:157] Top shape: 12 128 64 64 (6291456)
+I0601 13:36:37.376394 29727 net.cpp:165] Memory required for data: 1326907392
+I0601 13:36:37.376413 29727 layer_factory.hpp:77] Creating layer conv3_1
+I0601 13:36:37.376437 29727 net.cpp:100] Creating Layer conv3_1
+I0601 13:36:37.376451 29727 net.cpp:434] conv3_1 <- pool2_stage1
+I0601 13:36:37.376477 29727 net.cpp:408] conv3_1 -> conv3_1
+I0601 13:36:37.394364 29727 net.cpp:150] Setting up conv3_1
+I0601 13:36:37.394384 29727 net.cpp:157] Top shape: 12 256 64 64 (12582912)
+I0601 13:36:37.394400 29727 net.cpp:165] Memory required for data: 1377239040
+I0601 13:36:37.394413 29727 layer_factory.hpp:77] Creating layer relu3_1
+I0601 13:36:37.394421 29727 net.cpp:100] Creating Layer relu3_1
+I0601 13:36:37.394459 29727 net.cpp:434] relu3_1 <- conv3_1
+I0601 13:36:37.394466 29727 net.cpp:395] relu3_1 -> conv3_1 (in-place)
+I0601 13:36:37.394701 29727 net.cpp:150] Setting up relu3_1
+I0601 13:36:37.394714 29727 net.cpp:157] Top shape: 12 256 64 64 (12582912)
+I0601 13:36:37.394739 29727 net.cpp:165] Memory required for data: 1427570688
+I0601 13:36:37.394743 29727 layer_factory.hpp:77] Creating layer conv3_2
+I0601 13:36:37.394769 29727 net.cpp:100] Creating Layer conv3_2
+I0601 13:36:37.394775 29727 net.cpp:434] conv3_2 <- conv3_1
+I0601 13:36:37.394783 29727 net.cpp:408] conv3_2 -> conv3_2
+I0601 13:36:37.425137 29727 net.cpp:150] Setting up conv3_2
+I0601 13:36:37.425158 29727 net.cpp:157] Top shape: 12 256 64 64 (12582912)
+I0601 13:36:37.425174 29727 net.cpp:165] Memory required for data: 1477902336
+I0601 13:36:37.425182 29727 layer_factory.hpp:77] Creating layer relu3_2
+I0601 13:36:37.425202 29727 net.cpp:100] Creating Layer relu3_2
+I0601 13:36:37.425207 29727 net.cpp:434] relu3_2 <- conv3_2
+I0601 13:36:37.425228 29727 net.cpp:395] relu3_2 -> conv3_2 (in-place)
+I0601 13:36:37.425449 29727 net.cpp:150] Setting up relu3_2
+I0601 13:36:37.425462 29727 net.cpp:157] Top shape: 12 256 64 64 (12582912)
+I0601 13:36:37.425464 29727 net.cpp:165] Memory required for data: 1528233984
+I0601 13:36:37.425469 29727 layer_factory.hpp:77] Creating layer conv3_3
+I0601 13:36:37.425494 29727 net.cpp:100] Creating Layer conv3_3
+I0601 13:36:37.425499 29727 net.cpp:434] conv3_3 <- conv3_2
+I0601 13:36:37.425505 29727 net.cpp:408] conv3_3 -> conv3_3
+I0601 13:36:37.461587 29727 net.cpp:150] Setting up conv3_3
+I0601 13:36:37.461609 29727 net.cpp:157] Top shape: 12 256 64 64 (12582912)
+I0601 13:36:37.461623 29727 net.cpp:165] Memory required for data: 1578565632
+I0601 13:36:37.461632 29727 layer_factory.hpp:77] Creating layer relu3_3
+I0601 13:36:37.461639 29727 net.cpp:100] Creating Layer relu3_3
+I0601 13:36:37.461645 29727 net.cpp:434] relu3_3 <- conv3_3
+I0601 13:36:37.461652 29727 net.cpp:395] relu3_3 -> conv3_3 (in-place)
+I0601 13:36:37.462019 29727 net.cpp:150] Setting up relu3_3
+I0601 13:36:37.462040 29727 net.cpp:157] Top shape: 12 256 64 64 (12582912)
+I0601 13:36:37.462049 29727 net.cpp:165] Memory required for data: 1628897280
+I0601 13:36:37.462056 29727 layer_factory.hpp:77] Creating layer conv3_4
+I0601 13:36:37.462090 29727 net.cpp:100] Creating Layer conv3_4
+I0601 13:36:37.462105 29727 net.cpp:434] conv3_4 <- conv3_3
+I0601 13:36:37.462118 29727 net.cpp:408] conv3_4 -> conv3_4
+I0601 13:36:37.493688 29727 net.cpp:150] Setting up conv3_4
+I0601 13:36:37.493710 29727 net.cpp:157] Top shape: 12 256 64 64 (12582912)
+I0601 13:36:37.493724 29727 net.cpp:165] Memory required for data: 1679228928
+I0601 13:36:37.493733 29727 layer_factory.hpp:77] Creating layer relu3_4
+I0601 13:36:37.493752 29727 net.cpp:100] Creating Layer relu3_4
+I0601 13:36:37.493758 29727 net.cpp:434] relu3_4 <- conv3_4
+I0601 13:36:37.493777 29727 net.cpp:395] relu3_4 -> conv3_4 (in-place)
+I0601 13:36:37.495007 29727 net.cpp:150] Setting up relu3_4
+I0601 13:36:37.495023 29727 net.cpp:157] Top shape: 12 256 64 64 (12582912)
+I0601 13:36:37.495026 29727 net.cpp:165] Memory required for data: 1729560576
+I0601 13:36:37.495038 29727 layer_factory.hpp:77] Creating layer pool3_stage1
+I0601 13:36:37.495071 29727 net.cpp:100] Creating Layer pool3_stage1
+I0601 13:36:37.495076 29727 net.cpp:434] pool3_stage1 <- conv3_4
+I0601 13:36:37.495082 29727 net.cpp:408] pool3_stage1 -> pool3_stage1
+I0601 13:36:37.495136 29727 net.cpp:150] Setting up pool3_stage1
+I0601 13:36:37.495156 29727 net.cpp:157] Top shape: 12 256 32 32 (3145728)
+I0601 13:36:37.495158 29727 net.cpp:165] Memory required for data: 1742143488
+I0601 13:36:37.495162 29727 layer_factory.hpp:77] Creating layer conv4_1
+I0601 13:36:37.495172 29727 net.cpp:100] Creating Layer conv4_1
+I0601 13:36:37.495177 29727 net.cpp:434] conv4_1 <- pool3_stage1
+I0601 13:36:37.495184 29727 net.cpp:408] conv4_1 -> conv4_1
+I0601 13:36:37.544890 29727 net.cpp:150] Setting up conv4_1
+I0601 13:36:37.544936 29727 net.cpp:157] Top shape: 12 512 32 32 (6291456)
+I0601 13:36:37.544941 29727 net.cpp:165] Memory required for data: 1767309312
+I0601 13:36:37.544960 29727 layer_factory.hpp:77] Creating layer relu4_1
+I0601 13:36:37.544971 29727 net.cpp:100] Creating Layer relu4_1
+I0601 13:36:37.545012 29727 net.cpp:434] relu4_1 <- conv4_1
+I0601 13:36:37.545030 29727 net.cpp:395] relu4_1 -> conv4_1 (in-place)
+I0601 13:36:37.547621 29727 net.cpp:150] Setting up relu4_1
+I0601 13:36:37.547655 29727 net.cpp:157] Top shape: 12 512 32 32 (6291456)
+I0601 13:36:37.547670 29727 net.cpp:165] Memory required for data: 1792475136
+I0601 13:36:37.547679 29727 layer_factory.hpp:77] Creating layer conv4_2
+I0601 13:36:37.547703 29727 net.cpp:100] Creating Layer conv4_2
+I0601 13:36:37.547710 29727 net.cpp:434] conv4_2 <- conv4_1
+I0601 13:36:37.547722 29727 net.cpp:408] conv4_2 -> conv4_2
+I0601 13:36:37.637665 29727 net.cpp:150] Setting up conv4_2
+I0601 13:36:37.637720 29727 net.cpp:157] Top shape: 12 512 32 32 (6291456)
+I0601 13:36:37.637728 29727 net.cpp:165] Memory required for data: 1817640960
+I0601 13:36:37.637742 29727 layer_factory.hpp:77] Creating layer relu4_2
+I0601 13:36:37.637758 29727 net.cpp:100] Creating Layer relu4_2
+I0601 13:36:37.637768 29727 net.cpp:434] relu4_2 <- conv4_2
+I0601 13:36:37.637779 29727 net.cpp:395] relu4_2 -> conv4_2 (in-place)
+I0601 13:36:37.638113 29727 net.cpp:150] Setting up relu4_2
+I0601 13:36:37.638126 29727 net.cpp:157] Top shape: 12 512 32 32 (6291456)
+I0601 13:36:37.638133 29727 net.cpp:165] Memory required for data: 1842806784
+I0601 13:36:37.638139 29727 layer_factory.hpp:77] Creating layer conv4_3_HandCPM
+I0601 13:36:37.638170 29727 net.cpp:100] Creating Layer conv4_3_HandCPM
+I0601 13:36:37.638185 29727 net.cpp:434] conv4_3_HandCPM <- conv4_2
+I0601 13:36:37.638195 29727 net.cpp:408] conv4_3_HandCPM -> conv4_3_HandCPM
+I0601 13:36:37.693905 29727 net.cpp:150] Setting up conv4_3_HandCPM
+I0601 13:36:37.693944 29727 net.cpp:157] Top shape: 12 256 32 32 (3145728)
+I0601 13:36:37.693949 29727 net.cpp:165] Memory required for data: 1855389696
+I0601 13:36:37.693971 29727 layer_factory.hpp:77] Creating layer relu4_3_HandCPM
+I0601 13:36:37.693981 29727 net.cpp:100] Creating Layer relu4_3_HandCPM
+I0601 13:36:37.693987 29727 net.cpp:434] relu4_3_HandCPM <- conv4_3_HandCPM
+I0601 13:36:37.693994 29727 net.cpp:395] relu4_3_HandCPM -> conv4_3_HandCPM (in-place)
+I0601 13:36:37.695200 29727 net.cpp:150] Setting up relu4_3_HandCPM
+I0601 13:36:37.695211 29727 net.cpp:157] Top shape: 12 256 32 32 (3145728)
+I0601 13:36:37.695215 29727 net.cpp:165] Memory required for data: 1867972608
+I0601 13:36:37.695219 29727 layer_factory.hpp:77] Creating layer conv4_4_HandCPM
+I0601 13:36:37.695232 29727 net.cpp:100] Creating Layer conv4_4_HandCPM
+I0601 13:36:37.695242 29727 net.cpp:434] conv4_4_HandCPM <- conv4_3_HandCPM
+I0601 13:36:37.695250 29727 net.cpp:408] conv4_4_HandCPM -> conv4_4_HandCPM
+I0601 13:36:37.717633 29727 net.cpp:150] Setting up conv4_4_HandCPM
+I0601 13:36:37.717654 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.717660 29727 net.cpp:165] Memory required for data: 1874264064
+I0601 13:36:37.717682 29727 layer_factory.hpp:77] Creating layer relu4_4_HandCPM
+I0601 13:36:37.717697 29727 net.cpp:100] Creating Layer relu4_4_HandCPM
+I0601 13:36:37.717703 29727 net.cpp:434] relu4_4_HandCPM <- conv4_4_HandCPM
+I0601 13:36:37.717710 29727 net.cpp:395] relu4_4_HandCPM -> conv4_4_HandCPM (in-place)
+I0601 13:36:37.717975 29727 net.cpp:150] Setting up relu4_4_HandCPM
+I0601 13:36:37.717988 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.717993 29727 net.cpp:165] Memory required for data: 1880555520
+I0601 13:36:37.717998 29727 layer_factory.hpp:77] Creating layer conv4_4_HandCPM_relu4_4_HandCPM_0_split
+I0601 13:36:37.718006 29727 net.cpp:100] Creating Layer conv4_4_HandCPM_relu4_4_HandCPM_0_split
+I0601 13:36:37.718010 29727 net.cpp:434] conv4_4_HandCPM_relu4_4_HandCPM_0_split <- conv4_4_HandCPM
+I0601 13:36:37.718019 29727 net.cpp:408] conv4_4_HandCPM_relu4_4_HandCPM_0_split -> conv4_4_HandCPM_relu4_4_HandCPM_0_split_0
+I0601 13:36:37.718027 29727 net.cpp:408] conv4_4_HandCPM_relu4_4_HandCPM_0_split -> conv4_4_HandCPM_relu4_4_HandCPM_0_split_1
+I0601 13:36:37.718035 29727 net.cpp:408] conv4_4_HandCPM_relu4_4_HandCPM_0_split -> conv4_4_HandCPM_relu4_4_HandCPM_0_split_2
+I0601 13:36:37.718075 29727 net.cpp:408] conv4_4_HandCPM_relu4_4_HandCPM_0_split -> conv4_4_HandCPM_relu4_4_HandCPM_0_split_3
+I0601 13:36:37.718087 29727 net.cpp:408] conv4_4_HandCPM_relu4_4_HandCPM_0_split -> conv4_4_HandCPM_relu4_4_HandCPM_0_split_4
+I0601 13:36:37.718192 29727 net.cpp:150] Setting up conv4_4_HandCPM_relu4_4_HandCPM_0_split
+I0601 13:36:37.718202 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.718207 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.718212 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.718219 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.718224 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.718226 29727 net.cpp:165] Memory required for data: 1912012800
+I0601 13:36:37.718247 29727 layer_factory.hpp:77] Creating layer conv5_1_HandCPM_L1
+I0601 13:36:37.718271 29727 net.cpp:100] Creating Layer conv5_1_HandCPM_L1
+I0601 13:36:37.718276 29727 net.cpp:434] conv5_1_HandCPM_L1 <- conv4_4_HandCPM_relu4_4_HandCPM_0_split_0
+I0601 13:36:37.718291 29727 net.cpp:408] conv5_1_HandCPM_L1 -> conv5_1_HandCPM_L1
+I0601 13:36:37.729871 29727 net.cpp:150] Setting up conv5_1_HandCPM_L1
+I0601 13:36:37.729892 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.729898 29727 net.cpp:165] Memory required for data: 1918304256
+I0601 13:36:37.729915 29727 layer_factory.hpp:77] Creating layer relu5_1_HandCPM_L1
+I0601 13:36:37.729925 29727 net.cpp:100] Creating Layer relu5_1_HandCPM_L1
+I0601 13:36:37.729930 29727 net.cpp:434] relu5_1_HandCPM_L1 <- conv5_1_HandCPM_L1
+I0601 13:36:37.729938 29727 net.cpp:395] relu5_1_HandCPM_L1 -> conv5_1_HandCPM_L1 (in-place)
+I0601 13:36:37.731118 29727 net.cpp:150] Setting up relu5_1_HandCPM_L1
+I0601 13:36:37.731132 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.731137 29727 net.cpp:165] Memory required for data: 1924595712
+I0601 13:36:37.731151 29727 layer_factory.hpp:77] Creating layer conv5_1_HandCPM_L2
+I0601 13:36:37.731178 29727 net.cpp:100] Creating Layer conv5_1_HandCPM_L2
+I0601 13:36:37.731186 29727 net.cpp:434] conv5_1_HandCPM_L2 <- conv4_4_HandCPM_relu4_4_HandCPM_0_split_1
+I0601 13:36:37.731204 29727 net.cpp:408] conv5_1_HandCPM_L2 -> conv5_1_HandCPM_L2
+I0601 13:36:37.748281 29727 net.cpp:150] Setting up conv5_1_HandCPM_L2
+I0601 13:36:37.748345 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.748355 29727 net.cpp:165] Memory required for data: 1930887168
+I0601 13:36:37.748376 29727 layer_factory.hpp:77] Creating layer relu5_1_HandCPM_L2
+I0601 13:36:37.748421 29727 net.cpp:100] Creating Layer relu5_1_HandCPM_L2
+I0601 13:36:37.748435 29727 net.cpp:434] relu5_1_HandCPM_L2 <- conv5_1_HandCPM_L2
+I0601 13:36:37.748453 29727 net.cpp:395] relu5_1_HandCPM_L2 -> conv5_1_HandCPM_L2 (in-place)
+I0601 13:36:37.750612 29727 net.cpp:150] Setting up relu5_1_HandCPM_L2
+I0601 13:36:37.750643 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.750666 29727 net.cpp:165] Memory required for data: 1937178624
+I0601 13:36:37.750677 29727 layer_factory.hpp:77] Creating layer conv5_2_HandCPM_L1
+I0601 13:36:37.750715 29727 net.cpp:100] Creating Layer conv5_2_HandCPM_L1
+I0601 13:36:37.750723 29727 net.cpp:434] conv5_2_HandCPM_L1 <- conv5_1_HandCPM_L1
+I0601 13:36:37.750741 29727 net.cpp:408] conv5_2_HandCPM_L1 -> conv5_2_HandCPM_L1
+I0601 13:36:37.760602 29727 net.cpp:150] Setting up conv5_2_HandCPM_L1
+I0601 13:36:37.760619 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.760637 29727 net.cpp:165] Memory required for data: 1943470080
+I0601 13:36:37.760644 29727 layer_factory.hpp:77] Creating layer relu5_2_HandCPM_L1
+I0601 13:36:37.760654 29727 net.cpp:100] Creating Layer relu5_2_HandCPM_L1
+I0601 13:36:37.760659 29727 net.cpp:434] relu5_2_HandCPM_L1 <- conv5_2_HandCPM_L1
+I0601 13:36:37.760665 29727 net.cpp:395] relu5_2_HandCPM_L1 -> conv5_2_HandCPM_L1 (in-place)
+I0601 13:36:37.761924 29727 net.cpp:150] Setting up relu5_2_HandCPM_L1
+I0601 13:36:37.761940 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.761955 29727 net.cpp:165] Memory required for data: 1949761536
+I0601 13:36:37.761981 29727 layer_factory.hpp:77] Creating layer conv5_2_HandCPM_L2
+I0601 13:36:37.761994 29727 net.cpp:100] Creating Layer conv5_2_HandCPM_L2
+I0601 13:36:37.762008 29727 net.cpp:434] conv5_2_HandCPM_L2 <- conv5_1_HandCPM_L2
+I0601 13:36:37.762017 29727 net.cpp:408] conv5_2_HandCPM_L2 -> conv5_2_HandCPM_L2
+I0601 13:36:37.771780 29727 net.cpp:150] Setting up conv5_2_HandCPM_L2
+I0601 13:36:37.771798 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.771813 29727 net.cpp:165] Memory required for data: 1956052992
+I0601 13:36:37.771826 29727 layer_factory.hpp:77] Creating layer relu5_2_HandCPM_L2
+I0601 13:36:37.771834 29727 net.cpp:100] Creating Layer relu5_2_HandCPM_L2
+I0601 13:36:37.771839 29727 net.cpp:434] relu5_2_HandCPM_L2 <- conv5_2_HandCPM_L2
+I0601 13:36:37.771844 29727 net.cpp:395] relu5_2_HandCPM_L2 -> conv5_2_HandCPM_L2 (in-place)
+I0601 13:36:37.773149 29727 net.cpp:150] Setting up relu5_2_HandCPM_L2
+I0601 13:36:37.773161 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.773165 29727 net.cpp:165] Memory required for data: 1962344448
+I0601 13:36:37.773178 29727 layer_factory.hpp:77] Creating layer conv5_3_HandCPM_L1
+I0601 13:36:37.773192 29727 net.cpp:100] Creating Layer conv5_3_HandCPM_L1
+I0601 13:36:37.773197 29727 net.cpp:434] conv5_3_HandCPM_L1 <- conv5_2_HandCPM_L1
+I0601 13:36:37.773206 29727 net.cpp:408] conv5_3_HandCPM_L1 -> conv5_3_HandCPM_L1
+I0601 13:36:37.791424 29727 net.cpp:150] Setting up conv5_3_HandCPM_L1
+I0601 13:36:37.791448 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.791461 29727 net.cpp:165] Memory required for data: 1968635904
+I0601 13:36:37.791481 29727 layer_factory.hpp:77] Creating layer relu5_3_HandCPM_L1
+I0601 13:36:37.791491 29727 net.cpp:100] Creating Layer relu5_3_HandCPM_L1
+I0601 13:36:37.791497 29727 net.cpp:434] relu5_3_HandCPM_L1 <- conv5_3_HandCPM_L1
+I0601 13:36:37.791503 29727 net.cpp:395] relu5_3_HandCPM_L1 -> conv5_3_HandCPM_L1 (in-place)
+I0601 13:36:37.792768 29727 net.cpp:150] Setting up relu5_3_HandCPM_L1
+I0601 13:36:37.792783 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.792788 29727 net.cpp:165] Memory required for data: 1974927360
+I0601 13:36:37.792812 29727 layer_factory.hpp:77] Creating layer conv5_3_HandCPM_L2
+I0601 13:36:37.792826 29727 net.cpp:100] Creating Layer conv5_3_HandCPM_L2
+I0601 13:36:37.792834 29727 net.cpp:434] conv5_3_HandCPM_L2 <- conv5_2_HandCPM_L2
+I0601 13:36:37.792842 29727 net.cpp:408] conv5_3_HandCPM_L2 -> conv5_3_HandCPM_L2
+I0601 13:36:37.802573 29727 net.cpp:150] Setting up conv5_3_HandCPM_L2
+I0601 13:36:37.802593 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.802597 29727 net.cpp:165] Memory required for data: 1981218816
+I0601 13:36:37.802613 29727 layer_factory.hpp:77] Creating layer relu5_3_HandCPM_L2
+I0601 13:36:37.802630 29727 net.cpp:100] Creating Layer relu5_3_HandCPM_L2
+I0601 13:36:37.802635 29727 net.cpp:434] relu5_3_HandCPM_L2 <- conv5_3_HandCPM_L2
+I0601 13:36:37.802641 29727 net.cpp:395] relu5_3_HandCPM_L2 -> conv5_3_HandCPM_L2 (in-place)
+I0601 13:36:37.803963 29727 net.cpp:150] Setting up relu5_3_HandCPM_L2
+I0601 13:36:37.803977 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.803980 29727 net.cpp:165] Memory required for data: 1987510272
+I0601 13:36:37.803995 29727 layer_factory.hpp:77] Creating layer conv5_4_HandCPM_L1
+I0601 13:36:37.804008 29727 net.cpp:100] Creating Layer conv5_4_HandCPM_L1
+I0601 13:36:37.804013 29727 net.cpp:434] conv5_4_HandCPM_L1 <- conv5_3_HandCPM_L1
+I0601 13:36:37.804023 29727 net.cpp:408] conv5_4_HandCPM_L1 -> conv5_4_HandCPM_L1
+I0601 13:36:37.811034 29727 net.cpp:150] Setting up conv5_4_HandCPM_L1
+I0601 13:36:37.811076 29727 net.cpp:157] Top shape: 12 512 32 32 (6291456)
+I0601 13:36:37.811098 29727 net.cpp:165] Memory required for data: 2012676096
+I0601 13:36:37.811127 29727 layer_factory.hpp:77] Creating layer relu5_4_HandCPM_L1
+I0601 13:36:37.811141 29727 net.cpp:100] Creating Layer relu5_4_HandCPM_L1
+I0601 13:36:37.811151 29727 net.cpp:434] relu5_4_HandCPM_L1 <- conv5_4_HandCPM_L1
+I0601 13:36:37.811187 29727 net.cpp:395] relu5_4_HandCPM_L1 -> conv5_4_HandCPM_L1 (in-place)
+I0601 13:36:37.813004 29727 net.cpp:150] Setting up relu5_4_HandCPM_L1
+I0601 13:36:37.813016 29727 net.cpp:157] Top shape: 12 512 32 32 (6291456)
+I0601 13:36:37.813020 29727 net.cpp:165] Memory required for data: 2037841920
+I0601 13:36:37.813035 29727 layer_factory.hpp:77] Creating layer conv5_4_HandCPM_L2
+I0601 13:36:37.813047 29727 net.cpp:100] Creating Layer conv5_4_HandCPM_L2
+I0601 13:36:37.813052 29727 net.cpp:434] conv5_4_HandCPM_L2 <- conv5_3_HandCPM_L2
+I0601 13:36:37.813061 29727 net.cpp:408] conv5_4_HandCPM_L2 -> conv5_4_HandCPM_L2
+I0601 13:36:37.826406 29727 net.cpp:150] Setting up conv5_4_HandCPM_L2
+I0601 13:36:37.826443 29727 net.cpp:157] Top shape: 12 512 32 32 (6291456)
+I0601 13:36:37.826452 29727 net.cpp:165] Memory required for data: 2063007744
+I0601 13:36:37.826467 29727 layer_factory.hpp:77] Creating layer relu5_4_HandCPM_L2
+I0601 13:36:37.826485 29727 net.cpp:100] Creating Layer relu5_4_HandCPM_L2
+I0601 13:36:37.826496 29727 net.cpp:434] relu5_4_HandCPM_L2 <- conv5_4_HandCPM_L2
+I0601 13:36:37.826514 29727 net.cpp:395] relu5_4_HandCPM_L2 -> conv5_4_HandCPM_L2 (in-place)
+I0601 13:36:37.830504 29727 net.cpp:150] Setting up relu5_4_HandCPM_L2
+I0601 13:36:37.830550 29727 net.cpp:157] Top shape: 12 512 32 32 (6291456)
+I0601 13:36:37.830559 29727 net.cpp:165] Memory required for data: 2088173568
+I0601 13:36:37.830565 29727 layer_factory.hpp:77] Creating layer conv5_5_HandCPM_L1
+I0601 13:36:37.830585 29727 net.cpp:100] Creating Layer conv5_5_HandCPM_L1
+I0601 13:36:37.830593 29727 net.cpp:434] conv5_5_HandCPM_L1 <- conv5_4_HandCPM_L1
+I0601 13:36:37.830605 29727 net.cpp:408] conv5_5_HandCPM_L1 -> conv5_5_HandCPM_L1
+I0601 13:36:37.835373 29727 net.cpp:150] Setting up conv5_5_HandCPM_L1
+I0601 13:36:37.835394 29727 net.cpp:157] Top shape: 12 40 32 32 (491520)
+I0601 13:36:37.835412 29727 net.cpp:165] Memory required for data: 2090139648
+I0601 13:36:37.835422 29727 layer_factory.hpp:77] Creating layer conv5_5_HandCPM_L1_conv5_5_HandCPM_L1_0_split
+I0601 13:36:37.835448 29727 net.cpp:100] Creating Layer conv5_5_HandCPM_L1_conv5_5_HandCPM_L1_0_split
+I0601 13:36:37.835456 29727 net.cpp:434] conv5_5_HandCPM_L1_conv5_5_HandCPM_L1_0_split <- conv5_5_HandCPM_L1
+I0601 13:36:37.835466 29727 net.cpp:408] conv5_5_HandCPM_L1_conv5_5_HandCPM_L1_0_split -> conv5_5_HandCPM_L1_conv5_5_HandCPM_L1_0_split_0
+I0601 13:36:37.835479 29727 net.cpp:408] conv5_5_HandCPM_L1_conv5_5_HandCPM_L1_0_split -> conv5_5_HandCPM_L1_conv5_5_HandCPM_L1_0_split_1
+I0601 13:36:37.835562 29727 net.cpp:150] Setting up conv5_5_HandCPM_L1_conv5_5_HandCPM_L1_0_split
+I0601 13:36:37.835574 29727 net.cpp:157] Top shape: 12 40 32 32 (491520)
+I0601 13:36:37.835582 29727 net.cpp:157] Top shape: 12 40 32 32 (491520)
+I0601 13:36:37.835587 29727 net.cpp:165] Memory required for data: 2094071808
+I0601 13:36:37.835593 29727 layer_factory.hpp:77] Creating layer conv5_5_HandCPM_L2
+I0601 13:36:37.835615 29727 net.cpp:100] Creating Layer conv5_5_HandCPM_L2
+I0601 13:36:37.835623 29727 net.cpp:434] conv5_5_HandCPM_L2 <- conv5_4_HandCPM_L2
+I0601 13:36:37.835633 29727 net.cpp:408] conv5_5_HandCPM_L2 -> conv5_5_HandCPM_L2
+I0601 13:36:37.846323 29727 net.cpp:150] Setting up conv5_5_HandCPM_L2
+I0601 13:36:37.846349 29727 net.cpp:157] Top shape: 12 22 32 32 (270336)
+I0601 13:36:37.846354 29727 net.cpp:165] Memory required for data: 2095153152
+I0601 13:36:37.846364 29727 layer_factory.hpp:77] Creating layer conv5_5_HandCPM_L2_conv5_5_HandCPM_L2_0_split
+I0601 13:36:37.846374 29727 net.cpp:100] Creating Layer conv5_5_HandCPM_L2_conv5_5_HandCPM_L2_0_split
+I0601 13:36:37.846381 29727 net.cpp:434] conv5_5_HandCPM_L2_conv5_5_HandCPM_L2_0_split <- conv5_5_HandCPM_L2
+I0601 13:36:37.846392 29727 net.cpp:408] conv5_5_HandCPM_L2_conv5_5_HandCPM_L2_0_split -> conv5_5_HandCPM_L2_conv5_5_HandCPM_L2_0_split_0
+I0601 13:36:37.846403 29727 net.cpp:408] conv5_5_HandCPM_L2_conv5_5_HandCPM_L2_0_split -> conv5_5_HandCPM_L2_conv5_5_HandCPM_L2_0_split_1
+I0601 13:36:37.846493 29727 net.cpp:150] Setting up conv5_5_HandCPM_L2_conv5_5_HandCPM_L2_0_split
+I0601 13:36:37.846505 29727 net.cpp:157] Top shape: 12 22 32 32 (270336)
+I0601 13:36:37.846511 29727 net.cpp:157] Top shape: 12 22 32 32 (270336)
+I0601 13:36:37.846519 29727 net.cpp:165] Memory required for data: 2097315840
+I0601 13:36:37.846524 29727 layer_factory.hpp:77] Creating layer loss_stage1_L1
+I0601 13:36:37.846537 29727 net.cpp:100] Creating Layer loss_stage1_L1
+I0601 13:36:37.846544 29727 net.cpp:434] loss_stage1_L1 <- conv5_5_HandCPM_L1_conv5_5_HandCPM_L1_0_split_0
+I0601 13:36:37.846563 29727 net.cpp:434] loss_stage1_L1 <- label_vec_label_slice_0_split_0
+I0601 13:36:37.846571 29727 net.cpp:408] loss_stage1_L1 -> loss_stage1_L1
+I0601 13:36:37.846643 29727 net.cpp:150] Setting up loss_stage1_L1
+I0601 13:36:37.846652 29727 net.cpp:157] Top shape: (1)
+I0601 13:36:37.846655 29727 net.cpp:160]     with loss weight 1
+I0601 13:36:37.846709 29727 net.cpp:165] Memory required for data: 2097315844
+I0601 13:36:37.846724 29727 layer_factory.hpp:77] Creating layer loss_stage1_L2
+I0601 13:36:37.846750 29727 net.cpp:100] Creating Layer loss_stage1_L2
+I0601 13:36:37.846763 29727 net.cpp:434] loss_stage1_L2 <- conv5_5_HandCPM_L2_conv5_5_HandCPM_L2_0_split_0
+I0601 13:36:37.846771 29727 net.cpp:434] loss_stage1_L2 <- label_heat_label_slice_1_split_0
+I0601 13:36:37.846783 29727 net.cpp:408] loss_stage1_L2 -> loss_stage1_L2
+I0601 13:36:37.846858 29727 net.cpp:150] Setting up loss_stage1_L2
+I0601 13:36:37.846868 29727 net.cpp:157] Top shape: (1)
+I0601 13:36:37.846873 29727 net.cpp:160]     with loss weight 1
+I0601 13:36:37.846879 29727 net.cpp:165] Memory required for data: 2097315848
+I0601 13:36:37.846884 29727 layer_factory.hpp:77] Creating layer concat_stage2
+I0601 13:36:37.846904 29727 net.cpp:100] Creating Layer concat_stage2
+I0601 13:36:37.846910 29727 net.cpp:434] concat_stage2 <- conv5_5_HandCPM_L1_conv5_5_HandCPM_L1_0_split_1
+I0601 13:36:37.846916 29727 net.cpp:434] concat_stage2 <- conv5_5_HandCPM_L2_conv5_5_HandCPM_L2_0_split_1
+I0601 13:36:37.846923 29727 net.cpp:434] concat_stage2 <- conv4_4_HandCPM_relu4_4_HandCPM_0_split_2
+I0601 13:36:37.846932 29727 net.cpp:408] concat_stage2 -> concat_stage2
+I0601 13:36:37.846972 29727 net.cpp:150] Setting up concat_stage2
+I0601 13:36:37.846984 29727 net.cpp:157] Top shape: 12 190 32 32 (2334720)
+I0601 13:36:37.846989 29727 net.cpp:165] Memory required for data: 2106654728
+I0601 13:36:37.846993 29727 layer_factory.hpp:77] Creating layer concat_stage2_concat_stage2_0_split
+I0601 13:36:37.847000 29727 net.cpp:100] Creating Layer concat_stage2_concat_stage2_0_split
+I0601 13:36:37.847005 29727 net.cpp:434] concat_stage2_concat_stage2_0_split <- concat_stage2
+I0601 13:36:37.847014 29727 net.cpp:408] concat_stage2_concat_stage2_0_split -> concat_stage2_concat_stage2_0_split_0
+I0601 13:36:37.847023 29727 net.cpp:408] concat_stage2_concat_stage2_0_split -> concat_stage2_concat_stage2_0_split_1
+I0601 13:36:37.847074 29727 net.cpp:150] Setting up concat_stage2_concat_stage2_0_split
+I0601 13:36:37.847082 29727 net.cpp:157] Top shape: 12 190 32 32 (2334720)
+I0601 13:36:37.847088 29727 net.cpp:157] Top shape: 12 190 32 32 (2334720)
+I0601 13:36:37.847092 29727 net.cpp:165] Memory required for data: 2125332488
+I0601 13:36:37.847097 29727 layer_factory.hpp:77] Creating layer HandMconv1_stage2_L1
+I0601 13:36:37.847115 29727 net.cpp:100] Creating Layer HandMconv1_stage2_L1
+I0601 13:36:37.847121 29727 net.cpp:434] HandMconv1_stage2_L1 <- concat_stage2_concat_stage2_0_split_0
+I0601 13:36:37.847131 29727 net.cpp:408] HandMconv1_stage2_L1 -> HandMconv1_stage2_L1
+I0601 13:36:37.889798 29727 net.cpp:150] Setting up HandMconv1_stage2_L1
+I0601 13:36:37.889816 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.889834 29727 net.cpp:165] Memory required for data: 2131623944
+I0601 13:36:37.889840 29727 layer_factory.hpp:77] Creating layer HandMrelu1_stage2_L1
+I0601 13:36:37.889855 29727 net.cpp:100] Creating Layer HandMrelu1_stage2_L1
+I0601 13:36:37.889859 29727 net.cpp:434] HandMrelu1_stage2_L1 <- HandMconv1_stage2_L1
+I0601 13:36:37.889879 29727 net.cpp:395] HandMrelu1_stage2_L1 -> HandMconv1_stage2_L1 (in-place)
+I0601 13:36:37.891971 29727 net.cpp:150] Setting up HandMrelu1_stage2_L1
+I0601 13:36:37.891985 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.892005 29727 net.cpp:165] Memory required for data: 2137915400
+I0601 13:36:37.892009 29727 layer_factory.hpp:77] Creating layer HandMconv1_stage2_L2
+I0601 13:36:37.892019 29727 net.cpp:100] Creating Layer HandMconv1_stage2_L2
+I0601 13:36:37.892024 29727 net.cpp:434] HandMconv1_stage2_L2 <- concat_stage2_concat_stage2_0_split_1
+I0601 13:36:37.892031 29727 net.cpp:408] HandMconv1_stage2_L2 -> HandMconv1_stage2_L2
+I0601 13:36:37.925277 29727 net.cpp:150] Setting up HandMconv1_stage2_L2
+I0601 13:36:37.925299 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.925318 29727 net.cpp:165] Memory required for data: 2144206856
+I0601 13:36:37.925324 29727 layer_factory.hpp:77] Creating layer HandMrelu1_stage2_L2
+I0601 13:36:37.925330 29727 net.cpp:100] Creating Layer HandMrelu1_stage2_L2
+I0601 13:36:37.925334 29727 net.cpp:434] HandMrelu1_stage2_L2 <- HandMconv1_stage2_L2
+I0601 13:36:37.925341 29727 net.cpp:395] HandMrelu1_stage2_L2 -> HandMconv1_stage2_L2 (in-place)
+I0601 13:36:37.928438 29727 net.cpp:150] Setting up HandMrelu1_stage2_L2
+I0601 13:36:37.928488 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.928498 29727 net.cpp:165] Memory required for data: 2150498312
+I0601 13:36:37.928509 29727 layer_factory.hpp:77] Creating layer HandMconv2_stage2_L1
+I0601 13:36:37.928539 29727 net.cpp:100] Creating Layer HandMconv2_stage2_L1
+I0601 13:36:37.928550 29727 net.cpp:434] HandMconv2_stage2_L1 <- HandMconv1_stage2_L1
+I0601 13:36:37.928565 29727 net.cpp:408] HandMconv2_stage2_L1 -> HandMconv2_stage2_L1
+I0601 13:36:37.959839 29727 net.cpp:150] Setting up HandMconv2_stage2_L1
+I0601 13:36:37.959858 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.959877 29727 net.cpp:165] Memory required for data: 2156789768
+I0601 13:36:37.959885 29727 layer_factory.hpp:77] Creating layer HandMrelu2_stage2_L1
+I0601 13:36:37.959895 29727 net.cpp:100] Creating Layer HandMrelu2_stage2_L1
+I0601 13:36:37.959906 29727 net.cpp:434] HandMrelu2_stage2_L1 <- HandMconv2_stage2_L1
+I0601 13:36:37.959913 29727 net.cpp:395] HandMrelu2_stage2_L1 -> HandMconv2_stage2_L1 (in-place)
+I0601 13:36:37.961956 29727 net.cpp:150] Setting up HandMrelu2_stage2_L1
+I0601 13:36:37.961967 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.961971 29727 net.cpp:165] Memory required for data: 2163081224
+I0601 13:36:37.961984 29727 layer_factory.hpp:77] Creating layer HandMconv2_stage2_L2
+I0601 13:36:37.962009 29727 net.cpp:100] Creating Layer HandMconv2_stage2_L2
+I0601 13:36:37.962014 29727 net.cpp:434] HandMconv2_stage2_L2 <- HandMconv1_stage2_L2
+I0601 13:36:37.962021 29727 net.cpp:408] HandMconv2_stage2_L2 -> HandMconv2_stage2_L2
+I0601 13:36:37.995411 29727 net.cpp:150] Setting up HandMconv2_stage2_L2
+I0601 13:36:37.995455 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.995461 29727 net.cpp:165] Memory required for data: 2169372680
+I0601 13:36:37.995472 29727 layer_factory.hpp:77] Creating layer HandMrelu2_stage2_L2
+I0601 13:36:37.995537 29727 net.cpp:100] Creating Layer HandMrelu2_stage2_L2
+I0601 13:36:37.995546 29727 net.cpp:434] HandMrelu2_stage2_L2 <- HandMconv2_stage2_L2
+I0601 13:36:37.995568 29727 net.cpp:395] HandMrelu2_stage2_L2 -> HandMconv2_stage2_L2 (in-place)
+I0601 13:36:37.996268 29727 net.cpp:150] Setting up HandMrelu2_stage2_L2
+I0601 13:36:37.996282 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:37.996299 29727 net.cpp:165] Memory required for data: 2175664136
+I0601 13:36:37.996304 29727 layer_factory.hpp:77] Creating layer HandMconv3_stage2_L1
+I0601 13:36:37.996318 29727 net.cpp:100] Creating Layer HandMconv3_stage2_L1
+I0601 13:36:37.996338 29727 net.cpp:434] HandMconv3_stage2_L1 <- HandMconv2_stage2_L1
+I0601 13:36:37.996348 29727 net.cpp:408] HandMconv3_stage2_L1 -> HandMconv3_stage2_L1
+I0601 13:36:38.030483 29727 net.cpp:150] Setting up HandMconv3_stage2_L1
+I0601 13:36:38.030504 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.030509 29727 net.cpp:165] Memory required for data: 2181955592
+I0601 13:36:38.030517 29727 layer_factory.hpp:77] Creating layer HandMrelu3_stage2_L1
+I0601 13:36:38.030526 29727 net.cpp:100] Creating Layer HandMrelu3_stage2_L1
+I0601 13:36:38.030531 29727 net.cpp:434] HandMrelu3_stage2_L1 <- HandMconv3_stage2_L1
+I0601 13:36:38.030539 29727 net.cpp:395] HandMrelu3_stage2_L1 -> HandMconv3_stage2_L1 (in-place)
+I0601 13:36:38.032620 29727 net.cpp:150] Setting up HandMrelu3_stage2_L1
+I0601 13:36:38.032634 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.032639 29727 net.cpp:165] Memory required for data: 2188247048
+I0601 13:36:38.032650 29727 layer_factory.hpp:77] Creating layer HandMconv3_stage2_L2
+I0601 13:36:38.032670 29727 net.cpp:100] Creating Layer HandMconv3_stage2_L2
+I0601 13:36:38.032676 29727 net.cpp:434] HandMconv3_stage2_L2 <- HandMconv2_stage2_L2
+I0601 13:36:38.032683 29727 net.cpp:408] HandMconv3_stage2_L2 -> HandMconv3_stage2_L2
+I0601 13:36:38.069032 29727 net.cpp:150] Setting up HandMconv3_stage2_L2
+I0601 13:36:38.069064 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.069069 29727 net.cpp:165] Memory required for data: 2194538504
+I0601 13:36:38.069085 29727 layer_factory.hpp:77] Creating layer HandMrelu3_stage2_L2
+I0601 13:36:38.069094 29727 net.cpp:100] Creating Layer HandMrelu3_stage2_L2
+I0601 13:36:38.069099 29727 net.cpp:434] HandMrelu3_stage2_L2 <- HandMconv3_stage2_L2
+I0601 13:36:38.069105 29727 net.cpp:395] HandMrelu3_stage2_L2 -> HandMconv3_stage2_L2 (in-place)
+I0601 13:36:38.071154 29727 net.cpp:150] Setting up HandMrelu3_stage2_L2
+I0601 13:36:38.071166 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.071169 29727 net.cpp:165] Memory required for data: 2200829960
+I0601 13:36:38.071173 29727 layer_factory.hpp:77] Creating layer HandMconv4_stage2_L1
+I0601 13:36:38.071192 29727 net.cpp:100] Creating Layer HandMconv4_stage2_L1
+I0601 13:36:38.071200 29727 net.cpp:434] HandMconv4_stage2_L1 <- HandMconv3_stage2_L1
+I0601 13:36:38.071208 29727 net.cpp:408] HandMconv4_stage2_L1 -> HandMconv4_stage2_L1
+I0601 13:36:38.105480 29727 net.cpp:150] Setting up HandMconv4_stage2_L1
+I0601 13:36:38.105502 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.105516 29727 net.cpp:165] Memory required for data: 2207121416
+I0601 13:36:38.105525 29727 layer_factory.hpp:77] Creating layer HandMrelu4_stage2_L1
+I0601 13:36:38.105535 29727 net.cpp:100] Creating Layer HandMrelu4_stage2_L1
+I0601 13:36:38.105540 29727 net.cpp:434] HandMrelu4_stage2_L1 <- HandMconv4_stage2_L1
+I0601 13:36:38.105546 29727 net.cpp:395] HandMrelu4_stage2_L1 -> HandMconv4_stage2_L1 (in-place)
+I0601 13:36:38.110028 29727 net.cpp:150] Setting up HandMrelu4_stage2_L1
+I0601 13:36:38.110072 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.110081 29727 net.cpp:165] Memory required for data: 2213412872
+I0601 13:36:38.110100 29727 layer_factory.hpp:77] Creating layer HandMconv4_stage2_L2
+I0601 13:36:38.110146 29727 net.cpp:100] Creating Layer HandMconv4_stage2_L2
+I0601 13:36:38.110157 29727 net.cpp:434] HandMconv4_stage2_L2 <- HandMconv3_stage2_L2
+I0601 13:36:38.110177 29727 net.cpp:408] HandMconv4_stage2_L2 -> HandMconv4_stage2_L2
+I0601 13:36:38.140066 29727 net.cpp:150] Setting up HandMconv4_stage2_L2
+I0601 13:36:38.140086 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.140090 29727 net.cpp:165] Memory required for data: 2219704328
+I0601 13:36:38.140100 29727 layer_factory.hpp:77] Creating layer HandMrelu4_stage2_L2
+I0601 13:36:38.140110 29727 net.cpp:100] Creating Layer HandMrelu4_stage2_L2
+I0601 13:36:38.140117 29727 net.cpp:434] HandMrelu4_stage2_L2 <- HandMconv4_stage2_L2
+I0601 13:36:38.140136 29727 net.cpp:395] HandMrelu4_stage2_L2 -> HandMconv4_stage2_L2 (in-place)
+I0601 13:36:38.143437 29727 net.cpp:150] Setting up HandMrelu4_stage2_L2
+I0601 13:36:38.143457 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.143499 29727 net.cpp:165] Memory required for data: 2225995784
+I0601 13:36:38.143504 29727 layer_factory.hpp:77] Creating layer HandMconv5_stage2_L1
+I0601 13:36:38.143528 29727 net.cpp:100] Creating Layer HandMconv5_stage2_L1
+I0601 13:36:38.143533 29727 net.cpp:434] HandMconv5_stage2_L1 <- HandMconv4_stage2_L1
+I0601 13:36:38.143543 29727 net.cpp:408] HandMconv5_stage2_L1 -> HandMconv5_stage2_L1
+I0601 13:36:38.176245 29727 net.cpp:150] Setting up HandMconv5_stage2_L1
+I0601 13:36:38.176266 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.176270 29727 net.cpp:165] Memory required for data: 2232287240
+I0601 13:36:38.176286 29727 layer_factory.hpp:77] Creating layer HandMrelu5_stage2_L1
+I0601 13:36:38.176301 29727 net.cpp:100] Creating Layer HandMrelu5_stage2_L1
+I0601 13:36:38.176306 29727 net.cpp:434] HandMrelu5_stage2_L1 <- HandMconv5_stage2_L1
+I0601 13:36:38.176312 29727 net.cpp:395] HandMrelu5_stage2_L1 -> HandMconv5_stage2_L1 (in-place)
+I0601 13:36:38.178377 29727 net.cpp:150] Setting up HandMrelu5_stage2_L1
+I0601 13:36:38.178388 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.178392 29727 net.cpp:165] Memory required for data: 2238578696
+I0601 13:36:38.178407 29727 layer_factory.hpp:77] Creating layer HandMconv5_stage2_L2
+I0601 13:36:38.178421 29727 net.cpp:100] Creating Layer HandMconv5_stage2_L2
+I0601 13:36:38.178426 29727 net.cpp:434] HandMconv5_stage2_L2 <- HandMconv4_stage2_L2
+I0601 13:36:38.178434 29727 net.cpp:408] HandMconv5_stage2_L2 -> HandMconv5_stage2_L2
+I0601 13:36:38.209347 29727 net.cpp:150] Setting up HandMconv5_stage2_L2
+I0601 13:36:38.209367 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.209383 29727 net.cpp:165] Memory required for data: 2244870152
+I0601 13:36:38.209391 29727 layer_factory.hpp:77] Creating layer HandMrelu5_stage2_L2
+I0601 13:36:38.209400 29727 net.cpp:100] Creating Layer HandMrelu5_stage2_L2
+I0601 13:36:38.209406 29727 net.cpp:434] HandMrelu5_stage2_L2 <- HandMconv5_stage2_L2
+I0601 13:36:38.209412 29727 net.cpp:395] HandMrelu5_stage2_L2 -> HandMconv5_stage2_L2 (in-place)
+I0601 13:36:38.211484 29727 net.cpp:150] Setting up HandMrelu5_stage2_L2
+I0601 13:36:38.211495 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.211499 29727 net.cpp:165] Memory required for data: 2251161608
+I0601 13:36:38.211513 29727 layer_factory.hpp:77] Creating layer HandMconv6_stage2_L1
+I0601 13:36:38.211526 29727 net.cpp:100] Creating Layer HandMconv6_stage2_L1
+I0601 13:36:38.211531 29727 net.cpp:434] HandMconv6_stage2_L1 <- HandMconv5_stage2_L1
+I0601 13:36:38.211539 29727 net.cpp:408] HandMconv6_stage2_L1 -> HandMconv6_stage2_L1
+I0601 13:36:38.218749 29727 net.cpp:150] Setting up HandMconv6_stage2_L1
+I0601 13:36:38.218809 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.218825 29727 net.cpp:165] Memory required for data: 2257453064
+I0601 13:36:38.218890 29727 layer_factory.hpp:77] Creating layer HandMrelu6_stage2_L1
+I0601 13:36:38.219009 29727 net.cpp:100] Creating Layer HandMrelu6_stage2_L1
+I0601 13:36:38.219029 29727 net.cpp:434] HandMrelu6_stage2_L1 <- HandMconv6_stage2_L1
+I0601 13:36:38.219049 29727 net.cpp:395] HandMrelu6_stage2_L1 -> HandMconv6_stage2_L1 (in-place)
+I0601 13:36:38.220634 29727 net.cpp:150] Setting up HandMrelu6_stage2_L1
+I0601 13:36:38.220675 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.220686 29727 net.cpp:165] Memory required for data: 2263744520
+I0601 13:36:38.220710 29727 layer_factory.hpp:77] Creating layer HandMconv6_stage2_L2
+I0601 13:36:38.220741 29727 net.cpp:100] Creating Layer HandMconv6_stage2_L2
+I0601 13:36:38.220770 29727 net.cpp:434] HandMconv6_stage2_L2 <- HandMconv5_stage2_L2
+I0601 13:36:38.220805 29727 net.cpp:408] HandMconv6_stage2_L2 -> HandMconv6_stage2_L2
+I0601 13:36:38.227552 29727 net.cpp:150] Setting up HandMconv6_stage2_L2
+I0601 13:36:38.227598 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.227607 29727 net.cpp:165] Memory required for data: 2270035976
+I0601 13:36:38.227619 29727 layer_factory.hpp:77] Creating layer HandMrelu6_stage2_L2
+I0601 13:36:38.227686 29727 net.cpp:100] Creating Layer HandMrelu6_stage2_L2
+I0601 13:36:38.227696 29727 net.cpp:434] HandMrelu6_stage2_L2 <- HandMconv6_stage2_L2
+I0601 13:36:38.227706 29727 net.cpp:395] HandMrelu6_stage2_L2 -> HandMconv6_stage2_L2 (in-place)
+I0601 13:36:38.229679 29727 net.cpp:150] Setting up HandMrelu6_stage2_L2
+I0601 13:36:38.229698 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.229704 29727 net.cpp:165] Memory required for data: 2276327432
+I0601 13:36:38.229712 29727 layer_factory.hpp:77] Creating layer HandMconv7_stage2_L1
+I0601 13:36:38.229730 29727 net.cpp:100] Creating Layer HandMconv7_stage2_L1
+I0601 13:36:38.229738 29727 net.cpp:434] HandMconv7_stage2_L1 <- HandMconv6_stage2_L1
+I0601 13:36:38.229750 29727 net.cpp:408] HandMconv7_stage2_L1 -> HandMconv7_stage2_L1
+I0601 13:36:38.236600 29727 net.cpp:150] Setting up HandMconv7_stage2_L1
+I0601 13:36:38.236619 29727 net.cpp:157] Top shape: 12 40 32 32 (491520)
+I0601 13:36:38.236624 29727 net.cpp:165] Memory required for data: 2278293512
+I0601 13:36:38.236636 29727 layer_factory.hpp:77] Creating layer HandMconv7_stage2_L1_HandMconv7_stage2_L1_0_split
+I0601 13:36:38.236654 29727 net.cpp:100] Creating Layer HandMconv7_stage2_L1_HandMconv7_stage2_L1_0_split
+I0601 13:36:38.236660 29727 net.cpp:434] HandMconv7_stage2_L1_HandMconv7_stage2_L1_0_split <- HandMconv7_stage2_L1
+I0601 13:36:38.236666 29727 net.cpp:408] HandMconv7_stage2_L1_HandMconv7_stage2_L1_0_split -> HandMconv7_stage2_L1_HandMconv7_stage2_L1_0_split_0
+I0601 13:36:38.236675 29727 net.cpp:408] HandMconv7_stage2_L1_HandMconv7_stage2_L1_0_split -> HandMconv7_stage2_L1_HandMconv7_stage2_L1_0_split_1
+I0601 13:36:38.236742 29727 net.cpp:150] Setting up HandMconv7_stage2_L1_HandMconv7_stage2_L1_0_split
+I0601 13:36:38.236750 29727 net.cpp:157] Top shape: 12 40 32 32 (491520)
+I0601 13:36:38.236755 29727 net.cpp:157] Top shape: 12 40 32 32 (491520)
+I0601 13:36:38.236759 29727 net.cpp:165] Memory required for data: 2282225672
+I0601 13:36:38.236763 29727 layer_factory.hpp:77] Creating layer HandMconv7_stage2_L2
+I0601 13:36:38.236774 29727 net.cpp:100] Creating Layer HandMconv7_stage2_L2
+I0601 13:36:38.236783 29727 net.cpp:434] HandMconv7_stage2_L2 <- HandMconv6_stage2_L2
+I0601 13:36:38.236791 29727 net.cpp:408] HandMconv7_stage2_L2 -> HandMconv7_stage2_L2
+I0601 13:36:38.243383 29727 net.cpp:150] Setting up HandMconv7_stage2_L2
+I0601 13:36:38.243402 29727 net.cpp:157] Top shape: 12 22 32 32 (270336)
+I0601 13:36:38.243407 29727 net.cpp:165] Memory required for data: 2283307016
+I0601 13:36:38.243415 29727 layer_factory.hpp:77] Creating layer HandMconv7_stage2_L2_HandMconv7_stage2_L2_0_split
+I0601 13:36:38.243425 29727 net.cpp:100] Creating Layer HandMconv7_stage2_L2_HandMconv7_stage2_L2_0_split
+I0601 13:36:38.243432 29727 net.cpp:434] HandMconv7_stage2_L2_HandMconv7_stage2_L2_0_split <- HandMconv7_stage2_L2
+I0601 13:36:38.243439 29727 net.cpp:408] HandMconv7_stage2_L2_HandMconv7_stage2_L2_0_split -> HandMconv7_stage2_L2_HandMconv7_stage2_L2_0_split_0
+I0601 13:36:38.243448 29727 net.cpp:408] HandMconv7_stage2_L2_HandMconv7_stage2_L2_0_split -> HandMconv7_stage2_L2_HandMconv7_stage2_L2_0_split_1
+I0601 13:36:38.243515 29727 net.cpp:150] Setting up HandMconv7_stage2_L2_HandMconv7_stage2_L2_0_split
+I0601 13:36:38.243523 29727 net.cpp:157] Top shape: 12 22 32 32 (270336)
+I0601 13:36:38.243528 29727 net.cpp:157] Top shape: 12 22 32 32 (270336)
+I0601 13:36:38.243532 29727 net.cpp:165] Memory required for data: 2285469704
+I0601 13:36:38.243536 29727 layer_factory.hpp:77] Creating layer loss_stage2_L1
+I0601 13:36:38.243556 29727 net.cpp:100] Creating Layer loss_stage2_L1
+I0601 13:36:38.243561 29727 net.cpp:434] loss_stage2_L1 <- HandMconv7_stage2_L1_HandMconv7_stage2_L1_0_split_0
+I0601 13:36:38.243573 29727 net.cpp:434] loss_stage2_L1 <- label_vec_label_slice_0_split_1
+I0601 13:36:38.243582 29727 net.cpp:408] loss_stage2_L1 -> loss_stage2_L1
+I0601 13:36:38.243633 29727 net.cpp:150] Setting up loss_stage2_L1
+I0601 13:36:38.243640 29727 net.cpp:157] Top shape: (1)
+I0601 13:36:38.243660 29727 net.cpp:160]     with loss weight 1
+I0601 13:36:38.243675 29727 net.cpp:165] Memory required for data: 2285469708
+I0601 13:36:38.243685 29727 layer_factory.hpp:77] Creating layer loss_stage2_L2
+I0601 13:36:38.243695 29727 net.cpp:100] Creating Layer loss_stage2_L2
+I0601 13:36:38.243700 29727 net.cpp:434] loss_stage2_L2 <- HandMconv7_stage2_L2_HandMconv7_stage2_L2_0_split_0
+I0601 13:36:38.243706 29727 net.cpp:434] loss_stage2_L2 <- label_heat_label_slice_1_split_1
+I0601 13:36:38.243712 29727 net.cpp:408] loss_stage2_L2 -> loss_stage2_L2
+I0601 13:36:38.243765 29727 net.cpp:150] Setting up loss_stage2_L2
+I0601 13:36:38.243773 29727 net.cpp:157] Top shape: (1)
+I0601 13:36:38.243777 29727 net.cpp:160]     with loss weight 1
+I0601 13:36:38.243782 29727 net.cpp:165] Memory required for data: 2285469712
+I0601 13:36:38.243788 29727 layer_factory.hpp:77] Creating layer concat_stage3
+I0601 13:36:38.243796 29727 net.cpp:100] Creating Layer concat_stage3
+I0601 13:36:38.243813 29727 net.cpp:434] concat_stage3 <- HandMconv7_stage2_L1_HandMconv7_stage2_L1_0_split_1
+I0601 13:36:38.243818 29727 net.cpp:434] concat_stage3 <- HandMconv7_stage2_L2_HandMconv7_stage2_L2_0_split_1
+I0601 13:36:38.243824 29727 net.cpp:434] concat_stage3 <- conv4_4_HandCPM_relu4_4_HandCPM_0_split_3
+I0601 13:36:38.243829 29727 net.cpp:408] concat_stage3 -> concat_stage3
+I0601 13:36:38.243861 29727 net.cpp:150] Setting up concat_stage3
+I0601 13:36:38.243871 29727 net.cpp:157] Top shape: 12 190 32 32 (2334720)
+I0601 13:36:38.243875 29727 net.cpp:165] Memory required for data: 2294808592
+I0601 13:36:38.243878 29727 layer_factory.hpp:77] Creating layer concat_stage3_concat_stage3_0_split
+I0601 13:36:38.243885 29727 net.cpp:100] Creating Layer concat_stage3_concat_stage3_0_split
+I0601 13:36:38.243890 29727 net.cpp:434] concat_stage3_concat_stage3_0_split <- concat_stage3
+I0601 13:36:38.243913 29727 net.cpp:408] concat_stage3_concat_stage3_0_split -> concat_stage3_concat_stage3_0_split_0
+I0601 13:36:38.243924 29727 net.cpp:408] concat_stage3_concat_stage3_0_split -> concat_stage3_concat_stage3_0_split_1
+I0601 13:36:38.243973 29727 net.cpp:150] Setting up concat_stage3_concat_stage3_0_split
+I0601 13:36:38.243980 29727 net.cpp:157] Top shape: 12 190 32 32 (2334720)
+I0601 13:36:38.243988 29727 net.cpp:157] Top shape: 12 190 32 32 (2334720)
+I0601 13:36:38.243993 29727 net.cpp:165] Memory required for data: 2313486352
+I0601 13:36:38.244002 29727 layer_factory.hpp:77] Creating layer HandMconv1_stage3_L1
+I0601 13:36:38.244019 29727 net.cpp:100] Creating Layer HandMconv1_stage3_L1
+I0601 13:36:38.244025 29727 net.cpp:434] HandMconv1_stage3_L1 <- concat_stage3_concat_stage3_0_split_0
+I0601 13:36:38.244033 29727 net.cpp:408] HandMconv1_stage3_L1 -> HandMconv1_stage3_L1
+I0601 13:36:38.288072 29727 net.cpp:150] Setting up HandMconv1_stage3_L1
+I0601 13:36:38.288096 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.288101 29727 net.cpp:165] Memory required for data: 2319777808
+I0601 13:36:38.288110 29727 layer_factory.hpp:77] Creating layer HandMrelu1_stage3_L1
+I0601 13:36:38.288131 29727 net.cpp:100] Creating Layer HandMrelu1_stage3_L1
+I0601 13:36:38.288137 29727 net.cpp:434] HandMrelu1_stage3_L1 <- HandMconv1_stage3_L1
+I0601 13:36:38.288156 29727 net.cpp:395] HandMrelu1_stage3_L1 -> HandMconv1_stage3_L1 (in-place)
+I0601 13:36:38.290210 29727 net.cpp:150] Setting up HandMrelu1_stage3_L1
+I0601 13:36:38.290221 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.290225 29727 net.cpp:165] Memory required for data: 2326069264
+I0601 13:36:38.290230 29727 layer_factory.hpp:77] Creating layer HandMconv1_stage3_L2
+I0601 13:36:38.290243 29727 net.cpp:100] Creating Layer HandMconv1_stage3_L2
+I0601 13:36:38.290249 29727 net.cpp:434] HandMconv1_stage3_L2 <- concat_stage3_concat_stage3_0_split_1
+I0601 13:36:38.290256 29727 net.cpp:408] HandMconv1_stage3_L2 -> HandMconv1_stage3_L2
+I0601 13:36:38.337136 29727 net.cpp:150] Setting up HandMconv1_stage3_L2
+I0601 13:36:38.337159 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.337194 29727 net.cpp:165] Memory required for data: 2332360720
+I0601 13:36:38.337203 29727 layer_factory.hpp:77] Creating layer HandMrelu1_stage3_L2
+I0601 13:36:38.337224 29727 net.cpp:100] Creating Layer HandMrelu1_stage3_L2
+I0601 13:36:38.337230 29727 net.cpp:434] HandMrelu1_stage3_L2 <- HandMconv1_stage3_L2
+I0601 13:36:38.337236 29727 net.cpp:395] HandMrelu1_stage3_L2 -> HandMconv1_stage3_L2 (in-place)
+I0601 13:36:38.339277 29727 net.cpp:150] Setting up HandMrelu1_stage3_L2
+I0601 13:36:38.339288 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.339293 29727 net.cpp:165] Memory required for data: 2338652176
+I0601 13:36:38.339313 29727 layer_factory.hpp:77] Creating layer HandMconv2_stage3_L1
+I0601 13:36:38.339326 29727 net.cpp:100] Creating Layer HandMconv2_stage3_L1
+I0601 13:36:38.339330 29727 net.cpp:434] HandMconv2_stage3_L1 <- HandMconv1_stage3_L1
+I0601 13:36:38.339339 29727 net.cpp:408] HandMconv2_stage3_L1 -> HandMconv2_stage3_L1
+I0601 13:36:38.377163 29727 net.cpp:150] Setting up HandMconv2_stage3_L1
+I0601 13:36:38.377182 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.377195 29727 net.cpp:165] Memory required for data: 2344943632
+I0601 13:36:38.377203 29727 layer_factory.hpp:77] Creating layer HandMrelu2_stage3_L1
+I0601 13:36:38.377209 29727 net.cpp:100] Creating Layer HandMrelu2_stage3_L1
+I0601 13:36:38.377215 29727 net.cpp:434] HandMrelu2_stage3_L1 <- HandMconv2_stage3_L1
+I0601 13:36:38.377224 29727 net.cpp:395] HandMrelu2_stage3_L1 -> HandMconv2_stage3_L1 (in-place)
+I0601 13:36:38.379317 29727 net.cpp:150] Setting up HandMrelu2_stage3_L1
+I0601 13:36:38.379339 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.379354 29727 net.cpp:165] Memory required for data: 2351235088
+I0601 13:36:38.379360 29727 layer_factory.hpp:77] Creating layer HandMconv2_stage3_L2
+I0601 13:36:38.379389 29727 net.cpp:100] Creating Layer HandMconv2_stage3_L2
+I0601 13:36:38.379396 29727 net.cpp:434] HandMconv2_stage3_L2 <- HandMconv1_stage3_L2
+I0601 13:36:38.379408 29727 net.cpp:408] HandMconv2_stage3_L2 -> HandMconv2_stage3_L2
+I0601 13:36:38.411479 29727 net.cpp:150] Setting up HandMconv2_stage3_L2
+I0601 13:36:38.411499 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.411512 29727 net.cpp:165] Memory required for data: 2357526544
+I0601 13:36:38.411520 29727 layer_factory.hpp:77] Creating layer HandMrelu2_stage3_L2
+I0601 13:36:38.411536 29727 net.cpp:100] Creating Layer HandMrelu2_stage3_L2
+I0601 13:36:38.411541 29727 net.cpp:434] HandMrelu2_stage3_L2 <- HandMconv2_stage3_L2
+I0601 13:36:38.411547 29727 net.cpp:395] HandMrelu2_stage3_L2 -> HandMconv2_stage3_L2 (in-place)
+I0601 13:36:38.413622 29727 net.cpp:150] Setting up HandMrelu2_stage3_L2
+I0601 13:36:38.413635 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.413638 29727 net.cpp:165] Memory required for data: 2363818000
+I0601 13:36:38.413651 29727 layer_factory.hpp:77] Creating layer HandMconv3_stage3_L1
+I0601 13:36:38.413662 29727 net.cpp:100] Creating Layer HandMconv3_stage3_L1
+I0601 13:36:38.413666 29727 net.cpp:434] HandMconv3_stage3_L1 <- HandMconv2_stage3_L1
+I0601 13:36:38.413676 29727 net.cpp:408] HandMconv3_stage3_L1 -> HandMconv3_stage3_L1
+I0601 13:36:38.444790 29727 net.cpp:150] Setting up HandMconv3_stage3_L1
+I0601 13:36:38.444808 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.444823 29727 net.cpp:165] Memory required for data: 2370109456
+I0601 13:36:38.444830 29727 layer_factory.hpp:77] Creating layer HandMrelu3_stage3_L1
+I0601 13:36:38.444847 29727 net.cpp:100] Creating Layer HandMrelu3_stage3_L1
+I0601 13:36:38.444852 29727 net.cpp:434] HandMrelu3_stage3_L1 <- HandMconv3_stage3_L1
+I0601 13:36:38.444860 29727 net.cpp:395] HandMrelu3_stage3_L1 -> HandMconv3_stage3_L1 (in-place)
+I0601 13:36:38.445348 29727 net.cpp:150] Setting up HandMrelu3_stage3_L1
+I0601 13:36:38.445359 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.445363 29727 net.cpp:165] Memory required for data: 2376400912
+I0601 13:36:38.445376 29727 layer_factory.hpp:77] Creating layer HandMconv3_stage3_L2
+I0601 13:36:38.445410 29727 net.cpp:100] Creating Layer HandMconv3_stage3_L2
+I0601 13:36:38.445415 29727 net.cpp:434] HandMconv3_stage3_L2 <- HandMconv2_stage3_L2
+I0601 13:36:38.445423 29727 net.cpp:408] HandMconv3_stage3_L2 -> HandMconv3_stage3_L2
+I0601 13:36:38.479758 29727 net.cpp:150] Setting up HandMconv3_stage3_L2
+I0601 13:36:38.479804 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.479809 29727 net.cpp:165] Memory required for data: 2382692368
+I0601 13:36:38.479836 29727 layer_factory.hpp:77] Creating layer HandMrelu3_stage3_L2
+I0601 13:36:38.479848 29727 net.cpp:100] Creating Layer HandMrelu3_stage3_L2
+I0601 13:36:38.479854 29727 net.cpp:434] HandMrelu3_stage3_L2 <- HandMconv3_stage3_L2
+I0601 13:36:38.479861 29727 net.cpp:395] HandMrelu3_stage3_L2 -> HandMconv3_stage3_L2 (in-place)
+I0601 13:36:38.481896 29727 net.cpp:150] Setting up HandMrelu3_stage3_L2
+I0601 13:36:38.481909 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.481912 29727 net.cpp:165] Memory required for data: 2388983824
+I0601 13:36:38.481923 29727 layer_factory.hpp:77] Creating layer HandMconv4_stage3_L1
+I0601 13:36:38.481935 29727 net.cpp:100] Creating Layer HandMconv4_stage3_L1
+I0601 13:36:38.481940 29727 net.cpp:434] HandMconv4_stage3_L1 <- HandMconv3_stage3_L1
+I0601 13:36:38.481948 29727 net.cpp:408] HandMconv4_stage3_L1 -> HandMconv4_stage3_L1
+I0601 13:36:38.514060 29727 net.cpp:150] Setting up HandMconv4_stage3_L1
+I0601 13:36:38.514082 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.514086 29727 net.cpp:165] Memory required for data: 2395275280
+I0601 13:36:38.514094 29727 layer_factory.hpp:77] Creating layer HandMrelu4_stage3_L1
+I0601 13:36:38.514103 29727 net.cpp:100] Creating Layer HandMrelu4_stage3_L1
+I0601 13:36:38.514109 29727 net.cpp:434] HandMrelu4_stage3_L1 <- HandMconv4_stage3_L1
+I0601 13:36:38.514116 29727 net.cpp:395] HandMrelu4_stage3_L1 -> HandMconv4_stage3_L1 (in-place)
+I0601 13:36:38.516211 29727 net.cpp:150] Setting up HandMrelu4_stage3_L1
+I0601 13:36:38.516232 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.516238 29727 net.cpp:165] Memory required for data: 2401566736
+I0601 13:36:38.516245 29727 layer_factory.hpp:77] Creating layer HandMconv4_stage3_L2
+I0601 13:36:38.516278 29727 net.cpp:100] Creating Layer HandMconv4_stage3_L2
+I0601 13:36:38.516288 29727 net.cpp:434] HandMconv4_stage3_L2 <- HandMconv3_stage3_L2
+I0601 13:36:38.516300 29727 net.cpp:408] HandMconv4_stage3_L2 -> HandMconv4_stage3_L2
+I0601 13:36:38.548405 29727 net.cpp:150] Setting up HandMconv4_stage3_L2
+I0601 13:36:38.548426 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.548431 29727 net.cpp:165] Memory required for data: 2407858192
+I0601 13:36:38.548439 29727 layer_factory.hpp:77] Creating layer HandMrelu4_stage3_L2
+I0601 13:36:38.548447 29727 net.cpp:100] Creating Layer HandMrelu4_stage3_L2
+I0601 13:36:38.548452 29727 net.cpp:434] HandMrelu4_stage3_L2 <- HandMconv4_stage3_L2
+I0601 13:36:38.548460 29727 net.cpp:395] HandMrelu4_stage3_L2 -> HandMconv4_stage3_L2 (in-place)
+I0601 13:36:38.550539 29727 net.cpp:150] Setting up HandMrelu4_stage3_L2
+I0601 13:36:38.550550 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.550554 29727 net.cpp:165] Memory required for data: 2414149648
+I0601 13:36:38.550559 29727 layer_factory.hpp:77] Creating layer HandMconv5_stage3_L1
+I0601 13:36:38.550570 29727 net.cpp:100] Creating Layer HandMconv5_stage3_L1
+I0601 13:36:38.550573 29727 net.cpp:434] HandMconv5_stage3_L1 <- HandMconv4_stage3_L1
+I0601 13:36:38.550582 29727 net.cpp:408] HandMconv5_stage3_L1 -> HandMconv5_stage3_L1
+I0601 13:36:38.582792 29727 net.cpp:150] Setting up HandMconv5_stage3_L1
+I0601 13:36:38.582813 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.582828 29727 net.cpp:165] Memory required for data: 2420441104
+I0601 13:36:38.582836 29727 layer_factory.hpp:77] Creating layer HandMrelu5_stage3_L1
+I0601 13:36:38.582856 29727 net.cpp:100] Creating Layer HandMrelu5_stage3_L1
+I0601 13:36:38.582862 29727 net.cpp:434] HandMrelu5_stage3_L1 <- HandMconv5_stage3_L1
+I0601 13:36:38.582888 29727 net.cpp:395] HandMrelu5_stage3_L1 -> HandMconv5_stage3_L1 (in-place)
+I0601 13:36:38.584915 29727 net.cpp:150] Setting up HandMrelu5_stage3_L1
+I0601 13:36:38.584933 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.584946 29727 net.cpp:165] Memory required for data: 2426732560
+I0601 13:36:38.584957 29727 layer_factory.hpp:77] Creating layer HandMconv5_stage3_L2
+I0601 13:36:38.584970 29727 net.cpp:100] Creating Layer HandMconv5_stage3_L2
+I0601 13:36:38.584975 29727 net.cpp:434] HandMconv5_stage3_L2 <- HandMconv4_stage3_L2
+I0601 13:36:38.584983 29727 net.cpp:408] HandMconv5_stage3_L2 -> HandMconv5_stage3_L2
+I0601 13:36:38.614959 29727 net.cpp:150] Setting up HandMconv5_stage3_L2
+I0601 13:36:38.614985 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.615000 29727 net.cpp:165] Memory required for data: 2433024016
+I0601 13:36:38.615006 29727 layer_factory.hpp:77] Creating layer HandMrelu5_stage3_L2
+I0601 13:36:38.615013 29727 net.cpp:100] Creating Layer HandMrelu5_stage3_L2
+I0601 13:36:38.615018 29727 net.cpp:434] HandMrelu5_stage3_L2 <- HandMconv5_stage3_L2
+I0601 13:36:38.615025 29727 net.cpp:395] HandMrelu5_stage3_L2 -> HandMconv5_stage3_L2 (in-place)
+I0601 13:36:38.615392 29727 net.cpp:150] Setting up HandMrelu5_stage3_L2
+I0601 13:36:38.615403 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.615407 29727 net.cpp:165] Memory required for data: 2439315472
+I0601 13:36:38.615420 29727 layer_factory.hpp:77] Creating layer HandMconv6_stage3_L1
+I0601 13:36:38.615439 29727 net.cpp:100] Creating Layer HandMconv6_stage3_L1
+I0601 13:36:38.615444 29727 net.cpp:434] HandMconv6_stage3_L1 <- HandMconv5_stage3_L1
+I0601 13:36:38.615453 29727 net.cpp:408] HandMconv6_stage3_L1 -> HandMconv6_stage3_L1
+I0601 13:36:38.620635 29727 net.cpp:150] Setting up HandMconv6_stage3_L1
+I0601 13:36:38.620652 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.620667 29727 net.cpp:165] Memory required for data: 2445606928
+I0601 13:36:38.620674 29727 layer_factory.hpp:77] Creating layer HandMrelu6_stage3_L1
+I0601 13:36:38.620683 29727 net.cpp:100] Creating Layer HandMrelu6_stage3_L1
+I0601 13:36:38.620688 29727 net.cpp:434] HandMrelu6_stage3_L1 <- HandMconv6_stage3_L1
+I0601 13:36:38.620694 29727 net.cpp:395] HandMrelu6_stage3_L1 -> HandMconv6_stage3_L1 (in-place)
+I0601 13:36:38.622793 29727 net.cpp:150] Setting up HandMrelu6_stage3_L1
+I0601 13:36:38.622812 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.622828 29727 net.cpp:165] Memory required for data: 2451898384
+I0601 13:36:38.622841 29727 layer_factory.hpp:77] Creating layer HandMconv6_stage3_L2
+I0601 13:36:38.622858 29727 net.cpp:100] Creating Layer HandMconv6_stage3_L2
+I0601 13:36:38.622864 29727 net.cpp:434] HandMconv6_stage3_L2 <- HandMconv5_stage3_L2
+I0601 13:36:38.622877 29727 net.cpp:408] HandMconv6_stage3_L2 -> HandMconv6_stage3_L2
+I0601 13:36:38.629652 29727 net.cpp:150] Setting up HandMconv6_stage3_L2
+I0601 13:36:38.629672 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.629685 29727 net.cpp:165] Memory required for data: 2458189840
+I0601 13:36:38.629693 29727 layer_factory.hpp:77] Creating layer HandMrelu6_stage3_L2
+I0601 13:36:38.629710 29727 net.cpp:100] Creating Layer HandMrelu6_stage3_L2
+I0601 13:36:38.629716 29727 net.cpp:434] HandMrelu6_stage3_L2 <- HandMconv6_stage3_L2
+I0601 13:36:38.629725 29727 net.cpp:395] HandMrelu6_stage3_L2 -> HandMconv6_stage3_L2 (in-place)
+I0601 13:36:38.631780 29727 net.cpp:150] Setting up HandMrelu6_stage3_L2
+I0601 13:36:38.631793 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.631810 29727 net.cpp:165] Memory required for data: 2464481296
+I0601 13:36:38.631814 29727 layer_factory.hpp:77] Creating layer HandMconv7_stage3_L1
+I0601 13:36:38.631824 29727 net.cpp:100] Creating Layer HandMconv7_stage3_L1
+I0601 13:36:38.631829 29727 net.cpp:434] HandMconv7_stage3_L1 <- HandMconv6_stage3_L1
+I0601 13:36:38.631839 29727 net.cpp:408] HandMconv7_stage3_L1 -> HandMconv7_stage3_L1
+I0601 13:36:38.638782 29727 net.cpp:150] Setting up HandMconv7_stage3_L1
+I0601 13:36:38.638801 29727 net.cpp:157] Top shape: 12 40 32 32 (491520)
+I0601 13:36:38.638818 29727 net.cpp:165] Memory required for data: 2466447376
+I0601 13:36:38.638844 29727 layer_factory.hpp:77] Creating layer HandMconv7_stage3_L1_HandMconv7_stage3_L1_0_split
+I0601 13:36:38.638855 29727 net.cpp:100] Creating Layer HandMconv7_stage3_L1_HandMconv7_stage3_L1_0_split
+I0601 13:36:38.638860 29727 net.cpp:434] HandMconv7_stage3_L1_HandMconv7_stage3_L1_0_split <- HandMconv7_stage3_L1
+I0601 13:36:38.638869 29727 net.cpp:408] HandMconv7_stage3_L1_HandMconv7_stage3_L1_0_split -> HandMconv7_stage3_L1_HandMconv7_stage3_L1_0_split_0
+I0601 13:36:38.638877 29727 net.cpp:408] HandMconv7_stage3_L1_HandMconv7_stage3_L1_0_split -> HandMconv7_stage3_L1_HandMconv7_stage3_L1_0_split_1
+I0601 13:36:38.638947 29727 net.cpp:150] Setting up HandMconv7_stage3_L1_HandMconv7_stage3_L1_0_split
+I0601 13:36:38.638955 29727 net.cpp:157] Top shape: 12 40 32 32 (491520)
+I0601 13:36:38.638960 29727 net.cpp:157] Top shape: 12 40 32 32 (491520)
+I0601 13:36:38.638964 29727 net.cpp:165] Memory required for data: 2470379536
+I0601 13:36:38.638968 29727 layer_factory.hpp:77] Creating layer HandMconv7_stage3_L2
+I0601 13:36:38.638988 29727 net.cpp:100] Creating Layer HandMconv7_stage3_L2
+I0601 13:36:38.638995 29727 net.cpp:434] HandMconv7_stage3_L2 <- HandMconv6_stage3_L2
+I0601 13:36:38.639014 29727 net.cpp:408] HandMconv7_stage3_L2 -> HandMconv7_stage3_L2
+I0601 13:36:38.645515 29727 net.cpp:150] Setting up HandMconv7_stage3_L2
+I0601 13:36:38.645532 29727 net.cpp:157] Top shape: 12 22 32 32 (270336)
+I0601 13:36:38.645536 29727 net.cpp:165] Memory required for data: 2471460880
+I0601 13:36:38.645550 29727 layer_factory.hpp:77] Creating layer HandMconv7_stage3_L2_HandMconv7_stage3_L2_0_split
+I0601 13:36:38.645558 29727 net.cpp:100] Creating Layer HandMconv7_stage3_L2_HandMconv7_stage3_L2_0_split
+I0601 13:36:38.645563 29727 net.cpp:434] HandMconv7_stage3_L2_HandMconv7_stage3_L2_0_split <- HandMconv7_stage3_L2
+I0601 13:36:38.645570 29727 net.cpp:408] HandMconv7_stage3_L2_HandMconv7_stage3_L2_0_split -> HandMconv7_stage3_L2_HandMconv7_stage3_L2_0_split_0
+I0601 13:36:38.645578 29727 net.cpp:408] HandMconv7_stage3_L2_HandMconv7_stage3_L2_0_split -> HandMconv7_stage3_L2_HandMconv7_stage3_L2_0_split_1
+I0601 13:36:38.645642 29727 net.cpp:150] Setting up HandMconv7_stage3_L2_HandMconv7_stage3_L2_0_split
+I0601 13:36:38.645648 29727 net.cpp:157] Top shape: 12 22 32 32 (270336)
+I0601 13:36:38.645653 29727 net.cpp:157] Top shape: 12 22 32 32 (270336)
+I0601 13:36:38.645655 29727 net.cpp:165] Memory required for data: 2473623568
+I0601 13:36:38.645659 29727 layer_factory.hpp:77] Creating layer loss_stage3_L1
+I0601 13:36:38.645668 29727 net.cpp:100] Creating Layer loss_stage3_L1
+I0601 13:36:38.645671 29727 net.cpp:434] loss_stage3_L1 <- HandMconv7_stage3_L1_HandMconv7_stage3_L1_0_split_0
+I0601 13:36:38.645678 29727 net.cpp:434] loss_stage3_L1 <- label_vec_label_slice_0_split_2
+I0601 13:36:38.645684 29727 net.cpp:408] loss_stage3_L1 -> loss_stage3_L1
+I0601 13:36:38.645742 29727 net.cpp:150] Setting up loss_stage3_L1
+I0601 13:36:38.645750 29727 net.cpp:157] Top shape: (1)
+I0601 13:36:38.645754 29727 net.cpp:160]     with loss weight 1
+I0601 13:36:38.645766 29727 net.cpp:165] Memory required for data: 2473623572
+I0601 13:36:38.645776 29727 layer_factory.hpp:77] Creating layer loss_stage3_L2
+I0601 13:36:38.645782 29727 net.cpp:100] Creating Layer loss_stage3_L2
+I0601 13:36:38.645787 29727 net.cpp:434] loss_stage3_L2 <- HandMconv7_stage3_L2_HandMconv7_stage3_L2_0_split_0
+I0601 13:36:38.645792 29727 net.cpp:434] loss_stage3_L2 <- label_heat_label_slice_1_split_2
+I0601 13:36:38.645797 29727 net.cpp:408] loss_stage3_L2 -> loss_stage3_L2
+I0601 13:36:38.645849 29727 net.cpp:150] Setting up loss_stage3_L2
+I0601 13:36:38.645858 29727 net.cpp:157] Top shape: (1)
+I0601 13:36:38.645860 29727 net.cpp:160]     with loss weight 1
+I0601 13:36:38.645865 29727 net.cpp:165] Memory required for data: 2473623576
+I0601 13:36:38.645881 29727 layer_factory.hpp:77] Creating layer concat_stage4
+I0601 13:36:38.645889 29727 net.cpp:100] Creating Layer concat_stage4
+I0601 13:36:38.645894 29727 net.cpp:434] concat_stage4 <- HandMconv7_stage3_L1_HandMconv7_stage3_L1_0_split_1
+I0601 13:36:38.645898 29727 net.cpp:434] concat_stage4 <- HandMconv7_stage3_L2_HandMconv7_stage3_L2_0_split_1
+I0601 13:36:38.645903 29727 net.cpp:434] concat_stage4 <- conv4_4_HandCPM_relu4_4_HandCPM_0_split_4
+I0601 13:36:38.645910 29727 net.cpp:408] concat_stage4 -> concat_stage4
+I0601 13:36:38.645944 29727 net.cpp:150] Setting up concat_stage4
+I0601 13:36:38.645951 29727 net.cpp:157] Top shape: 12 190 32 32 (2334720)
+I0601 13:36:38.645953 29727 net.cpp:165] Memory required for data: 2482962456
+I0601 13:36:38.645956 29727 layer_factory.hpp:77] Creating layer concat_stage4_concat_stage4_0_split
+I0601 13:36:38.645961 29727 net.cpp:100] Creating Layer concat_stage4_concat_stage4_0_split
+I0601 13:36:38.645965 29727 net.cpp:434] concat_stage4_concat_stage4_0_split <- concat_stage4
+I0601 13:36:38.645972 29727 net.cpp:408] concat_stage4_concat_stage4_0_split -> concat_stage4_concat_stage4_0_split_0
+I0601 13:36:38.645979 29727 net.cpp:408] concat_stage4_concat_stage4_0_split -> concat_stage4_concat_stage4_0_split_1
+I0601 13:36:38.646023 29727 net.cpp:150] Setting up concat_stage4_concat_stage4_0_split
+I0601 13:36:38.646035 29727 net.cpp:157] Top shape: 12 190 32 32 (2334720)
+I0601 13:36:38.646040 29727 net.cpp:157] Top shape: 12 190 32 32 (2334720)
+I0601 13:36:38.646044 29727 net.cpp:165] Memory required for data: 2501640216
+I0601 13:36:38.646047 29727 layer_factory.hpp:77] Creating layer HandMconv1_stage4_L1
+I0601 13:36:38.646067 29727 net.cpp:100] Creating Layer HandMconv1_stage4_L1
+I0601 13:36:38.646072 29727 net.cpp:434] HandMconv1_stage4_L1 <- concat_stage4_concat_stage4_0_split_0
+I0601 13:36:38.646080 29727 net.cpp:408] HandMconv1_stage4_L1 -> HandMconv1_stage4_L1
+I0601 13:36:38.691738 29727 net.cpp:150] Setting up HandMconv1_stage4_L1
+I0601 13:36:38.691757 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.691762 29727 net.cpp:165] Memory required for data: 2507931672
+I0601 13:36:38.691771 29727 layer_factory.hpp:77] Creating layer HandMrelu1_stage4_L1
+I0601 13:36:38.691790 29727 net.cpp:100] Creating Layer HandMrelu1_stage4_L1
+I0601 13:36:38.691795 29727 net.cpp:434] HandMrelu1_stage4_L1 <- HandMconv1_stage4_L1
+I0601 13:36:38.691802 29727 net.cpp:395] HandMrelu1_stage4_L1 -> HandMconv1_stage4_L1 (in-place)
+I0601 13:36:38.693809 29727 net.cpp:150] Setting up HandMrelu1_stage4_L1
+I0601 13:36:38.693820 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.693825 29727 net.cpp:165] Memory required for data: 2514223128
+I0601 13:36:38.693836 29727 layer_factory.hpp:77] Creating layer HandMconv1_stage4_L2
+I0601 13:36:38.693857 29727 net.cpp:100] Creating Layer HandMconv1_stage4_L2
+I0601 13:36:38.693863 29727 net.cpp:434] HandMconv1_stage4_L2 <- concat_stage4_concat_stage4_0_split_1
+I0601 13:36:38.693871 29727 net.cpp:408] HandMconv1_stage4_L2 -> HandMconv1_stage4_L2
+I0601 13:36:38.746729 29727 net.cpp:150] Setting up HandMconv1_stage4_L2
+I0601 13:36:38.746773 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.746780 29727 net.cpp:165] Memory required for data: 2520514584
+I0601 13:36:38.746794 29727 layer_factory.hpp:77] Creating layer HandMrelu1_stage4_L2
+I0601 13:36:38.746811 29727 net.cpp:100] Creating Layer HandMrelu1_stage4_L2
+I0601 13:36:38.746834 29727 net.cpp:434] HandMrelu1_stage4_L2 <- HandMconv1_stage4_L2
+I0601 13:36:38.746843 29727 net.cpp:395] HandMrelu1_stage4_L2 -> HandMconv1_stage4_L2 (in-place)
+I0601 13:36:38.747124 29727 net.cpp:150] Setting up HandMrelu1_stage4_L2
+I0601 13:36:38.747136 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.747140 29727 net.cpp:165] Memory required for data: 2526806040
+I0601 13:36:38.747145 29727 layer_factory.hpp:77] Creating layer HandMconv2_stage4_L1
+I0601 13:36:38.747160 29727 net.cpp:100] Creating Layer HandMconv2_stage4_L1
+I0601 13:36:38.747165 29727 net.cpp:434] HandMconv2_stage4_L1 <- HandMconv1_stage4_L1
+I0601 13:36:38.747198 29727 net.cpp:408] HandMconv2_stage4_L1 -> HandMconv2_stage4_L1
+I0601 13:36:38.774199 29727 net.cpp:150] Setting up HandMconv2_stage4_L1
+I0601 13:36:38.774233 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.774237 29727 net.cpp:165] Memory required for data: 2533097496
+I0601 13:36:38.774247 29727 layer_factory.hpp:77] Creating layer HandMrelu2_stage4_L1
+I0601 13:36:38.774262 29727 net.cpp:100] Creating Layer HandMrelu2_stage4_L1
+I0601 13:36:38.774271 29727 net.cpp:434] HandMrelu2_stage4_L1 <- HandMconv2_stage4_L1
+I0601 13:36:38.774296 29727 net.cpp:395] HandMrelu2_stage4_L1 -> HandMconv2_stage4_L1 (in-place)
+I0601 13:36:38.776335 29727 net.cpp:150] Setting up HandMrelu2_stage4_L1
+I0601 13:36:38.776345 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.776348 29727 net.cpp:165] Memory required for data: 2539388952
+I0601 13:36:38.776367 29727 layer_factory.hpp:77] Creating layer HandMconv2_stage4_L2
+I0601 13:36:38.776442 29727 net.cpp:100] Creating Layer HandMconv2_stage4_L2
+I0601 13:36:38.776454 29727 net.cpp:434] HandMconv2_stage4_L2 <- HandMconv1_stage4_L2
+I0601 13:36:38.776461 29727 net.cpp:408] HandMconv2_stage4_L2 -> HandMconv2_stage4_L2
+I0601 13:36:38.816967 29727 net.cpp:150] Setting up HandMconv2_stage4_L2
+I0601 13:36:38.817004 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.817009 29727 net.cpp:165] Memory required for data: 2545680408
+I0601 13:36:38.817021 29727 layer_factory.hpp:77] Creating layer HandMrelu2_stage4_L2
+I0601 13:36:38.817031 29727 net.cpp:100] Creating Layer HandMrelu2_stage4_L2
+I0601 13:36:38.817037 29727 net.cpp:434] HandMrelu2_stage4_L2 <- HandMconv2_stage4_L2
+I0601 13:36:38.817045 29727 net.cpp:395] HandMrelu2_stage4_L2 -> HandMconv2_stage4_L2 (in-place)
+I0601 13:36:38.819052 29727 net.cpp:150] Setting up HandMrelu2_stage4_L2
+I0601 13:36:38.819068 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.819083 29727 net.cpp:165] Memory required for data: 2551971864
+I0601 13:36:38.819087 29727 layer_factory.hpp:77] Creating layer HandMconv3_stage4_L1
+I0601 13:36:38.819103 29727 net.cpp:100] Creating Layer HandMconv3_stage4_L1
+I0601 13:36:38.819108 29727 net.cpp:434] HandMconv3_stage4_L1 <- HandMconv2_stage4_L1
+I0601 13:36:38.819118 29727 net.cpp:408] HandMconv3_stage4_L1 -> HandMconv3_stage4_L1
+I0601 13:36:38.861806 29727 net.cpp:150] Setting up HandMconv3_stage4_L1
+I0601 13:36:38.861840 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.861845 29727 net.cpp:165] Memory required for data: 2558263320
+I0601 13:36:38.861852 29727 layer_factory.hpp:77] Creating layer HandMrelu3_stage4_L1
+I0601 13:36:38.861861 29727 net.cpp:100] Creating Layer HandMrelu3_stage4_L1
+I0601 13:36:38.861866 29727 net.cpp:434] HandMrelu3_stage4_L1 <- HandMconv3_stage4_L1
+I0601 13:36:38.861872 29727 net.cpp:395] HandMrelu3_stage4_L1 -> HandMconv3_stage4_L1 (in-place)
+I0601 13:36:38.863854 29727 net.cpp:150] Setting up HandMrelu3_stage4_L1
+I0601 13:36:38.863865 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.863868 29727 net.cpp:165] Memory required for data: 2564554776
+I0601 13:36:38.863881 29727 layer_factory.hpp:77] Creating layer HandMconv3_stage4_L2
+I0601 13:36:38.863895 29727 net.cpp:100] Creating Layer HandMconv3_stage4_L2
+I0601 13:36:38.863909 29727 net.cpp:434] HandMconv3_stage4_L2 <- HandMconv2_stage4_L2
+I0601 13:36:38.863917 29727 net.cpp:408] HandMconv3_stage4_L2 -> HandMconv3_stage4_L2
+I0601 13:36:38.894693 29727 net.cpp:150] Setting up HandMconv3_stage4_L2
+I0601 13:36:38.894712 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.894726 29727 net.cpp:165] Memory required for data: 2570846232
+I0601 13:36:38.894733 29727 layer_factory.hpp:77] Creating layer HandMrelu3_stage4_L2
+I0601 13:36:38.894743 29727 net.cpp:100] Creating Layer HandMrelu3_stage4_L2
+I0601 13:36:38.894749 29727 net.cpp:434] HandMrelu3_stage4_L2 <- HandMconv3_stage4_L2
+I0601 13:36:38.894754 29727 net.cpp:395] HandMrelu3_stage4_L2 -> HandMconv3_stage4_L2 (in-place)
+I0601 13:36:38.896826 29727 net.cpp:150] Setting up HandMrelu3_stage4_L2
+I0601 13:36:38.896838 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.896842 29727 net.cpp:165] Memory required for data: 2577137688
+I0601 13:36:38.896854 29727 layer_factory.hpp:77] Creating layer HandMconv4_stage4_L1
+I0601 13:36:38.896867 29727 net.cpp:100] Creating Layer HandMconv4_stage4_L1
+I0601 13:36:38.896873 29727 net.cpp:434] HandMconv4_stage4_L1 <- HandMconv3_stage4_L1
+I0601 13:36:38.896883 29727 net.cpp:408] HandMconv4_stage4_L1 -> HandMconv4_stage4_L1
+I0601 13:36:38.931330 29727 net.cpp:150] Setting up HandMconv4_stage4_L1
+I0601 13:36:38.931354 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.931368 29727 net.cpp:165] Memory required for data: 2583429144
+I0601 13:36:38.931377 29727 layer_factory.hpp:77] Creating layer HandMrelu4_stage4_L1
+I0601 13:36:38.931388 29727 net.cpp:100] Creating Layer HandMrelu4_stage4_L1
+I0601 13:36:38.931394 29727 net.cpp:434] HandMrelu4_stage4_L1 <- HandMconv4_stage4_L1
+I0601 13:36:38.931401 29727 net.cpp:395] HandMrelu4_stage4_L1 -> HandMconv4_stage4_L1 (in-place)
+I0601 13:36:38.933418 29727 net.cpp:150] Setting up HandMrelu4_stage4_L1
+I0601 13:36:38.933432 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.933447 29727 net.cpp:165] Memory required for data: 2589720600
+I0601 13:36:38.933454 29727 layer_factory.hpp:77] Creating layer HandMconv4_stage4_L2
+I0601 13:36:38.933467 29727 net.cpp:100] Creating Layer HandMconv4_stage4_L2
+I0601 13:36:38.933473 29727 net.cpp:434] HandMconv4_stage4_L2 <- HandMconv3_stage4_L2
+I0601 13:36:38.933485 29727 net.cpp:408] HandMconv4_stage4_L2 -> HandMconv4_stage4_L2
+I0601 13:36:38.968539 29727 net.cpp:150] Setting up HandMconv4_stage4_L2
+I0601 13:36:38.968562 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.968575 29727 net.cpp:165] Memory required for data: 2596012056
+I0601 13:36:38.968583 29727 layer_factory.hpp:77] Creating layer HandMrelu4_stage4_L2
+I0601 13:36:38.968593 29727 net.cpp:100] Creating Layer HandMrelu4_stage4_L2
+I0601 13:36:38.968600 29727 net.cpp:434] HandMrelu4_stage4_L2 <- HandMconv4_stage4_L2
+I0601 13:36:38.968605 29727 net.cpp:395] HandMrelu4_stage4_L2 -> HandMconv4_stage4_L2 (in-place)
+I0601 13:36:38.970661 29727 net.cpp:150] Setting up HandMrelu4_stage4_L2
+I0601 13:36:38.970674 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:38.970677 29727 net.cpp:165] Memory required for data: 2602303512
+I0601 13:36:38.970690 29727 layer_factory.hpp:77] Creating layer HandMconv5_stage4_L1
+I0601 13:36:38.970707 29727 net.cpp:100] Creating Layer HandMconv5_stage4_L1
+I0601 13:36:38.970712 29727 net.cpp:434] HandMconv5_stage4_L1 <- HandMconv4_stage4_L1
+I0601 13:36:38.970719 29727 net.cpp:408] HandMconv5_stage4_L1 -> HandMconv5_stage4_L1
+I0601 13:36:39.002913 29727 net.cpp:150] Setting up HandMconv5_stage4_L1
+I0601 13:36:39.002935 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:39.002948 29727 net.cpp:165] Memory required for data: 2608594968
+I0601 13:36:39.002959 29727 layer_factory.hpp:77] Creating layer HandMrelu5_stage4_L1
+I0601 13:36:39.002967 29727 net.cpp:100] Creating Layer HandMrelu5_stage4_L1
+I0601 13:36:39.002974 29727 net.cpp:434] HandMrelu5_stage4_L1 <- HandMconv5_stage4_L1
+I0601 13:36:39.002981 29727 net.cpp:395] HandMrelu5_stage4_L1 -> HandMconv5_stage4_L1 (in-place)
+I0601 13:36:39.005046 29727 net.cpp:150] Setting up HandMrelu5_stage4_L1
+I0601 13:36:39.005061 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:39.005065 29727 net.cpp:165] Memory required for data: 2614886424
+I0601 13:36:39.005070 29727 layer_factory.hpp:77] Creating layer HandMconv5_stage4_L2
+I0601 13:36:39.005084 29727 net.cpp:100] Creating Layer HandMconv5_stage4_L2
+I0601 13:36:39.005089 29727 net.cpp:434] HandMconv5_stage4_L2 <- HandMconv4_stage4_L2
+I0601 13:36:39.005097 29727 net.cpp:408] HandMconv5_stage4_L2 -> HandMconv5_stage4_L2
+I0601 13:36:39.037194 29727 net.cpp:150] Setting up HandMconv5_stage4_L2
+I0601 13:36:39.037230 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:39.037258 29727 net.cpp:165] Memory required for data: 2621177880
+I0601 13:36:39.037271 29727 layer_factory.hpp:77] Creating layer HandMrelu5_stage4_L2
+I0601 13:36:39.037283 29727 net.cpp:100] Creating Layer HandMrelu5_stage4_L2
+I0601 13:36:39.037291 29727 net.cpp:434] HandMrelu5_stage4_L2 <- HandMconv5_stage4_L2
+I0601 13:36:39.037297 29727 net.cpp:395] HandMrelu5_stage4_L2 -> HandMconv5_stage4_L2 (in-place)
+I0601 13:36:39.040135 29727 net.cpp:150] Setting up HandMrelu5_stage4_L2
+I0601 13:36:39.040168 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:39.040172 29727 net.cpp:165] Memory required for data: 2627469336
+I0601 13:36:39.040177 29727 layer_factory.hpp:77] Creating layer HandMconv6_stage4_L1
+I0601 13:36:39.040192 29727 net.cpp:100] Creating Layer HandMconv6_stage4_L1
+I0601 13:36:39.040197 29727 net.cpp:434] HandMconv6_stage4_L1 <- HandMconv5_stage4_L1
+I0601 13:36:39.040205 29727 net.cpp:408] HandMconv6_stage4_L1 -> HandMconv6_stage4_L1
+I0601 13:36:39.046547 29727 net.cpp:150] Setting up HandMconv6_stage4_L1
+I0601 13:36:39.046567 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:39.046582 29727 net.cpp:165] Memory required for data: 2633760792
+I0601 13:36:39.046591 29727 layer_factory.hpp:77] Creating layer HandMrelu6_stage4_L1
+I0601 13:36:39.046602 29727 net.cpp:100] Creating Layer HandMrelu6_stage4_L1
+I0601 13:36:39.046607 29727 net.cpp:434] HandMrelu6_stage4_L1 <- HandMconv6_stage4_L1
+I0601 13:36:39.046612 29727 net.cpp:395] HandMrelu6_stage4_L1 -> HandMconv6_stage4_L1 (in-place)
+I0601 13:36:39.048421 29727 net.cpp:150] Setting up HandMrelu6_stage4_L1
+I0601 13:36:39.048439 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:39.048454 29727 net.cpp:165] Memory required for data: 2640052248
+I0601 13:36:39.048458 29727 layer_factory.hpp:77] Creating layer HandMconv6_stage4_L2
+I0601 13:36:39.048475 29727 net.cpp:100] Creating Layer HandMconv6_stage4_L2
+I0601 13:36:39.048481 29727 net.cpp:434] HandMconv6_stage4_L2 <- HandMconv5_stage4_L2
+I0601 13:36:39.048491 29727 net.cpp:408] HandMconv6_stage4_L2 -> HandMconv6_stage4_L2
+I0601 13:36:39.055382 29727 net.cpp:150] Setting up HandMconv6_stage4_L2
+I0601 13:36:39.055403 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:39.055418 29727 net.cpp:165] Memory required for data: 2646343704
+I0601 13:36:39.055428 29727 layer_factory.hpp:77] Creating layer HandMrelu6_stage4_L2
+I0601 13:36:39.055438 29727 net.cpp:100] Creating Layer HandMrelu6_stage4_L2
+I0601 13:36:39.055445 29727 net.cpp:434] HandMrelu6_stage4_L2 <- HandMconv6_stage4_L2
+I0601 13:36:39.055452 29727 net.cpp:395] HandMrelu6_stage4_L2 -> HandMconv6_stage4_L2 (in-place)
+I0601 13:36:39.057474 29727 net.cpp:150] Setting up HandMrelu6_stage4_L2
+I0601 13:36:39.057489 29727 net.cpp:157] Top shape: 12 128 32 32 (1572864)
+I0601 13:36:39.057494 29727 net.cpp:165] Memory required for data: 2652635160
+I0601 13:36:39.057505 29727 layer_factory.hpp:77] Creating layer HandMconv7_stage4_L1
+I0601 13:36:39.057523 29727 net.cpp:100] Creating Layer HandMconv7_stage4_L1
+I0601 13:36:39.057528 29727 net.cpp:434] HandMconv7_stage4_L1 <- HandMconv6_stage4_L1
+I0601 13:36:39.057539 29727 net.cpp:408] HandMconv7_stage4_L1 -> HandMconv7_stage4_L1
+I0601 13:36:39.064349 29727 net.cpp:150] Setting up HandMconv7_stage4_L1
+I0601 13:36:39.064366 29727 net.cpp:157] Top shape: 12 40 32 32 (491520)
+I0601 13:36:39.064383 29727 net.cpp:165] Memory required for data: 2654601240
+I0601 13:36:39.064389 29727 layer_factory.hpp:77] Creating layer HandMconv7_stage4_L2
+I0601 13:36:39.064402 29727 net.cpp:100] Creating Layer HandMconv7_stage4_L2
+I0601 13:36:39.064409 29727 net.cpp:434] HandMconv7_stage4_L2 <- HandMconv6_stage4_L2
+I0601 13:36:39.064416 29727 net.cpp:408] HandMconv7_stage4_L2 -> HandMconv7_stage4_L2
+I0601 13:36:39.071127 29727 net.cpp:150] Setting up HandMconv7_stage4_L2
+I0601 13:36:39.071143 29727 net.cpp:157] Top shape: 12 22 32 32 (270336)
+I0601 13:36:39.071148 29727 net.cpp:165] Memory required for data: 2655682584
+I0601 13:36:39.071162 29727 layer_factory.hpp:77] Creating layer loss_stage4_L1
+I0601 13:36:39.071187 29727 net.cpp:100] Creating Layer loss_stage4_L1
+I0601 13:36:39.071192 29727 net.cpp:434] loss_stage4_L1 <- HandMconv7_stage4_L1
+I0601 13:36:39.071198 29727 net.cpp:434] loss_stage4_L1 <- label_vec_label_slice_0_split_3
+I0601 13:36:39.071205 29727 net.cpp:408] loss_stage4_L1 -> loss_stage4_L1
+I0601 13:36:39.071279 29727 net.cpp:150] Setting up loss_stage4_L1
+I0601 13:36:39.071287 29727 net.cpp:157] Top shape: (1)
+I0601 13:36:39.071290 29727 net.cpp:160]     with loss weight 1
+I0601 13:36:39.071306 29727 net.cpp:165] Memory required for data: 2655682588
+I0601 13:36:39.071310 29727 layer_factory.hpp:77] Creating layer loss_stage4_L2
+I0601 13:36:39.071327 29727 net.cpp:100] Creating Layer loss_stage4_L2
+I0601 13:36:39.071331 29727 net.cpp:434] loss_stage4_L2 <- HandMconv7_stage4_L2
+I0601 13:36:39.071337 29727 net.cpp:434] loss_stage4_L2 <- label_heat_label_slice_1_split_3
+I0601 13:36:39.071344 29727 net.cpp:408] loss_stage4_L2 -> loss_stage4_L2
+I0601 13:36:39.071396 29727 net.cpp:150] Setting up loss_stage4_L2
+I0601 13:36:39.071404 29727 net.cpp:157] Top shape: (1)
+I0601 13:36:39.071408 29727 net.cpp:160]     with loss weight 1
+I0601 13:36:39.071413 29727 net.cpp:165] Memory required for data: 2655682592
+I0601 13:36:39.071418 29727 net.cpp:226] loss_stage4_L2 needs backward computation.
+I0601 13:36:39.071421 29727 net.cpp:226] loss_stage4_L1 needs backward computation.
+I0601 13:36:39.071425 29727 net.cpp:226] HandMconv7_stage4_L2 needs backward computation.
+I0601 13:36:39.071429 29727 net.cpp:226] HandMconv7_stage4_L1 needs backward computation.
+I0601 13:36:39.071432 29727 net.cpp:226] HandMrelu6_stage4_L2 needs backward computation.
+I0601 13:36:39.071436 29727 net.cpp:226] HandMconv6_stage4_L2 needs backward computation.
+I0601 13:36:39.071439 29727 net.cpp:226] HandMrelu6_stage4_L1 needs backward computation.
+I0601 13:36:39.071444 29727 net.cpp:226] HandMconv6_stage4_L1 needs backward computation.
+I0601 13:36:39.071446 29727 net.cpp:226] HandMrelu5_stage4_L2 needs backward computation.
+I0601 13:36:39.071449 29727 net.cpp:226] HandMconv5_stage4_L2 needs backward computation.
+I0601 13:36:39.071454 29727 net.cpp:226] HandMrelu5_stage4_L1 needs backward computation.
+I0601 13:36:39.071457 29727 net.cpp:226] HandMconv5_stage4_L1 needs backward computation.
+I0601 13:36:39.071461 29727 net.cpp:226] HandMrelu4_stage4_L2 needs backward computation.
+I0601 13:36:39.071465 29727 net.cpp:226] HandMconv4_stage4_L2 needs backward computation.
+I0601 13:36:39.071470 29727 net.cpp:226] HandMrelu4_stage4_L1 needs backward computation.
+I0601 13:36:39.071473 29727 net.cpp:226] HandMconv4_stage4_L1 needs backward computation.
+I0601 13:36:39.071477 29727 net.cpp:226] HandMrelu3_stage4_L2 needs backward computation.
+I0601 13:36:39.071480 29727 net.cpp:226] HandMconv3_stage4_L2 needs backward computation.
+I0601 13:36:39.071485 29727 net.cpp:226] HandMrelu3_stage4_L1 needs backward computation.
+I0601 13:36:39.071488 29727 net.cpp:226] HandMconv3_stage4_L1 needs backward computation.
+I0601 13:36:39.071492 29727 net.cpp:226] HandMrelu2_stage4_L2 needs backward computation.
+I0601 13:36:39.071496 29727 net.cpp:226] HandMconv2_stage4_L2 needs backward computation.
+I0601 13:36:39.071501 29727 net.cpp:226] HandMrelu2_stage4_L1 needs backward computation.
+I0601 13:36:39.071504 29727 net.cpp:226] HandMconv2_stage4_L1 needs backward computation.
+I0601 13:36:39.071508 29727 net.cpp:226] HandMrelu1_stage4_L2 needs backward computation.
+I0601 13:36:39.071512 29727 net.cpp:226] HandMconv1_stage4_L2 needs backward computation.
+I0601 13:36:39.071516 29727 net.cpp:226] HandMrelu1_stage4_L1 needs backward computation.
+I0601 13:36:39.071521 29727 net.cpp:226] HandMconv1_stage4_L1 needs backward computation.
+I0601 13:36:39.071526 29727 net.cpp:226] concat_stage4_concat_stage4_0_split needs backward computation.
+I0601 13:36:39.071530 29727 net.cpp:226] concat_stage4 needs backward computation.
+I0601 13:36:39.071535 29727 net.cpp:226] loss_stage3_L2 needs backward computation.
+I0601 13:36:39.071540 29727 net.cpp:226] loss_stage3_L1 needs backward computation.
+I0601 13:36:39.071553 29727 net.cpp:226] HandMconv7_stage3_L2_HandMconv7_stage3_L2_0_split needs backward computation.
+I0601 13:36:39.071558 29727 net.cpp:226] HandMconv7_stage3_L2 needs backward computation.
+I0601 13:36:39.071563 29727 net.cpp:226] HandMconv7_stage3_L1_HandMconv7_stage3_L1_0_split needs backward computation.
+I0601 13:36:39.071568 29727 net.cpp:226] HandMconv7_stage3_L1 needs backward computation.
+I0601 13:36:39.071571 29727 net.cpp:226] HandMrelu6_stage3_L2 needs backward computation.
+I0601 13:36:39.071575 29727 net.cpp:226] HandMconv6_stage3_L2 needs backward computation.
+I0601 13:36:39.071579 29727 net.cpp:226] HandMrelu6_stage3_L1 needs backward computation.
+I0601 13:36:39.071583 29727 net.cpp:226] HandMconv6_stage3_L1 needs backward computation.
+I0601 13:36:39.071588 29727 net.cpp:226] HandMrelu5_stage3_L2 needs backward computation.
+I0601 13:36:39.071590 29727 net.cpp:226] HandMconv5_stage3_L2 needs backward computation.
+I0601 13:36:39.071594 29727 net.cpp:226] HandMrelu5_stage3_L1 needs backward computation.
+I0601 13:36:39.071604 29727 net.cpp:226] HandMconv5_stage3_L1 needs backward computation.
+I0601 13:36:39.071607 29727 net.cpp:226] HandMrelu4_stage3_L2 needs backward computation.
+I0601 13:36:39.071611 29727 net.cpp:226] HandMconv4_stage3_L2 needs backward computation.
+I0601 13:36:39.071615 29727 net.cpp:226] HandMrelu4_stage3_L1 needs backward computation.
+I0601 13:36:39.071619 29727 net.cpp:226] HandMconv4_stage3_L1 needs backward computation.
+I0601 13:36:39.071624 29727 net.cpp:226] HandMrelu3_stage3_L2 needs backward computation.
+I0601 13:36:39.071627 29727 net.cpp:226] HandMconv3_stage3_L2 needs backward computation.
+I0601 13:36:39.071631 29727 net.cpp:226] HandMrelu3_stage3_L1 needs backward computation.
+I0601 13:36:39.071635 29727 net.cpp:226] HandMconv3_stage3_L1 needs backward computation.
+I0601 13:36:39.071640 29727 net.cpp:226] HandMrelu2_stage3_L2 needs backward computation.
+I0601 13:36:39.071643 29727 net.cpp:226] HandMconv2_stage3_L2 needs backward computation.
+I0601 13:36:39.071648 29727 net.cpp:226] HandMrelu2_stage3_L1 needs backward computation.
+I0601 13:36:39.071652 29727 net.cpp:226] HandMconv2_stage3_L1 needs backward computation.
+I0601 13:36:39.071656 29727 net.cpp:226] HandMrelu1_stage3_L2 needs backward computation.
+I0601 13:36:39.071660 29727 net.cpp:226] HandMconv1_stage3_L2 needs backward computation.
+I0601 13:36:39.071666 29727 net.cpp:226] HandMrelu1_stage3_L1 needs backward computation.
+I0601 13:36:39.071669 29727 net.cpp:226] HandMconv1_stage3_L1 needs backward computation.
+I0601 13:36:39.071674 29727 net.cpp:226] concat_stage3_concat_stage3_0_split needs backward computation.
+I0601 13:36:39.071678 29727 net.cpp:226] concat_stage3 needs backward computation.
+I0601 13:36:39.071684 29727 net.cpp:226] loss_stage2_L2 needs backward computation.
+I0601 13:36:39.071688 29727 net.cpp:226] loss_stage2_L1 needs backward computation.
+I0601 13:36:39.071696 29727 net.cpp:226] HandMconv7_stage2_L2_HandMconv7_stage2_L2_0_split needs backward computation.
+I0601 13:36:39.071699 29727 net.cpp:226] HandMconv7_stage2_L2 needs backward computation.
+I0601 13:36:39.071704 29727 net.cpp:226] HandMconv7_stage2_L1_HandMconv7_stage2_L1_0_split needs backward computation.
+I0601 13:36:39.071708 29727 net.cpp:226] HandMconv7_stage2_L1 needs backward computation.
+I0601 13:36:39.071713 29727 net.cpp:226] HandMrelu6_stage2_L2 needs backward computation.
+I0601 13:36:39.071717 29727 net.cpp:226] HandMconv6_stage2_L2 needs backward computation.
+I0601 13:36:39.071720 29727 net.cpp:226] HandMrelu6_stage2_L1 needs backward computation.
+I0601 13:36:39.071724 29727 net.cpp:226] HandMconv6_stage2_L1 needs backward computation.
+I0601 13:36:39.071728 29727 net.cpp:226] HandMrelu5_stage2_L2 needs backward computation.
+I0601 13:36:39.071732 29727 net.cpp:226] HandMconv5_stage2_L2 needs backward computation.
+I0601 13:36:39.071737 29727 net.cpp:226] HandMrelu5_stage2_L1 needs backward computation.
+I0601 13:36:39.071740 29727 net.cpp:226] HandMconv5_stage2_L1 needs backward computation.
+I0601 13:36:39.071749 29727 net.cpp:226] HandMrelu4_stage2_L2 needs backward computation.
+I0601 13:36:39.071753 29727 net.cpp:226] HandMconv4_stage2_L2 needs backward computation.
+I0601 13:36:39.071756 29727 net.cpp:226] HandMrelu4_stage2_L1 needs backward computation.
+I0601 13:36:39.071760 29727 net.cpp:226] HandMconv4_stage2_L1 needs backward computation.
+I0601 13:36:39.071764 29727 net.cpp:226] HandMrelu3_stage2_L2 needs backward computation.
+I0601 13:36:39.071768 29727 net.cpp:226] HandMconv3_stage2_L2 needs backward computation.
+I0601 13:36:39.071772 29727 net.cpp:226] HandMrelu3_stage2_L1 needs backward computation.
+I0601 13:36:39.071776 29727 net.cpp:226] HandMconv3_stage2_L1 needs backward computation.
+I0601 13:36:39.071780 29727 net.cpp:226] HandMrelu2_stage2_L2 needs backward computation.
+I0601 13:36:39.071784 29727 net.cpp:226] HandMconv2_stage2_L2 needs backward computation.
+I0601 13:36:39.071789 29727 net.cpp:226] HandMrelu2_stage2_L1 needs backward computation.
+I0601 13:36:39.071792 29727 net.cpp:226] HandMconv2_stage2_L1 needs backward computation.
+I0601 13:36:39.071797 29727 net.cpp:226] HandMrelu1_stage2_L2 needs backward computation.
+I0601 13:36:39.071801 29727 net.cpp:226] HandMconv1_stage2_L2 needs backward computation.
+I0601 13:36:39.071806 29727 net.cpp:226] HandMrelu1_stage2_L1 needs backward computation.
+I0601 13:36:39.071810 29727 net.cpp:226] HandMconv1_stage2_L1 needs backward computation.
+I0601 13:36:39.071815 29727 net.cpp:226] concat_stage2_concat_stage2_0_split needs backward computation.
+I0601 13:36:39.071818 29727 net.cpp:226] concat_stage2 needs backward computation.
+I0601 13:36:39.071830 29727 net.cpp:226] loss_stage1_L2 needs backward computation.
+I0601 13:36:39.071835 29727 net.cpp:226] loss_stage1_L1 needs backward computation.
+I0601 13:36:39.071841 29727 net.cpp:226] conv5_5_HandCPM_L2_conv5_5_HandCPM_L2_0_split needs backward computation.
+I0601 13:36:39.071846 29727 net.cpp:226] conv5_5_HandCPM_L2 needs backward computation.
+I0601 13:36:39.071851 29727 net.cpp:226] conv5_5_HandCPM_L1_conv5_5_HandCPM_L1_0_split needs backward computation.
+I0601 13:36:39.071854 29727 net.cpp:226] conv5_5_HandCPM_L1 needs backward computation.
+I0601 13:36:39.071859 29727 net.cpp:226] relu5_4_HandCPM_L2 needs backward computation.
+I0601 13:36:39.071863 29727 net.cpp:226] conv5_4_HandCPM_L2 needs backward computation.
+I0601 13:36:39.071867 29727 net.cpp:226] relu5_4_HandCPM_L1 needs backward computation.
+I0601 13:36:39.071872 29727 net.cpp:226] conv5_4_HandCPM_L1 needs backward computation.
+I0601 13:36:39.071877 29727 net.cpp:226] relu5_3_HandCPM_L2 needs backward computation.
+I0601 13:36:39.071880 29727 net.cpp:226] conv5_3_HandCPM_L2 needs backward computation.
+I0601 13:36:39.071884 29727 net.cpp:226] relu5_3_HandCPM_L1 needs backward computation.
+I0601 13:36:39.071888 29727 net.cpp:226] conv5_3_HandCPM_L1 needs backward computation.
+I0601 13:36:39.071892 29727 net.cpp:226] relu5_2_HandCPM_L2 needs backward computation.
+I0601 13:36:39.071897 29727 net.cpp:226] conv5_2_HandCPM_L2 needs backward computation.
+I0601 13:36:39.071913 29727 net.cpp:226] relu5_2_HandCPM_L1 needs backward computation.
+I0601 13:36:39.071918 29727 net.cpp:226] conv5_2_HandCPM_L1 needs backward computation.
+I0601 13:36:39.071921 29727 net.cpp:226] relu5_1_HandCPM_L2 needs backward computation.
+I0601 13:36:39.071925 29727 net.cpp:226] conv5_1_HandCPM_L2 needs backward computation.
+I0601 13:36:39.071930 29727 net.cpp:226] relu5_1_HandCPM_L1 needs backward computation.
+I0601 13:36:39.071934 29727 net.cpp:226] conv5_1_HandCPM_L1 needs backward computation.
+I0601 13:36:39.071938 29727 net.cpp:226] conv4_4_HandCPM_relu4_4_HandCPM_0_split needs backward computation.
+I0601 13:36:39.071943 29727 net.cpp:226] relu4_4_HandCPM needs backward computation.
+I0601 13:36:39.071948 29727 net.cpp:226] conv4_4_HandCPM needs backward computation.
+I0601 13:36:39.071951 29727 net.cpp:226] relu4_3_HandCPM needs backward computation.
+I0601 13:36:39.071955 29727 net.cpp:226] conv4_3_HandCPM needs backward computation.
+I0601 13:36:39.071969 29727 net.cpp:226] relu4_2 needs backward computation.
+I0601 13:36:39.071985 29727 net.cpp:226] conv4_2 needs backward computation.
+I0601 13:36:39.071988 29727 net.cpp:226] relu4_1 needs backward computation.
+I0601 13:36:39.071992 29727 net.cpp:226] conv4_1 needs backward computation.
+I0601 13:36:39.071996 29727 net.cpp:226] pool3_stage1 needs backward computation.
+I0601 13:36:39.072010 29727 net.cpp:226] relu3_4 needs backward computation.
+I0601 13:36:39.072013 29727 net.cpp:226] conv3_4 needs backward computation.
+I0601 13:36:39.072017 29727 net.cpp:226] relu3_3 needs backward computation.
+I0601 13:36:39.072021 29727 net.cpp:226] conv3_3 needs backward computation.
+I0601 13:36:39.072024 29727 net.cpp:226] relu3_2 needs backward computation.
+I0601 13:36:39.072028 29727 net.cpp:226] conv3_2 needs backward computation.
+I0601 13:36:39.072032 29727 net.cpp:226] relu3_1 needs backward computation.
+I0601 13:36:39.072036 29727 net.cpp:226] conv3_1 needs backward computation.
+I0601 13:36:39.072051 29727 net.cpp:226] pool2_stage1 needs backward computation.
+I0601 13:36:39.072054 29727 net.cpp:226] relu2_2 needs backward computation.
+I0601 13:36:39.072057 29727 net.cpp:226] conv2_2 needs backward computation.
+I0601 13:36:39.072062 29727 net.cpp:226] relu2_1 needs backward computation.
+I0601 13:36:39.072064 29727 net.cpp:226] conv2_1 needs backward computation.
+I0601 13:36:39.072069 29727 net.cpp:226] pool1_stage1 needs backward computation.
+I0601 13:36:39.072073 29727 net.cpp:226] relu1_2 needs backward computation.
+I0601 13:36:39.072077 29727 net.cpp:226] conv1_2 needs backward computation.
+I0601 13:36:39.072082 29727 net.cpp:226] relu1_1 needs backward computation.
+I0601 13:36:39.072085 29727 net.cpp:226] conv1_1 needs backward computation.
+I0601 13:36:39.072089 29727 net.cpp:228] silence2 does not need backward computation.
+I0601 13:36:39.072093 29727 net.cpp:228] image does not need backward computation.
+I0601 13:36:39.072099 29727 net.cpp:228] label_heat_label_slice_1_split does not need backward computation.
+I0601 13:36:39.072105 29727 net.cpp:228] label_vec_label_slice_0_split does not need backward computation.
+I0601 13:36:39.072110 29727 net.cpp:228] label_slice does not need backward computation.
+I0601 13:36:39.072116 29727 net.cpp:228] data does not need backward computation.
+I0601 13:36:39.072119 29727 net.cpp:270] This network produces output loss_stage1_L1
+I0601 13:36:39.072124 29727 net.cpp:270] This network produces output loss_stage1_L2
+I0601 13:36:39.072129 29727 net.cpp:270] This network produces output loss_stage2_L1
+I0601 13:36:39.072131 29727 net.cpp:270] This network produces output loss_stage2_L2
+I0601 13:36:39.072135 29727 net.cpp:270] This network produces output loss_stage3_L1
+I0601 13:36:39.072139 29727 net.cpp:270] This network produces output loss_stage3_L2
+I0601 13:36:39.072142 29727 net.cpp:270] This network produces output loss_stage4_L1
+I0601 13:36:39.072145 29727 net.cpp:270] This network produces output loss_stage4_L2
+I0601 13:36:39.072234 29727 net.cpp:283] Network initialization done.
+I0601 13:36:39.072904 29727 solver.cpp:60] Solver scaffolding done.
+I0601 13:36:39.081645 29727 caffe.cpp:155] Finetuning from /home/maxiao/Works/HandPose/experiments/model/vgg/VGG_ILSVRC_19_layers.caffemodel
+[libprotobuf WARNING google/protobuf/io/coded_stream.cc:505] Reading dangerously large protocol message.  If the message turns out to be larger than 2147483647 bytes, parsing will be halted for security reasons.  To increase the limit (or to disable these warnings), see CodedInputStream::SetTotalBytesLimit() in google/protobuf/io/coded_stream.h.
+[libprotobuf WARNING google/protobuf/io/coded_stream.cc:78] The total number of bytes read was 574671192
+I0601 13:36:46.185362 29727 upgrade_proto.cpp:52] Attempting to upgrade input file specified using deprecated V1LayerParameter: /home/maxiao/Works/HandPose/experiments/model/vgg/VGG_ILSVRC_19_layers.caffemodel
+I0601 13:36:50.711784 29727 upgrade_proto.cpp:60] Successfully upgraded file specified using deprecated V1LayerParameter
+I0601 13:36:50.744839 29727 upgrade_proto.cpp:66] Attempting to upgrade input file specified using deprecated input fields: /home/maxiao/Works/HandPose/experiments/model/vgg/VGG_ILSVRC_19_layers.caffemodel
+I0601 13:36:50.744868 29727 upgrade_proto.cpp:69] Successfully upgraded file specified using deprecated input fields.
+W0601 13:36:50.744889 29727 upgrade_proto.cpp:71] Note that future Caffe releases will only support input layers and not input fields.
+I0601 13:36:50.745270 29727 net.cpp:761] Ignoring source layer pool1
+I0601 13:36:50.745677 29727 net.cpp:761] Ignoring source layer pool2
+I0601 13:36:50.748867 29727 net.cpp:761] Ignoring source layer pool3
+I0601 13:36:50.757078 29727 net.cpp:761] Ignoring source layer conv4_3
+I0601 13:36:50.757143 29727 net.cpp:761] Ignoring source layer relu4_3
+I0601 13:36:50.757146 29727 net.cpp:761] Ignoring source layer conv4_4
+I0601 13:36:50.757169 29727 net.cpp:761] Ignoring source layer relu4_4
+I0601 13:36:50.757171 29727 net.cpp:761] Ignoring source layer pool4
+I0601 13:36:50.757174 29727 net.cpp:761] Ignoring source layer conv5_1
+I0601 13:36:50.757179 29727 net.cpp:761] Ignoring source layer relu5_1
+I0601 13:36:50.757184 29727 net.cpp:761] Ignoring source layer conv5_2
+I0601 13:36:50.757186 29727 net.cpp:761] Ignoring source layer relu5_2
+I0601 13:36:50.757190 29727 net.cpp:761] Ignoring source layer conv5_3
+I0601 13:36:50.757194 29727 net.cpp:761] Ignoring source layer relu5_3
+I0601 13:36:50.757197 29727 net.cpp:761] Ignoring source layer conv5_4
+I0601 13:36:50.757200 29727 net.cpp:761] Ignoring source layer relu5_4
+I0601 13:36:50.757203 29727 net.cpp:761] Ignoring source layer pool5
+I0601 13:36:50.757206 29727 net.cpp:761] Ignoring source layer fc6
+I0601 13:36:50.757210 29727 net.cpp:761] Ignoring source layer relu6
+I0601 13:36:50.757212 29727 net.cpp:761] Ignoring source layer drop6
+I0601 13:36:50.757215 29727 net.cpp:761] Ignoring source layer fc7
+I0601 13:36:50.757218 29727 net.cpp:761] Ignoring source layer relu7
+I0601 13:36:50.757221 29727 net.cpp:761] Ignoring source layer drop7
+I0601 13:36:50.757225 29727 net.cpp:761] Ignoring source layer fc8
+I0601 13:36:50.757227 29727 net.cpp:761] Ignoring source layer prob
+I0601 13:36:50.846588 29727 caffe.cpp:251] Starting Optimization
+I0601 13:36:50.846659 29727 solver.cpp:279] Solving 
+I0601 13:36:50.846664 29727 solver.cpp:280] Learning Rate Policy: fixed
+I0601 13:36:51.718644 29727 solver.cpp:228] Iteration 0, loss = 2529.77
+I0601 13:36:51.718739 29727 solver.cpp:244]     Train net output #0: loss_stage1_L1 = 154.856 (* 1 = 154.856 loss)
+I0601 13:36:51.718757 29727 solver.cpp:244]     Train net output #1: loss_stage1_L2 = 477.942 (* 1 = 477.942 loss)
+I0601 13:36:51.718772 29727 solver.cpp:244]     Train net output #2: loss_stage2_L1 = 154.849 (* 1 = 154.849 loss)
+I0601 13:36:51.718794 29727 solver.cpp:244]     Train net output #3: loss_stage2_L2 = 477.113 (* 1 = 477.113 loss)
+I0601 13:36:51.718807 29727 solver.cpp:244]     Train net output #4: loss_stage3_L1 = 154.886 (* 1 = 154.886 loss)
+I0601 13:36:51.718821 29727 solver.cpp:244]     Train net output #5: loss_stage3_L2 = 477.329 (* 1 = 477.329 loss)
+I0601 13:36:51.718833 29727 solver.cpp:244]     Train net output #6: loss_stage4_L1 = 154.884 (* 1 = 154.884 loss)
+I0601 13:36:51.718847 29727 solver.cpp:244]     Train net output #7: loss_stage4_L2 = 477.915 (* 1 = 477.915 loss)
+I0601 13:36:51.718863 29727 sgd_solver.cpp:106] Iteration 0, lr = 0.00025
+I0601 13:36:55.147243 29727 blocking_queue.cpp:50] Data layer prefetch queue empty
+I0601 13:37:09.277190 29727 solver.cpp:228] Iteration 20, loss = 2227.42
+I0601 13:37:09.277410 29727 solver.cpp:244]     Train net output #0: loss_stage1_L1 = 147.166 (* 1 = 147.166 loss)
+I0601 13:37:09.277426 29727 solver.cpp:244]     Train net output #1: loss_stage1_L2 = 466.471 (* 1 = 466.471 loss)
+I0601 13:37:09.277433 29727 solver.cpp:244]     Train net output #2: loss_stage2_L1 = 149.038 (* 1 = 149.038 loss)
+I0601 13:37:09.277441 29727 solver.cpp:244]     Train net output #3: loss_stage2_L2 = 390.412 (* 1 = 390.412 loss)
+I0601 13:37:09.277446 29727 solver.cpp:244]     Train net output #4: loss_stage3_L1 = 149.476 (* 1 = 149.476 loss)
+I0601 13:37:09.277452 29727 solver.cpp:244]     Train net output #5: loss_stage3_L2 = 477.909 (* 1 = 477.909 loss)
+I0601 13:37:09.277458 29727 solver.cpp:244]     Train net output #6: loss_stage4_L1 = 147.506 (* 1 = 147.506 loss)
+I0601 13:37:09.277465 29727 solver.cpp:244]     Train net output #7: loss_stage4_L2 = 299.771 (* 1 = 299.771 loss)
+I0601 13:37:09.277470 29727 sgd_solver.cpp:106] Iteration 20, lr = 0.00025
+I0601 13:37:26.965760 29727 solver.cpp:228] Iteration 40, loss = 2007.11
+I0601 13:37:26.965821 29727 solver.cpp:244]     Train net output #0: loss_stage1_L1 = 133.935 (* 1 = 133.935 loss)
+I0601 13:37:26.965831 29727 solver.cpp:244]     Train net output #1: loss_stage1_L2 = 469.792 (* 1 = 469.792 loss)
+I0601 13:37:26.965837 29727 solver.cpp:244]     Train net output #2: loss_stage2_L1 = 136.231 (* 1 = 136.231 loss)
+I0601 13:37:26.965848 29727 solver.cpp:244]     Train net output #3: loss_stage2_L2 = 482.489 (* 1 = 482.489 loss)
+I0601 13:37:26.965854 29727 solver.cpp:244]     Train net output #4: loss_stage3_L1 = 139.36 (* 1 = 139.36 loss)
+I0601 13:37:26.965862 29727 solver.cpp:244]     Train net output #5: loss_stage3_L2 = 459.078 (* 1 = 459.078 loss)
+I0601 13:37:26.965867 29727 solver.cpp:244]     Train net output #6: loss_stage4_L1 = 134.417 (* 1 = 134.417 loss)
+I0601 13:37:26.965873 29727 solver.cpp:244]     Train net output #7: loss_stage4_L2 = 52.1387 (* 1 = 52.1387 loss)
+I0601 13:37:26.965878 29727 sgd_solver.cpp:106] Iteration 40, lr = 0.00025
+I0601 13:37:44.594764 29727 solver.cpp:228] Iteration 60, loss = 1888.57
+I0601 13:37:44.595034 29727 solver.cpp:244]     Train net output #0: loss_stage1_L1 = 136.647 (* 1 = 136.647 loss)
+I0601 13:37:44.595048 29727 solver.cpp:244]     Train net output #1: loss_stage1_L2 = 468.179 (* 1 = 468.179 loss)
+I0601 13:37:44.595055 29727 solver.cpp:244]     Train net output #2: loss_stage2_L1 = 141.504 (* 1 = 141.504 loss)
+I0601 13:37:44.595062 29727 solver.cpp:244]     Train net output #3: loss_stage2_L2 = 414.083 (* 1 = 414.083 loss)
+I0601 13:37:44.595068 29727 solver.cpp:244]     Train net output #4: loss_stage3_L1 = 140.363 (* 1 = 140.363 loss)
+I0601 13:37:44.595074 29727 solver.cpp:244]     Train net output #5: loss_stage3_L2 = 399.369 (* 1 = 399.369 loss)
+I0601 13:37:44.595080 29727 solver.cpp:244]     Train net output #6: loss_stage4_L1 = 136.869 (* 1 = 136.869 loss)
+I0601 13:37:44.595088 29727 solver.cpp:244]     Train net output #7: loss_stage4_L2 = 51.8813 (* 1 = 51.8813 loss)
+I0601 13:37:44.595093 29727 sgd_solver.cpp:106] Iteration 60, lr = 0.00025
+I0601 13:38:02.076128 29727 solver.cpp:228] Iteration 80, loss = 1716.23
+I0601 13:38:02.076177 29727 solver.cpp:244]     Train net output #0: loss_stage1_L1 = 155.367 (* 1 = 155.367 loss)
+I0601 13:38:02.076192 29727 solver.cpp:244]     Train net output #1: loss_stage1_L2 = 461.583 (* 1 = 461.583 loss)
+I0601 13:38:02.076200 29727 solver.cpp:244]     Train net output #2: loss_stage2_L1 = 157.964 (* 1 = 157.964 loss)
+I0601 13:38:02.076207 29727 solver.cpp:244]     Train net output #3: loss_stage2_L2 = 334.76 (* 1 = 334.76 loss)
+I0601 13:38:02.076213 29727 solver.cpp:244]     Train net output #4: loss_stage3_L1 = 158.806 (* 1 = 158.806 loss)
+I0601 13:38:02.076220 29727 solver.cpp:244]     Train net output #5: loss_stage3_L2 = 247.543 (* 1 = 247.543 loss)
+I0601 13:38:02.076226 29727 solver.cpp:244]     Train net output #6: loss_stage4_L1 = 155.554 (* 1 = 155.554 loss)
+I0601 13:38:02.076233 29727 solver.cpp:244]     Train net output #7: loss_stage4_L2 = 44.9775 (* 1 = 44.9775 loss)
+I0601 13:38:02.076239 29727 sgd_solver.cpp:106] Iteration 80, lr = 0.00025
+I0601 13:38:19.651187 29727 solver.cpp:228] Iteration 100, loss = 1377.74
+I0601 13:38:19.651412 29727 solver.cpp:244]     Train net output #0: loss_stage1_L1 = 148.622 (* 1 = 148.622 loss)
+I0601 13:38:19.651423 29727 solver.cpp:244]     Train net output #1: loss_stage1_L2 = 459.452 (* 1 = 459.452 loss)
+I0601 13:38:19.651430 29727 solver.cpp:244]     Train net output #2: loss_stage2_L1 = 149.276 (* 1 = 149.276 loss)
+I0601 13:38:19.651438 29727 solver.cpp:244]     Train net output #3: loss_stage2_L2 = 217.996 (* 1 = 217.996 loss)
+I0601 13:38:19.651444 29727 solver.cpp:244]     Train net output #4: loss_stage3_L1 = 151.426 (* 1 = 151.426 loss)
+I0601 13:38:19.651450 29727 solver.cpp:244]     Train net output #5: loss_stage3_L2 = 60.3109 (* 1 = 60.3109 loss)
+I0601 13:38:19.651456 29727 solver.cpp:244]     Train net output #6: loss_stage4_L1 = 148.844 (* 1 = 148.844 loss)
+I0601 13:38:19.651463 29727 solver.cpp:244]     Train net output #7: loss_stage4_L2 = 42.1475 (* 1 = 42.1475 loss)
+I0601 13:38:19.651469 29727 sgd_solver.cpp:106] Iteration 100, lr = 0.00025
+I0601 13:38:37.148749 29727 solver.cpp:228] Iteration 120, loss = 1208.1
+I0601 13:38:37.148864 29727 solver.cpp:244]     Train net output #0: loss_stage1_L1 = 148.297 (* 1 = 148.297 loss)
+I0601 13:38:37.148874 29727 solver.cpp:244]     Train net output #1: loss_stage1_L2 = 444.8 (* 1 = 444.8 loss)
+I0601 13:38:37.148880 29727 solver.cpp:244]     Train net output #2: loss_stage2_L1 = 148.606 (* 1 = 148.606 loss)
+I0601 13:38:37.148887 29727 solver.cpp:244]     Train net output #3: loss_stage2_L2 = 77.4888 (* 1 = 77.4888 loss)
+I0601 13:38:37.148893 29727 solver.cpp:244]     Train net output #4: loss_stage3_L1 = 150.096 (* 1 = 150.096 loss)
+I0601 13:38:37.148900 29727 solver.cpp:244]     Train net output #5: loss_stage3_L2 = 49.7919 (* 1 = 49.7919 loss)
+I0601 13:38:37.148905 29727 solver.cpp:244]     Train net output #6: loss_stage4_L1 = 148.331 (* 1 = 148.331 loss)
+I0601 13:38:37.148911 29727 solver.cpp:244]     Train net output #7: loss_stage4_L2 = 41.0228 (* 1 = 41.0228 loss)
+I0601 13:38:37.148916 29727 sgd_solver.cpp:106] Iteration 120, lr = 0.00025
+I0601 13:38:54.697340 29727 solver.cpp:228] Iteration 140, loss = 1084.45
+I0601 13:38:54.697626 29727 solver.cpp:244]     Train net output #0: loss_stage1_L1 = 136.478 (* 1 = 136.478 loss)
+I0601 13:38:54.697638 29727 solver.cpp:244]     Train net output #1: loss_stage1_L2 = 386.617 (* 1 = 386.617 loss)
+I0601 13:38:54.697646 29727 solver.cpp:244]     Train net output #2: loss_stage2_L1 = 136.577 (* 1 = 136.577 loss)
+I0601 13:38:54.697654 29727 solver.cpp:244]     Train net output #3: loss_stage2_L2 = 61.3127 (* 1 = 61.3127 loss)
+I0601 13:38:54.697660 29727 solver.cpp:244]     Train net output #4: loss_stage3_L1 = 137.483 (* 1 = 137.483 loss)
+I0601 13:38:54.697666 29727 solver.cpp:244]     Train net output #5: loss_stage3_L2 = 48.5515 (* 1 = 48.5515 loss)
+I0601 13:38:54.697672 29727 solver.cpp:244]     Train net output #6: loss_stage4_L1 = 136.527 (* 1 = 136.527 loss)
+I0601 13:38:54.697679 29727 solver.cpp:244]     Train net output #7: loss_stage4_L2 = 41.227 (* 1 = 41.227 loss)
+I0601 13:38:54.697685 29727 sgd_solver.cpp:106] Iteration 140, lr = 0.00025
+I0601 13:39:12.198992 29727 solver.cpp:228] Iteration 160, loss = 857.767
+I0601 13:39:12.199054 29727 solver.cpp:244]     Train net output #0: loss_stage1_L1 = 156.806 (* 1 = 156.806 loss)
+I0601 13:39:12.199062 29727 solver.cpp:244]     Train net output #1: loss_stage1_L2 = 81.9858 (* 1 = 81.9858 loss)
+I0601 13:39:12.199069 29727 solver.cpp:244]     Train net output #2: loss_stage2_L1 = 157.029 (* 1 = 157.029 loss)
+I0601 13:39:12.199080 29727 solver.cpp:244]     Train net output #3: loss_stage2_L2 = 58.6126 (* 1 = 58.6126 loss)
+I0601 13:39:12.199089 29727 solver.cpp:244]     Train net output #4: loss_stage3_L1 = 157.326 (* 1 = 157.326 loss)
+I0601 13:39:12.199095 29727 solver.cpp:244]     Train net output #5: loss_stage3_L2 = 48.2469 (* 1 = 48.2469 loss)
+I0601 13:39:12.199101 29727 solver.cpp:244]     Train net output #6: loss_stage4_L1 = 156.744 (* 1 = 156.744 loss)
+I0601 13:39:12.199108 29727 solver.cpp:244]     Train net output #7: loss_stage4_L2 = 41.3457 (* 1 = 41.3457 loss)
+I0601 13:39:12.199115 29727 sgd_solver.cpp:106] Iteration 160, lr = 0.00025
+I0601 13:39:29.673612 29727 solver.cpp:228] Iteration 180, loss = 823.521
+I0601 13:39:29.673893 29727 solver.cpp:244]     Train net output #0: loss_stage1_L1 = 155.345 (* 1 = 155.345 loss)
+I0601 13:39:29.673912 29727 solver.cpp:244]     Train net output #1: loss_stage1_L2 = 58.0198 (* 1 = 58.0198 loss)
+I0601 13:39:29.673924 29727 solver.cpp:244]     Train net output #2: loss_stage2_L1 = 155.405 (* 1 = 155.405 loss)
+I0601 13:39:29.673944 29727 solver.cpp:244]     Train net output #3: loss_stage2_L2 = 55.2354 (* 1 = 55.2354 loss)
+I0601 13:39:29.673956 29727 solver.cpp:244]     Train net output #4: loss_stage3_L1 = 155.633 (* 1 = 155.633 loss)
+I0601 13:39:29.673969 29727 solver.cpp:244]     Train net output #5: loss_stage3_L2 = 47.5713 (* 1 = 47.5713 loss)
+I0601 13:39:29.673991 29727 solver.cpp:244]     Train net output #6: loss_stage4_L1 = 155.262 (* 1 = 155.262 loss)
+I0601 13:39:29.674012 29727 solver.cpp:244]     Train net output #7: loss_stage4_L2 = 41.3779 (* 1 = 41.3779 loss)
+I0601 13:39:29.674021 29727 sgd_solver.cpp:106] Iteration 180, lr = 0.00025
