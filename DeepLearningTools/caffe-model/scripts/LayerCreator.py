@@ -16,6 +16,30 @@ def conv_bn_scale_relu(bottom, num_output=64, kernel_size=3, stride=1, pad=0):
     return conv, conv_bn, conv_scale, conv_relu
 
 
+def onebyoneconv_bn_scale_relu(bottom, num_output=64, kernel_size=3, stride=1, pad=0):
+    conv =  L.Convolution(bottom, param=[dict(lr_mult=1, decay_mult=1)],
+    convolution_param=dict(num_output=num_output, kernel_size=kernel_size, 
+                        stride=stride, pad=pad,
+                         weight_filler=dict(type='msra'),
+                         bias_term=False))
+    conv_bn = L.BatchNorm(conv, use_global_stats=False, in_place=True)
+    conv_scale = L.Scale(conv, scale_param=dict(bias_term=True), in_place=True)
+    conv_relu = L.ReLU(conv, in_place=True)
+
+    return conv, conv_bn, conv_scale, conv_relu
+
+def dpconv_bn_scale_relu(bottom, num_output=64, kernel_size=3, stride=1, pad=0):
+    conv =  L.ConvolutionDepthwise(bottom, param=[dict(lr_mult=1, decay_mult=1)],
+    convolution_param=dict(num_output=num_output, kernel_size=kernel_size, 
+                        stride=stride, pad=pad,
+                         weight_filler=dict(type='msra'),
+                         bias_term=False))
+    conv_bn = L.BatchNorm(conv, use_global_stats=False, in_place=True)
+    conv_scale = L.Scale(conv, scale_param=dict(bias_term=True), in_place=True)
+    conv_relu = L.ReLU(conv, in_place=True)
+
+    return conv, conv_bn, conv_scale, conv_relu
+
 def conv_bn_scale(bottom, num_output=64, kernel_size=3, stride=1, pad=0):
     conv = L.Convolution(bottom, num_output=num_output, kernel_size=kernel_size, stride=stride, pad=pad,
                          param=[dict(lr_mult=1, decay_mult=1), dict(lr_mult=2, decay_mult=0)],
@@ -43,6 +67,14 @@ def fire_block(bottom, output = 128):
     conv_3x3_1, conv_3x3_1_bn, conv_3x3_1_scale, conv_3x3_1_relu,\
     conv_3x3_2, conv_3x3_2_bn, conv_3x3_2_scale, conv_3x3_2_relu,\
     concat
+
+def depthwith_block(bottom, output = 128):
+    dpconv, dpconv_bn, dpconv_scale, dpconv_relu = dpconv_bn_scale_relu(bottom, num_output=output, kernel_size=3, pad = 1)
+    conv_1x1, conv_1x1_bn, conv_1x1_scale, conv_1x1_relu = onebyoneconv_bn_scale_relu(dpconv, num_output=output, kernel_size=1)
+
+    return dpconv, dpconv_bn, dpconv_scale, dpconv_relu, \
+    conv_1x1, conv_1x1_bn, conv_1x1_scale, conv_1x1_relu
+
 
 
 def residual_branch(bottom, base_output=64, num_output=256):
@@ -119,16 +151,20 @@ class LayerCreator(object):
         self.residual_idx = start_residual_idx
         self.deconv_idx = start_deconv_idx
         self.add_idx = start_add_idx
-        self.conv_idx = 0
+        self.conv_idx = 5
         self.bn_idx = 0
         self.concat_idx = 0
         self.relu_idx = 0
         self.loss_idx = 0
         self.concat_idx = 0
         self.fire_idx = 0
+        self.depth_idx = 0
     
     def str_replace(self, exe_str, param_name, param_str):
-        
+       #replace_str = []
+        #if isinstance(param_str, basestring):
+        #    replace_str = "exe_str = exe_str.replace('((param_name))', param_str)"
+        #else:
         replace_str = "exe_str = exe_str.replace('((param_name))', str((param_str)))"
         replace_str = replace_str.replace('(param_str)', param_str)
         replace_str = replace_str.replace('(param_name)', param_name)
@@ -181,6 +217,29 @@ n.fire(fire_idx)_concat = fire_block(bottom, (dim))'
         exec val_string
 
         self.fire_idx += 1
+        return output
+
+
+    def DepthWithBlock(self, bottom, name, dim = 128):
+        n = self.n
+        
+        depthwith_block_string = \
+        "n.dpconv_(name), n.dpconv_(name)_bn, \
+        n.dpconv_(name)_scale, n.dpconv_(name)_relu, \
+        n.spconv_(name), n.spconv_(name)_bn, \
+        n.spconv_(name)_scale, n.spconv_(name)_relu = depthwith_block(bottom, dim)"
+
+        depthwith_block_string = self.str_replace(depthwith_block_string, 'name', str(self.depth_idx))
+        print depthwith_block_string
+        exec depthwith_block_string
+
+        
+        output = None
+        val_string = 'output = self.n.spconv_(name)'
+        val_string = self.str_replace(val_string, 'name', str(self.depth_idx))
+        print val_string
+        exec val_string
+        self.depth_idx = self.depth_idx + 1
         return output
     
     def Concat(self, L1, L2):

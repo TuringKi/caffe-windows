@@ -1118,8 +1118,8 @@ message PowerParameter {
 
 message PSROIPoolingParameter {
    required float spatial_scale = 1; 
-   required int32 output_dim = 2; // output channel number
-   required int32 group_size = 3; // number of groups to encode position-sensitive score maps
+   required int32 output_dim = 2[default = 1]; // output channel number
+   required int32 group_size = 3[default = 1]; // number of groups to encode position-sensitive score maps
  }
 
 message PythonParameter {

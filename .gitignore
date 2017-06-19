@@ -105,3 +105,6 @@ MANIFEST-*
 
 Build/
 build/
+*.pyc
+
+DeepLearningTools/caffe-model/scripts/prototxt

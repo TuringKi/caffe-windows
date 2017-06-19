@@ -923,7 +923,7 @@
       <Filter>cu\layers</Filter>
     </CudaCompile>
     <CudaCompile Include="..\..\src\caffe\layers\conv_dw_layer.cu">
-      <Filter>cu</Filter>
+      <Filter>cu\layers</Filter>
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>
