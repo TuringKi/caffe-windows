@@ -5,8 +5,8 @@ import inception_v3
 import vggnet
 # import HandHourglassNetWithoutBN as HandHourglassNet
 
-import  HandHourglassNet
-import HandMobileNet
+
+import HandDepthWiseResidual
 def save_proto(proto, prototxt):
     with open(prototxt, 'w') as f:
         f.write(str(proto))
@@ -34,11 +34,11 @@ def demo():
 if __name__ == '__main__':
     # demo()
 
-    model = HandMobileNet.HandMobileNet('/home/maxiao/Works/HandPose/data/dataset_3/lmdb')
+    model = HandDepthWiseResidual.HandDepthWiseResidual('/home/maxiao/Works/HandPose/data/dataset_3/lmdb')
     train_proto = model.layers_proto()
     save_proto(train_proto, 'prototxt/pose_train_test.prototxt')
 
-    model = HandMobileNet.HandMobileNet('/data1/maxiao/dataset/TopRHD/lmdb')
+    model = HandDepthWiseResidual.HandDepthWiseResidual('/data1/maxiao/dataset/TopRHD/lmdb')
     test_proto = model.layers_proto(phase='TEST')
 
 

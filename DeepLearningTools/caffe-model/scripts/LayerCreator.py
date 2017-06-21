@@ -100,6 +100,27 @@ def residual_branch(bottom, base_output=64, num_output=256):
 
 
 
+def depthwise_residual_branch(bottom, base_output=64, num_output=256, kernel_size = 3, pad = 1):
+    """
+    input:4*base_output x n x n
+    output:4*base_output x n x n
+    :param base_output: base num_output of branch2
+    :param bottom: bottom layer
+    :return: layers
+    """
+    branch2a, branch2a_bn, branch2a_scale, branch2a_relu = \
+        conv_bn_scale_relu(bottom, num_output=64, kernel_size=1)  # base_output x n x n
+    branch2b, branch2b_bn, branch2b_scale, branch2b_relu = \
+        dpconv_bn_scale_relu(branch2a, num_output = 64, kernel_size=kernel_size, pad=pad)  # base_output x n x n
+    branch2c, branch2c_bn, branch2c_scale = \
+        conv_bn_scale(branch2b, num_output=num_output, kernel_size=1)  # 4*base_output x n x n
+
+    residual, residual_relu = \
+        eltwize_relu(bottom, branch2c)  # 4*base_output x n x n
+
+    return branch2a, branch2a_bn, branch2a_scale, branch2a_relu, branch2b, branch2b_bn, branch2b_scale, branch2b_relu, \
+           branch2c, branch2c_bn, branch2c_scale, residual, residual_relu
+
 
 def residual_branch_shortcut(bottom, stride=2, base_output=64, num_output = 256):
     """
@@ -126,6 +147,32 @@ def residual_branch_shortcut(bottom, stride=2, base_output=64, num_output = 256)
            branch2b_bn, branch2b_scale, branch2b_relu, branch2c, branch2c_bn, branch2c_scale, residual, residual_relu
 
 
+def depthwise_residual_branch_shortcut(bottom, stride=2, base_output=64, num_output = 256 , kernel_size = 3, pad = 1):
+    """
+
+    :param stride: stride
+    :param base_output: base num_output of branch2
+    :param bottom: bottom layer
+    :return: layers
+    """
+    branch1, branch1_bn, branch1_scale = \
+        conv_bn_scale(bottom, num_output=num_output, kernel_size=1, stride=stride)
+
+    branch2a, branch2a_bn, branch2a_scale, branch2a_relu = \
+        conv_bn_scale_relu(bottom, num_output=base_output, kernel_size=1, stride=stride)
+    branch2b, branch2b_bn, branch2b_scale, branch2b_relu = \
+        dpconv_bn_scale_relu(branch2a, kernel_size=kernel_size, pad=pad)
+    branch2c, branch2c_bn, branch2c_scale = \
+        conv_bn_scale(branch2b, num_output=num_output, kernel_size=1)
+
+    residual, residual_relu = \
+        eltwize_relu(branch1, branch2c)  # 4*base_output x n x n
+
+    return branch1, branch1_bn, branch1_scale, branch2a, branch2a_bn, branch2a_scale, branch2a_relu, branch2b, \
+           branch2b_bn, branch2b_scale, branch2b_relu, branch2c, branch2c_bn, branch2c_scale, residual, residual_relu
+
+
+
 branch_string = 'n.res(stage)b(order)_branch2a, n.res(stage)b(order)_branch2a_bn, n.res(stage)b(order)_branch2a_scale, \
         n.res(stage)b(order)_branch2a_relu, n.res(stage)b(order)_branch2b, n.res(stage)b(order)_branch2b_bn, \
         n.res(stage)b(order)_branch2b_scale, n.res(stage)b(order)_branch2b_relu, n.res(stage)b(order)_branch2c, \
@@ -140,6 +187,18 @@ branch_shortcut_string = 'n.res(stage)a_branch1, n.res(stage)a_branch1_bn, n.res
             residual_branch_shortcut((bottom), stride=(stride), base_output=(num),num_output=(output))'
 
 
+depthwisze_branch_string = 'n.res(stage)b(order)_branch2a, n.res(stage)b(order)_branch2a_bn, n.res(stage)b(order)_branch2a_scale, \
+        n.res(stage)b(order)_branch2a_relu, n.res(stage)b(order)_branch2b, n.res(stage)b(order)_branch2b_bn, \
+        n.res(stage)b(order)_branch2b_scale, n.res(stage)b(order)_branch2b_relu, n.res(stage)b(order)_branch2c, \
+        n.res(stage)b(order)_branch2c_bn, n.res(stage)b(order)_branch2c_scale, n.res(stage)b(order), n.res(stage)b(order)_relu = \
+            depthwise_residual_branch((bottom), base_output=(num), num_output=(output),kernel_size = kernel_size, pad = pad)'
+
+
+depthwisze_branch_shortcut_string = 'n.res(stage)a_branch1, n.res(stage)a_branch1_bn, n.res(stage)a_branch1_scale, \
+        n.res(stage)a_branch2a, n.res(stage)a_branch2a_bn, n.res(stage)a_branch2a_scale, n.res(stage)a_branch2a_relu, \
+        n.res(stage)a_branch2b, n.res(stage)a_branch2b_bn, n.res(stage)a_branch2b_scale, n.res(stage)a_branch2b_relu, \
+        n.res(stage)a_branch2c, n.res(stage)a_branch2c_bn, n.res(stage)a_branch2c_scale, n.res(stage)a, n.res(stage)a_relu = \
+            depthwise_residual_branch_shortcut((bottom), stride=(stride), base_output=(num),num_output=(output), kernel_size = kernel_size, pad = pad)'
 
 
 
@@ -159,6 +218,7 @@ class LayerCreator(object):
         self.concat_idx = 0
         self.fire_idx = 0
         self.depth_idx = 0
+        self.depresidual_idx = 0
     
     def str_replace(self, exe_str, param_name, param_str):
        #replace_str = []
@@ -198,6 +258,35 @@ class LayerCreator(object):
         exec (ret_cmd)
 
         self.residual_idx += 1
+        return out_layer
+    
+
+    def DepthWiseResidual(self, layer, input, output, kernel_size = 3, pad = 1):
+        n = self.n
+        stage_string = ''
+        ret_string = ''
+        bottm_str = 'layer'
+        num = self.depresidual_idx
+        if input != output:
+            
+            stage_string = depthwisze_branch_shortcut_string
+            ret_string = 'out_layer = n.res(stage)a'
+            ret_cmd = ret_string.replace('(stage)', str(num + 2))
+
+        else:
+            stage_string = depthwisze_branch_string
+            ret_string = 'out_layer = n.res(stage)b(order)'
+            ret_cmd = (ret_string.replace('(stage)', str(num + 2))).replace('(order)', str(0))
+
+        cmd = (stage_string.replace('(stage)', str(num + 2)).replace('(bottom)', bottm_str).
+                        replace('(num)', str(input)).replace('(order)', str(0)).
+                        replace('(stride)', str(1))).replace('(output)', str(output))
+        print cmd
+
+        exec (cmd)
+        exec (ret_cmd)
+
+        self.depresidual_idx += 1
         return out_layer
 
     def FireBlock(self, bottom, dim = 128, kernel_size=3, stride=1, pad=0):
@@ -324,6 +413,12 @@ n.fire(fire_idx)_concat = fire_block(bottom, (dim))'
         self.relu_idx += 1
         return input
     
+    def ConvReLU(self,  input,num_output=64, kernel_size=1, stride=1, pad=0):
+        conv = self.Conv(input, num_output, kernel_size, stride, pad)
+        
+        conv = self.ReLU(conv)
+        return conv
+
     def ConvBnReLU(self, input,num_output=64, kernel_size=1, stride=1, pad=0):
         conv = self.Conv(input, num_output, kernel_size, stride, pad)
         conv = self.BatchNorm(conv)

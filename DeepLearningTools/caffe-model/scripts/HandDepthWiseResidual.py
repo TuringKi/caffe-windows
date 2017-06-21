@@ -5,7 +5,7 @@ from caffe import params as P
 import  LayerCreator
 
 
-class HandMobileNet(object):
+class HandDepthWiseResidual(object):
     def __init__(self, lmdb_train):
         self.train_data = lmdb_train
         self.n = caffe.NetSpec()
@@ -59,10 +59,19 @@ class HandMobileNet(object):
         for s in range(0, 2):
             l1 = l
             l2 = l
+           
             for k in range(0, 3):
-                l1 = LC.DepthWithBlock(l1, str(k+1) + "_stage1_L1", dim)
-                l2 = LC.DepthWithBlock(l2, str(k+1) + "_stage1_L2", dim)
-            
+                if s == 0:
+                    l1 = LC.DepthWiseResidual(l1,dim, dim)
+                    l2 =  LC.DepthWiseResidual(l2,dim, dim)
+                else:
+                    if k == 0:
+                        l1 = LC.DepthWiseResidual(l1, 64, dim)
+                        l2 =  LC.DepthWiseResidual(l2, 64, dim)
+                    else:
+                        l1 = LC.DepthWiseResidual(l1, dim, dim)
+                        l2 =  LC.DepthWiseResidual(l2, dim, dim)
+
             l1 = LC.ConvReLU(l1,512)
             l2 = LC.ConvReLU(l2,512)
             l1 = LC.Conv(l1, num_paf)
@@ -71,10 +80,9 @@ class HandMobileNet(object):
             if phase == 'TRAIN':
                 loss1 = LC.EuclideanLoss(l1, n.label_vec)
                 loss2 = LC.EuclideanLoss(l2, n.label_heat)
-            if s < stages - 1:
-                l0 = LC.Concat(l1,l2)
-                l = LC.Concat(l,l0)
-        
+
+            l0 = LC.Concat(l1,l2)
+            l = LC.Concat(l,l0)
 
 
         return n.to_proto()
