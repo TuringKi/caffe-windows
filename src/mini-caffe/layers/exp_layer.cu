@@ -1,7 +1,7 @@
 #include <vector>
 
-#include "./exp_layer.hpp"
-#include "../util/math_functions.hpp"
+#include "caffe/layers/exp_layer.hpp"
+#include "caffe/util/math_functions.hpp"
 
 namespace caffe {
 

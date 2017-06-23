@@ -100,6 +100,28 @@ def residual_branch(bottom, base_output=64, num_output=256):
 
 
 
+
+def residual_branch(bottom, base_output=64, num_output=256):
+    """
+    input:4*base_output x n x n
+    output:4*base_output x n x n
+    :param base_output: base num_output of branch2
+    :param bottom: bottom layer
+    :return: layers
+    """
+    branch2a, branch2a_bn, branch2a_scale, branch2a_relu = \
+        conv_bn_scale_relu(bottom, num_output=base_output, kernel_size=1)  # base_output x n x n
+    branch2b, branch2b_bn, branch2b_scale, branch2b_relu = \
+        conv_bn_scale_relu(branch2a, num_output=base_output, kernel_size=3, pad=1)  # base_output x n x n
+    branch2c, branch2c_bn, branch2c_scale = \
+        conv_bn_scale(branch2b, num_output=num_output, kernel_size=1)  # 4*base_output x n x n
+
+    residual, residual_relu = \
+        eltwize_relu(bottom, branch2c)  # 4*base_output x n x n
+
+    return branch2a, branch2a_bn, branch2a_scale, branch2a_relu, branch2b, branch2b_bn, branch2b_scale, branch2b_relu, \
+           branch2c, branch2c_bn, branch2c_scale, residual, residual_relu
+
 def depthwise_residual_branch(bottom, base_output=64, num_output=256, kernel_size = 3, pad = 1):
     """
     input:4*base_output x n x n

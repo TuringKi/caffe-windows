@@ -1,8 +1,8 @@
 #include <algorithm>
 #include <vector>
 
-#include "./prelu_layer.hpp"
-#include "../util/math_functions.hpp"
+#include "caffe/layers/prelu_layer.hpp"
+#include "caffe/util/math_functions.hpp"
 
 namespace caffe {
 
@@ -25,6 +25,11 @@ void PReLULayer::Forward_gpu(const vector<Blob*>& bottom,
   const int channels = bottom[0]->channels();
   const real_t* slope_data = this->blobs_[0]->gpu_data();
   const int div_factor = channel_shared_ ? channels : 1;
+
+  // For in-place computation
+  if (top[0] == bottom[0]) {
+    caffe_copy(count, bottom_data, bottom_memory_.mutable_gpu_data());
+  }
 
   // NOLINT_NEXT_LINE(whitespace/operators)
   PReLUForward<<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(

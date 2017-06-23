@@ -3,11 +3,7 @@
 
 #include <vector>
 
-#include "./tanh_layer.hpp"
-
-#ifdef USE_CUDNN
-#include "./cudnn/cudnn_tanh_layer.hpp"
-#endif  // USE_CUDNN
+#include "caffe/layers/tanh_layer.hpp"
 
 namespace caffe {
 
@@ -24,17 +20,5 @@ void TanHLayer::Forward_cpu(const vector<Blob*>& bottom,
 #ifndef USE_CUDA
 STUB_GPU(TanHLayer);
 #endif
-
-// Creator
-
-static shared_ptr<Layer> CreateLayer(const LayerParameter& param) {
-#ifdef USE_CUDNN
-  return shared_ptr<Layer>(new CuDNNTanHLayer(param));
-#else
-  return shared_ptr<Layer>(new TanHLayer(param));
-#endif  // USE_CUDNN
-}
-
-REGISTER_LAYER_CREATOR(TanH, CreateLayer);
 
 }  // namespace caffe

@@ -1,14 +1,15 @@
 #include <algorithm>
 #include <vector>
 
-#include "./batch_norm_layer.hpp"
-#include "../util/math_functions.hpp"
+#include "caffe/layers/batch_norm_layer.hpp"
+#include "caffe/util/math_functions.hpp"
 
 namespace caffe {
 
 void BatchNormLayer::LayerSetUp(const vector<Blob*>& bottom,
                                 const vector<Blob*>& top) {
   BatchNormParameter param = this->layer_param_.batch_norm_param();
+  moving_average_fraction_ = param.moving_average_fraction();
   use_global_stats_ = true;
   if (param.has_use_global_stats())
     use_global_stats_ = param.use_global_stats();
@@ -45,6 +46,7 @@ void BatchNormLayer::Reshape(const vector<Blob*>& bottom,
   mean_.Reshape(sz);
   variance_.Reshape(sz);
   temp_.ReshapeLike(*bottom[0]);
+  x_norm_.ReshapeLike(*bottom[0]);
   sz[0]=bottom[0]->shape(0);
   batch_sum_multiplier_.Reshape(sz);
 
@@ -89,33 +91,44 @@ void BatchNormLayer::Forward_cpu(const vector<Blob*>& bottom,
   } else {
     // compute mean
     caffe_cpu_gemv(CblasNoTrans, channels_ * num, spatial_dim,
-        1. / (num * spatial_dim), bottom_data,
-        spatial_sum_multiplier_.cpu_data(), static_cast<real_t>(0),
-        num_by_chans_.mutable_cpu_data());
+      1. / (num * spatial_dim), bottom_data,
+      spatial_sum_multiplier_.cpu_data(), static_cast<real_t>(0),
+      num_by_chans_.mutable_cpu_data());
     caffe_cpu_gemv(CblasTrans, num, channels_, static_cast<real_t>(1),
-        num_by_chans_.cpu_data(), batch_sum_multiplier_.cpu_data(), static_cast<real_t>(0),
-        mean_.mutable_cpu_data());
+      num_by_chans_.cpu_data(), batch_sum_multiplier_.cpu_data(), static_cast<real_t>(0),
+      mean_.mutable_cpu_data());
   }
 
   // subtract mean
   caffe_cpu_gemm(CblasNoTrans, CblasNoTrans, num, channels_, 1, 1,
-      batch_sum_multiplier_.cpu_data(), mean_.cpu_data(), static_cast<real_t>(0),
-      num_by_chans_.mutable_cpu_data());
+    batch_sum_multiplier_.cpu_data(), mean_.cpu_data(), static_cast<real_t>(0),
+    num_by_chans_.mutable_cpu_data());
   caffe_cpu_gemm(CblasNoTrans, CblasNoTrans, channels_ * num,
-      spatial_dim, 1, -1, num_by_chans_.cpu_data(),
-      spatial_sum_multiplier_.cpu_data(), static_cast<real_t>(1), top_data);
+    spatial_dim, 1, -1, num_by_chans_.cpu_data(),
+    spatial_sum_multiplier_.cpu_data(), static_cast<real_t>(1), top_data);
 
   if (!use_global_stats_) {
     // compute variance using var(X) = E((X-EX)^2)
     caffe_powx(top[0]->count(), top_data, static_cast<real_t>(2),
-        temp_.mutable_cpu_data());  // (X-EX)^2
+      temp_.mutable_cpu_data());  // (X-EX)^2
     caffe_cpu_gemv(CblasNoTrans, channels_ * num, spatial_dim,
-        1. / (num * spatial_dim), temp_.cpu_data(),
-        spatial_sum_multiplier_.cpu_data(), static_cast<real_t>(0),
-        num_by_chans_.mutable_cpu_data());
+      1. / (num * spatial_dim), temp_.cpu_data(),
+      spatial_sum_multiplier_.cpu_data(), static_cast<real_t>(0),
+      num_by_chans_.mutable_cpu_data());
     caffe_cpu_gemv(CblasTrans, num, channels_, static_cast<real_t>(1),
-        num_by_chans_.cpu_data(), batch_sum_multiplier_.cpu_data(), static_cast<real_t>(0),
-        variance_.mutable_cpu_data());  // E((X_EX)^2)
+      num_by_chans_.cpu_data(), batch_sum_multiplier_.cpu_data(), static_cast<real_t>(0),
+      variance_.mutable_cpu_data());  // E((X_EX)^2)
+
+    // compute and save moving average
+    this->blobs_[2]->mutable_cpu_data()[0] *= moving_average_fraction_;
+    this->blobs_[2]->mutable_cpu_data()[0] += 1;
+    caffe_cpu_axpby(mean_.count(), static_cast<real_t>(1), mean_.cpu_data(),
+      moving_average_fraction_, this->blobs_[0]->mutable_cpu_data());
+    int m = bottom[0]->count()/channels_;
+    real_t bias_correction_factor = m > 1 ? static_cast<real_t>(m)/(m-1) : 1;
+    caffe_cpu_axpby(variance_.count(), bias_correction_factor,
+      variance_.cpu_data(), moving_average_fraction_,
+      this->blobs_[1]->mutable_cpu_data());
   }
 
   // normalize variance
@@ -125,12 +138,15 @@ void BatchNormLayer::Forward_cpu(const vector<Blob*>& bottom,
 
   // replicate variance to input size
   caffe_cpu_gemm(CblasNoTrans, CblasNoTrans, num, channels_, 1, 1,
-      batch_sum_multiplier_.cpu_data(), variance_.cpu_data(), static_cast<real_t>(0),
-      num_by_chans_.mutable_cpu_data());
+    batch_sum_multiplier_.cpu_data(), variance_.cpu_data(), static_cast<real_t>(0),
+    num_by_chans_.mutable_cpu_data());
   caffe_cpu_gemm(CblasNoTrans, CblasNoTrans, channels_ * num,
-      spatial_dim, 1, static_cast<real_t>(1), num_by_chans_.cpu_data(),
-      spatial_sum_multiplier_.cpu_data(), static_cast<real_t>(0), temp_.mutable_cpu_data());
+    spatial_dim, 1, static_cast<real_t>(1), num_by_chans_.cpu_data(),
+    spatial_sum_multiplier_.cpu_data(), static_cast<real_t>(0), temp_.mutable_cpu_data());
   caffe_div(temp_.count(), top_data, temp_.cpu_data(), top_data);
+  // TODO(cdoersch): The caching is only needed because later in-place layers
+  //                 might clobber the data.  Can we skip this if they won't?
+  caffe_copy(x_norm_.count(), top_data, x_norm_.mutable_cpu_data());
 }
 
 #ifndef USE_CUDA

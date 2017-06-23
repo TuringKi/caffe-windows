@@ -1,11 +1,7 @@
 #include <cmath>
 #include <vector>
 
-#include "./sigmoid_layer.hpp"
-
-#ifdef USE_CUDNN
-#include "./cudnn/cudnn_sigmoid_layer.hpp"
-#endif  // USE_CUDNN
+#include "caffe/layers/sigmoid_layer.hpp"
 
 namespace caffe {
 
@@ -26,17 +22,5 @@ void SigmoidLayer::Forward_cpu(const vector<Blob*>& bottom,
 #ifndef USE_CUDA
 STUB_GPU(SigmoidLayer);
 #endif
-
-// Creator
-
-static shared_ptr<Layer> CreateLayer(const LayerParameter& param) {
-#ifdef USE_CUDNN
-  return shared_ptr<Layer>(new CuDNNSigmoidLayer(param));
-#else
-  return shared_ptr<Layer>(new SigmoidLayer(param));
-#endif  // USE_CUDNN
-}
-
-REGISTER_LAYER_CREATOR(Sigmoid, CreateLayer);
 
 }  // namespace caffe

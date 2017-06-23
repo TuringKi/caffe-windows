@@ -8,10 +8,10 @@
 #include <fstream>  // NOLINT(readability/streams)
 #include <string>
 #include <vector>
-#include <limits>
 
-#include "./io.hpp"
-#include "../proto/caffe.pb.h"
+#include "caffe/common.hpp"
+#include "caffe/proto/caffe.pb.h"
+#include "caffe/util/io.hpp"
 
 #ifdef WIN32
 #include <io.h>
@@ -21,7 +21,7 @@
 #define O_BINARY 0x00
 #endif
 
-const int kProtoReadBytesLimit = std::numeric_limits<int>::max();  // Max size of 2 GB minus 1 byte.
+const int kProtoReadBytesLimit = INT_MAX;  // Max size of 2 GB minus 1 byte.
 
 namespace caffe {
 
@@ -65,7 +65,7 @@ bool ReadProtoFromBinaryFile(const char* filename, Message* proto) {
 }
 
 void WriteProtoToBinaryFile(const Message& proto, const char* filename) {
-  std::fstream output(filename, std::ios::out | std::ios::trunc | std::ios::binary);
+  fstream output(filename, ios::out | ios::trunc | ios::binary);
   CHECK(proto.SerializeToOstream(&output));
 }
 

@@ -1,8 +1,8 @@
 #include <vector>
 
-#include "./embed_layer.hpp"
-#include "../filler.hpp"
-#include "../util/math_functions.hpp"
+#include "caffe/layers/embed_layer.hpp"
+#include "caffe/filler.hpp"
+#include "caffe/util/math_functions.hpp"
 
 namespace caffe {
 

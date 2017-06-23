@@ -1,12 +1,11 @@
+#include <climits>
 #include <vector>
 
-#include <google/protobuf/io/coded_stream.h>
-
 #include "caffe/blob.hpp"
-#include "./syncedmem.hpp"
-#include "./util/io.hpp"
-#include "./util/math_functions.hpp"
-#include "./proto/caffe.pb.h"
+#include "caffe/common.hpp"
+#include "caffe/syncedmem.hpp"
+#include "caffe/util/math_functions.hpp"
+#include "caffe/proto/caffe.pb.h"
 
 namespace caffe {
 
@@ -25,20 +24,19 @@ void Blob::Reshape(const vector<int>& shape) {
   count_ = 1;
   shape_.resize(shape.size());
   if (!shape_data_ || shape_data_->size() < shape.size() * sizeof(int)) {
-    static_assert(kMaxBlobAxes*sizeof(int) == MemoryPool::kElementSize, "Static Assert Error");
-    shape_data_.reset(new SyncedMemory(kMaxBlobAxes * sizeof(int)));
+    shape_data_.reset(new SyncedMemory(shape.size() * sizeof(int)));
   }
   int* shape_data = static_cast<int*>(shape_data_->mutable_cpu_data());
   for (int i = 0; i < shape.size(); ++i) {
     CHECK_GE(shape[i], 0);
     if (count_ != 0) {
-      CHECK_LE(shape[i], std::numeric_limits<int>::max() / count_) << "blob size exceeds INT_MAX";
+      CHECK_LE(shape[i], INT_MAX / count_) << "blob size exceeds INT_MAX";
     }
     count_ *= shape[i];
     shape_[i] = shape[i];
     shape_data[i] = shape[i];
   }
-  if (count_ != capacity_) {
+  if (count_ > capacity_) {
     capacity_ = count_;
     data_.reset(new SyncedMemory(capacity_ * sizeof(real_t)));
   }
@@ -80,6 +78,11 @@ const real_t* Blob::cpu_data() const {
   return static_cast<const real_t*>(data_->cpu_data());
 }
 
+void Blob::set_cpu_data(real_t* data) {
+  CHECK(data);
+  data_->set_cpu_data(data);
+}
+
 real_t* Blob::mutable_cpu_data() {
   CHECK(data_);
   return static_cast<real_t*>(data_->mutable_cpu_data());
@@ -95,19 +98,9 @@ real_t* Blob::mutable_gpu_data() {
   return static_cast<real_t*>(data_->mutable_gpu_data());
 }
 
-void Blob::Release() {
-  data_ = nullptr;
-  // no need to free shape data, cache it in blob level
-  //shape_data_ = nullptr;
-  shape_.clear();
-  count_ = 0;
-  capacity_ = 0;
-}
-
 void Blob::ShareData(const Blob& other) {
   CHECK_EQ(count_, other.count());
-  CHECK(other.data_);
-  data_ = other.data_;
+  data_ = other.data();
 }
 
 bool Blob::ShapeEquals(const BlobProto& other) {
@@ -141,7 +134,7 @@ void Blob::CopyFrom(const Blob& source, bool reshape) {
     }
   }
   caffe_copy(count_, source.cpu_data(),
-             static_cast<real_t*>(data_->mutable_cpu_data()));
+      static_cast<real_t*>(data_->mutable_cpu_data()));
 }
 
 void Blob::FromProto(const BlobProto& proto, bool reshape) {
@@ -199,6 +192,11 @@ const int* BlobInt::cpu_data() const {
   return static_cast<const int*>(data_->cpu_data());
 }
 
+void BlobInt::set_cpu_data(int* data) {
+  CHECK(data);
+  data_->set_cpu_data(data);
+}
+
 int* BlobInt::mutable_cpu_data() {
   CHECK(data_);
   return static_cast<int*>(data_->mutable_cpu_data());
@@ -214,23 +212,6 @@ int* BlobInt::mutable_gpu_data() {
   return static_cast<int*>(data_->mutable_gpu_data());
 }
 
-shared_ptr<Blob> ReadBlobFromFile(const string& file) {
-  BlobProto bp;
-  ReadProtoFromBinaryFileOrDie(file.c_str(), &bp);
-  shared_ptr<Blob> blob(new Blob);
-  blob->FromProto(bp);
-  return blob;
-}
-
-shared_ptr<Blob> ReadBlobFromBuffer(const string& buffer) {
-  using google::protobuf::uint8;
-  google::protobuf::io::CodedInputStream ci(reinterpret_cast<const uint8*>(buffer.c_str()),
-                                            buffer.length());
-  BlobProto bp;
-  CHECK(bp.ParseFromCodedStream(&ci)) << "Parse Blob failed";
-  shared_ptr<Blob> blob;
-  blob->FromProto(bp);
-  return blob;
-}
+INSTANTIATE_CLASS(Blob);
 
 }  // namespace caffe

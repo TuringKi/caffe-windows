@@ -18,162 +18,21 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\mini-caffe\caffe\base.hpp" />
-    <ClInclude Include="..\..\include\mini-caffe\caffe\blob.hpp" />
-    <ClInclude Include="..\..\include\mini-caffe\caffe\caffe.hpp" />
-    <ClInclude Include="..\..\include\mini-caffe\caffe\c_api.h" />
-    <ClInclude Include="..\..\include\mini-caffe\caffe\logging.hpp" />
-    <ClInclude Include="..\..\include\mini-caffe\caffe\net.hpp" />
-    <ClInclude Include="..\..\include\mini-caffe\caffe\profiler.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\common.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\filler.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\absval_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\argmax_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\base_conv_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\batch_norm_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\bias_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\bnll_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\bn_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\concat_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\conv_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\crop_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\cudnn\cudnn.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\cudnn\cudnn_bn_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\cudnn\cudnn_conv_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\cudnn\cudnn_lcn_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\cudnn\cudnn_lrn_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\cudnn\cudnn_pooling_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\cudnn\cudnn_relu_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\cudnn\cudnn_sigmoid_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\cudnn\cudnn_softmax_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\cudnn\cudnn_tanh_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\deconv_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\dropout_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\eltwise_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\elu_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\embed_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\exp_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\filter_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\flatten_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\inner_product_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\input_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\log_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\lrn_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\mvn_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\neuron_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\parameter_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\pooling_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\power_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\prelu_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\proposal_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\psroi_pooling_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\reduction_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\relu_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\reshape_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\roi_pooling_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\scale_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\sigmoid_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\slice_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\softmax_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\split_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\spp_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\tanh_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\threshold_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layers\tile_layer.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\layer_factory.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\syncedmem.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\thread_local.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\util\im2col.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\util\io.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\util\math_functions.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\util\mkl_alternate.hpp" />
-    <ClInclude Include="..\..\src\mini-caffe\util\upgrade_proto.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\src\mini-caffe\blob.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\common.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\c_api.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\absval_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\argmax_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\base_conv_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\batch_norm_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\bias_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\bnll_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\bn_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\concat_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\conv_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\crop_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\cudnn\cudnn.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\cudnn\cudnn_bn_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\cudnn\cudnn_conv_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\cudnn\cudnn_lcn_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\cudnn\cudnn_lrn_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\cudnn\cudnn_pooling_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\cudnn\cudnn_relu_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\cudnn\cudnn_sigmoid_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\cudnn\cudnn_softmax_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\cudnn\cudnn_tanh_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\deconv_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\dropout_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\eltwise_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\elu_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\embed_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\exp_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\filter_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\flatten_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\inner_product_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\input_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\log_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\lrn_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\mvn_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\neuron_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\parameter_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\pooling_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\power_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\prelu_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\proposal_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\psroi_pooling_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\reduction_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\relu_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\reshape_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\roi_pooling_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\scale_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\sigmoid_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\slice_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\softmax_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\split_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\spp_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\tanh_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\threshold_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\tile_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\net.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\profiler.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\proto\caffe.pb.cc" />
-    <ClCompile Include="..\..\src\mini-caffe\syncedmem.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\util\im2col.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\util\io.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\util\math_functions.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\util\upgrade_proto.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <CudaCompile Include="..\..\src\mini-caffe\layers\absval_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\batch_norm_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\bias_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\bnll_layer.cu" />
-    <CudaCompile Include="..\..\src\mini-caffe\layers\bn_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\concat_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\conv_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\crop_layer.cu" />
-    <CudaCompile Include="..\..\src\mini-caffe\layers\cudnn\cudnn_bn_layer.cu" />
-    <CudaCompile Include="..\..\src\mini-caffe\layers\cudnn\cudnn_conv_layer.cu" />
-    <CudaCompile Include="..\..\src\mini-caffe\layers\cudnn\cudnn_lcn_layer.cu" />
-    <CudaCompile Include="..\..\src\mini-caffe\layers\cudnn\cudnn_lrn_layer.cu" />
-    <CudaCompile Include="..\..\src\mini-caffe\layers\cudnn\cudnn_pooling_layer.cu" />
-    <CudaCompile Include="..\..\src\mini-caffe\layers\cudnn\cudnn_relu_layer.cu" />
-    <CudaCompile Include="..\..\src\mini-caffe\layers\cudnn\cudnn_sigmoid_layer.cu" />
-    <CudaCompile Include="..\..\src\mini-caffe\layers\cudnn\cudnn_softmax_layer.cu" />
-    <CudaCompile Include="..\..\src\mini-caffe\layers\cudnn\cudnn_tanh_layer.cu" />
+    <CudaCompile Include="..\..\src\mini-caffe\layers\cudnn_conv_layer.cu" />
+    <CudaCompile Include="..\..\src\mini-caffe\layers\cudnn_lcn_layer.cu" />
+    <CudaCompile Include="..\..\src\mini-caffe\layers\cudnn_lrn_layer.cu" />
+    <CudaCompile Include="..\..\src\mini-caffe\layers\cudnn_pooling_layer.cu" />
+    <CudaCompile Include="..\..\src\mini-caffe\layers\cudnn_relu_layer.cu" />
+    <CudaCompile Include="..\..\src\mini-caffe\layers\cudnn_sigmoid_layer.cu" />
+    <CudaCompile Include="..\..\src\mini-caffe\layers\cudnn_softmax_layer.cu" />
+    <CudaCompile Include="..\..\src\mini-caffe\layers\cudnn_tanh_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\deconv_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\dropout_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\eltwise_layer.cu" />
@@ -181,6 +40,7 @@
     <CudaCompile Include="..\..\src\mini-caffe\layers\embed_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\exp_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\filter_layer.cu" />
+    <CudaCompile Include="..\..\src\mini-caffe\layers\im2col_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\inner_product_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\log_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\lrn_layer.cu" />
@@ -188,11 +48,8 @@
     <CudaCompile Include="..\..\src\mini-caffe\layers\pooling_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\power_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\prelu_layer.cu" />
-    <CudaCompile Include="..\..\src\mini-caffe\layers\proposal_layer.cu" />
-    <CudaCompile Include="..\..\src\mini-caffe\layers\psroi_pooling_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\reduction_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\relu_layer.cu" />
-    <CudaCompile Include="..\..\src\mini-caffe\layers\roi_pooling_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\scale_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\sigmoid_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\slice_layer.cu" />
@@ -203,6 +60,161 @@
     <CudaCompile Include="..\..\src\mini-caffe\layers\tile_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\util\im2col.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\util\math_functions.cu" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\mini-caffe\blob.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\common.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\data_reader.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\data_transformer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\internal_thread.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\absval_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\argmax_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\base_conv_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\base_data_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\batch_norm_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\bias_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\bnll_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\concat_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\conv_dw_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\conv_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\crop_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\cudnn_conv_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\cudnn_lcn_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\cudnn_lrn_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\cudnn_pooling_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\cudnn_relu_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\cudnn_sigmoid_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\cudnn_softmax_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\cudnn_tanh_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\deconv_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\dropout_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\eltwise_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\elu_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\embed_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\exp_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\filter_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\flatten_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\im2col_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\imresize_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\inner_product_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\input_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\log_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\lrn_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\memory_data_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\mvn_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\neuron_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\nms_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\parameter_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\pooling_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\power_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\prelu_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\reduction_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\relu_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\reshape_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\scale_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\sigmoid_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\slice_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\softmax_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\sparese_gemm.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\split_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\spp_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\tanh_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\threshold_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\tile_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layer_factory.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\net.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\parallel.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\syncedmem.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\util\blocking_queue.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\util\cudnn.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\util\im2col.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\util\insert_splits.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\util\io.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\util\math_functions.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\util\upgrade_proto.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\mini-caffe\caffe\blob.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\caffe.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\common.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\data_reader.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\data_transformer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\filler.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\internal_thread.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\absval_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\argmax_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\base_conv_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\base_data_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\batch_norm_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\bias_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\bnll_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\concat_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\conv_dw_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\conv_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\crop_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\cudnn_conv_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\cudnn_lcn_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\cudnn_lrn_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\cudnn_pooling_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\cudnn_relu_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\cudnn_sigmoid_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\cudnn_softmax_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\cudnn_tanh_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\data_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\deconv_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\dropout_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\eltwise_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\elu_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\embed_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\exp_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\filter_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\flatten_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\im2col_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\imresize_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\inner_product_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\input_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\log_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\lrn_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\memory_data_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\mvn_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\neuron_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\nms_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\parameter_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\pooling_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\power_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\prelu_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\reduction_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\relu_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\reshape_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\scale_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\sigmoid_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\slice_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\softmax_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\sparese_gemm.h" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\split_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\spp_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\sse.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\SSE2NEON.h" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\tanh_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\threshold_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\tile_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layer_factory.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\logging.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\net.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\parallel.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\syncedmem.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\util\blocking_queue.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\util\cudnn.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\util\format.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\util\gpu_util.cuh" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\util\im2col.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\util\insert_splits.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\util\io.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\util\math_functions.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\util\mkl_alternate.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\util\upgrade_proto.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{59BEDB6E-6B9D-4718-AFF4-5FDDA09CBB6D}</ProjectGuid>
@@ -232,6 +244,9 @@
     <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA $(CudaVersion).props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <TargetName>$(ProjectName)d</TargetName>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -252,7 +267,7 @@
     </CudaCompile>
     <ClCompile>
       <DisableSpecificWarnings>4661;4005;4812;4715;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\include\mini-caffe;F:\CoreLib\opencv\3.1.0\windows\include;$(ProjectDir)\..\..\src\mini-caffe;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\include\mini-caffe;F:\CoreLib\opencv\3.1.0\windows\include;$(SolutionDir)\..\src\mini-caffe;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>false</TreatWarningAsError>
       <PreprocessorDefinitions>WIN32;CAFFE_EXPORTS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -278,7 +293,7 @@
     </CudaCompile>
     <ClCompile>
       <DisableSpecificWarnings>4661;4005;4812;4715;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\include\mini-caffe;F:\CoreLib\opencv\3.1.0\windows\include;$(ProjectDir)\..\..\src\mini-caffe;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\include\mini-caffe;F:\CoreLib\opencv\3.1.0\windows\include;$(SolutionDir)\..\src\mini-caffe;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>false</TreatWarningAsError>
       <PreprocessorDefinitions>WIN32;CAFFE_EXPORTS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>

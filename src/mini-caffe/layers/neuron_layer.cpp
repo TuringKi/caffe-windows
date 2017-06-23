@@ -1,6 +1,6 @@
 #include <vector>
 
-#include "./neuron_layer.hpp"
+#include "caffe/layers/neuron_layer.hpp"
 
 namespace caffe {
 

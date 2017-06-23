@@ -8,10 +8,13 @@
 #include <vector>
 
 #include "caffe/blob.hpp"
+#include "caffe/common.hpp"
 
 namespace caffe {
 
 class Layer;
+class NetState;
+class NetStateRule;
 class NetParameter;
 
 /**
@@ -22,10 +25,9 @@ class NetParameter;
  */
 class CAFFE_API Net {
  public:
+  explicit Net(const NetParameter& param);
   explicit Net(const string& param_file);
-  explicit Net(const NetParameter& param) {
-    Init(param);
-  }
+  virtual ~Net() {}
 
   /// @brief Initialize a network with a NetParameter.
   void Init(const NetParameter& param);
@@ -34,9 +36,7 @@ class CAFFE_API Net {
    * @brief Run Forward and return the result.
    *
    */
-  const void Forward() {
-    ForwardFromTo(0, layers_.size() - 1);
-  }
+  const vector<Blob*>& Forward();
 
   /**
    * The From and To variants of Forward and Backward operate on the
@@ -66,82 +66,105 @@ class CAFFE_API Net {
    */
   void CopyTrainedLayersFrom(const NetParameter& param);
   void CopyTrainedLayersFrom(const string& trained_filename);
+  void CopyTrainedLayersFromBinaryProto(const string& trained_filename);
   /// @brief Writes the net to a proto.
   void ToProto(NetParameter* param) const;
 
   /// @brief returns the network name.
-  const string& name() const { return name_; }
+  inline const string& name() const { return name_; }
   /// @brief returns the layer names
-  const vector<string>& layer_names() const { return layer_names_; }
+  inline const vector<string>& layer_names() const { return layer_names_; }
   /// @brief returns the blob names
-  const vector<string>& blob_names() const { return blob_names_; }
-  /// @biref return the param names
-  const vector<string>& param_names() const { return param_display_names_; }
+  inline const vector<string>& blob_names() const { return blob_names_; }
   /// @brief returns the blobs
-  const vector<shared_ptr<Blob> >& blobs() const {
+  inline const vector<shared_ptr<Blob> >& blobs() const {
     return blobs_;
   }
   /// @brief returns the layers
-  const vector<shared_ptr<Layer> >& layers() const {
+  inline const vector<shared_ptr<Layer> >& layers() const {
     return layers_;
-  }
-  /// @brief all parameters
-  const vector<shared_ptr<Blob> >& params() const {
-    return params_;
   }
   /**
    * @brief returns the bottom vecs for each layer -- usually you won't
    *        need this unless you do per-layer checks such as gradients.
    */
-  const vector<vector<Blob*> >& bottom_vecs() const {
+  inline const vector<vector<Blob*> >& bottom_vecs() const {
     return bottom_vecs_;
   }
   /**
    * @brief returns the top vecs for each layer -- usually you won't
    *        need this unless you do per-layer checks such as gradients.
    */
-  const vector<vector<Blob*> >& top_vecs() const {
+  inline const vector<vector<Blob*> >& top_vecs() const {
     return top_vecs_;
   }
-  /**
-   * @brief returns the params in every layer with id in params
-   */
-  const vector<vector<int> >& param_id_vecs() const {
-    return param_id_vecs_;
-  }
   /// @brief returns the ids of the top blobs of layer i
-  const vector<int> & top_ids(int i) const {
+  inline const vector<int> & top_ids(int i) const {
     CHECK_GE(i, 0) << "Invalid layer id";
     CHECK_LT(i, top_id_vecs_.size()) << "Invalid layer id";
     return top_id_vecs_[i];
   }
   /// @brief returns the ids of the bottom blobs of layer i
-  const vector<int> & bottom_ids(int i) const {
+  inline const vector<int> & bottom_ids(int i) const {
     CHECK_GE(i, 0) << "Invalid layer id";
     CHECK_LT(i, bottom_id_vecs_.size()) << "Invalid layer id";
     return bottom_id_vecs_[i];
+  }
+  /// @brief returns the parameters
+  inline const vector<shared_ptr<Blob> >& params() const {
+    return params_;
+  }
+  inline const vector<Blob*>& learnable_params() const {
+    return learnable_params_;
+  }
+  const map<string, int>& param_names_index() const {
+    return param_names_index_;
+  }
+  inline const vector<int>& param_owners() const { return param_owners_; }
+  inline const vector<string>& param_display_names() const {
+    return param_display_names_;
+  }
+  /// @brief Input and output blob numbers
+  inline int num_inputs() const { return net_input_blobs_.size(); }
+  inline int num_outputs() const { return net_output_blobs_.size(); }
+  inline const vector<Blob*>& input_blobs() const {
+    return net_input_blobs_;
+  }
+  inline const vector<Blob*>& output_blobs() const {
+    return net_output_blobs_;
+  }
+  inline const vector<int>& input_blob_indices() const {
+    return net_input_blob_indices_;
+  }
+  inline const vector<int>& output_blob_indices() const {
+    return net_output_blob_indices_;
   }
   bool has_blob(const string& blob_name) const;
   const shared_ptr<Blob> blob_by_name(const string& blob_name) const;
   bool has_layer(const string& layer_name) const;
   const shared_ptr<Layer> layer_by_name(const string& layer_name) const;
 
-  /// @brief calculate memory usage in MB
-  real_t MemSize() const;
-
-  /// @brief mark extra output named blob
-  void MarkOutputs(const std::vector<std::string>& outs);
+  // Helpers for Init.
+  /**
+   * @brief Remove layers that the user specified should be excluded given the current
+   *        phase, level, and stage.
+   */
+  static void FilterNet(const NetParameter& param,
+                        NetParameter* param_filtered);
+  /// @brief return whether NetState state meets NetStateRule rule
+  static bool StateMeetsRule(const NetState& state, const NetStateRule& rule,
+                             const string& layer_name);
 
  protected:
   // Helpers for Init.
   /// @brief Append a new top blob to the net.
   void AppendTop(const NetParameter& param, const int layer_id,
-                 const int top_id, std::set<string>* available_blobs,
-                 std::map<string, int>* blob_name_to_idx);
+                 const int top_id, set<string>* available_blobs,
+                 map<string, int>* blob_name_to_idx);
   /// @brief Append a new bottom blob to the net.
   int AppendBottom(const NetParameter& param, const int layer_id,
-                   const int bottom_id, std::set<string>* available_blobs,
-                   std::map<string, int>* blob_name_to_idx);
+                   const int bottom_id, set<string>* available_blobs,
+                   map<string, int>* blob_name_to_idx);
   /// @brief Append a new parameter blob to the net.
   void AppendParam(const NetParameter& param, const int layer_id,
                    const int param_id);
@@ -151,17 +174,11 @@ class CAFFE_API Net {
   /// @brief Individual layers in the net
   vector<shared_ptr<Layer> > layers_;
   vector<string> layer_names_;
-  std::map<string, int> layer_names_index_;
+  map<string, int> layer_names_index_;
   /// @brief the blobs storing intermediate results between the layer.
   vector<shared_ptr<Blob> > blobs_;
   vector<string> blob_names_;
-  vector<int> blob_life_time_;
-  std::map<string, int> blob_names_index_;
-  /// @brief parameters in the network.
-  vector<shared_ptr<Blob> > params_;
-  vector<string> param_display_names_;
-  vector<vector<int> > param_id_vecs_;
-  std::map<string, int> param_names_index_;
+  map<string, int> blob_names_index_;
   /// bottom_vecs stores the vectors containing the input for each layer.
   /// They don't actually host the blobs (blobs_ does), so we simply store
   /// pointers.
@@ -170,15 +187,31 @@ class CAFFE_API Net {
   /// top_vecs stores the vectors containing the output for each layer
   vector<vector<Blob*> > top_vecs_;
   vector<vector<int> > top_id_vecs_;
+  vector<vector<int> > param_id_vecs_;
+  vector<int> param_owners_;
+  vector<string> param_display_names_;
+  vector<pair<int, int> > param_layer_indices_;
+  map<string, int> param_names_index_;
+  /// blob indices for the input and the output of the net
+  vector<int> net_input_blob_indices_;
+  vector<int> net_output_blob_indices_;
+  vector<Blob*> net_input_blobs_;
+  vector<Blob*> net_output_blobs_;
+  /// The parameters in the network.
+  vector<shared_ptr<Blob> > params_;
+  vector<Blob*> learnable_params_;
+  /**
+   * The mapping from params_ -> learnable_params_: we have
+   * learnable_param_ids_.size() == params_.size(),
+   * and learnable_params_[learnable_param_ids_[i]] == params_[i].get()
+   * if and only if params_[i] is an "owner"; otherwise, params_[i] is a sharer
+   * and learnable_params_[learnable_param_ids_[i]] gives its owner.
+   */
+  vector<int> learnable_param_ids_;
+  /// The bytes of memory used by this net
+  size_t memory_used_;
   DISABLE_COPY_AND_ASSIGN(Net);
 };
-
-/// @brief Read text net parameter, like xxx.prototxt
-CAFFE_API shared_ptr<NetParameter> ReadTextNetParameterFromFile(const string& file);
-CAFFE_API shared_ptr<NetParameter> ReadTextNetParameterFromBuffer(const char* buffer, int buffer_len);
-/// @brief Read binary net parameter, like xxx.binaryproto
-CAFFE_API shared_ptr<NetParameter> ReadBinaryNetParameterFromFile(const string& file);
-CAFFE_API shared_ptr<NetParameter> ReadBinaryNetParameterFromBuffer(const char* buffer, int buffer_len);
 
 }  // namespace caffe
 

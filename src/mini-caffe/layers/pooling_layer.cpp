@@ -2,12 +2,8 @@
 #include <cfloat>
 #include <vector>
 
-#include "./pooling_layer.hpp"
-#include "../util/math_functions.hpp"
-
-#ifdef USE_CUDNN
-#include "./cudnn/cudnn_pooling_layer.hpp"
-#endif  // USE_CUDNN
+#include "caffe/layers/pooling_layer.hpp"
+#include "caffe/util/math_functions.hpp"
 
 namespace caffe {
 
@@ -119,12 +115,11 @@ void PoolingLayer::Forward_cpu(const vector<Blob*>& bottom,
   const real_t* bottom_data = bottom[0]->cpu_data();
   real_t* top_data = top[0]->mutable_cpu_data();
   const int top_count = top[0]->count();
-  const int bottom_offset = bottom[0]->offset(0, 1);
-  const int top_offset = top[0]->offset(0, 1);
   // Different pooling methods. We explicitly do the switch outside the for
   // loop to save time, although this results in more code.
   switch (this->layer_param_.pooling_param().pool()) {
   case PoolingParameter_PoolMethod_MAX:
+    caffe_set(top_count, -std::numeric_limits<real_t>::max(), top_data);
     // The main loop
     for (int n = 0; n < bottom[0]->num(); ++n) {
       for (int c = 0; c < channels_; ++c) {
@@ -136,25 +131,27 @@ void PoolingLayer::Forward_cpu(const vector<Blob*>& bottom,
             int wend = min(wstart + kernel_w_, width_);
             hstart = max(hstart, 0);
             wstart = max(wstart, 0);
-            real_t top_val = -FLT_MAX;
+            const int pool_index = ph * pooled_width_ + pw;
             for (int h = hstart; h < hend; ++h) {
               for (int w = wstart; w < wend; ++w) {
                 const int index = h * width_ + w;
-                top_val = max(top_val, bottom_data[index]);
+                if (bottom_data[index] > top_data[pool_index]) {
+                  top_data[pool_index] = bottom_data[index];
+                }
               }
             }
-            const int pool_index = ph * pooled_width_ + pw;
-            top_data[pool_index] = top_val;
           }
         }
         // compute offset
-        bottom_data += bottom_offset;
-        top_data += top_offset;
+        bottom_data += bottom[0]->offset(0, 1);
+        top_data += top[0]->offset(0, 1);
       }
     }
     break;
   case PoolingParameter_PoolMethod_AVE:
-    caffe_set(top_count, 0, top_data);
+    for (int i = 0; i < top_count; ++i) {
+      top_data[i] = 0;
+    }
     // The main loop
     for (int n = 0; n < bottom[0]->num(); ++n) {
       for (int c = 0; c < channels_; ++c) {
@@ -171,15 +168,16 @@ void PoolingLayer::Forward_cpu(const vector<Blob*>& bottom,
             wend = min(wend, width_);
             for (int h = hstart; h < hend; ++h) {
               for (int w = wstart; w < wend; ++w) {
-                top_data[ph * pooled_width_ + pw] += bottom_data[h * width_ + w];
+                top_data[ph * pooled_width_ + pw] +=
+                    bottom_data[h * width_ + w];
               }
             }
             top_data[ph * pooled_width_ + pw] /= pool_size;
           }
         }
         // compute offset
-        bottom_data += bottom_offset;
-        top_data += top_offset;
+        bottom_data += bottom[0]->offset(0, 1);
+        top_data += top[0]->offset(0, 1);
       }
     }
     break;
@@ -191,19 +189,5 @@ void PoolingLayer::Forward_cpu(const vector<Blob*>& bottom,
 #ifndef USE_CUDA
 STUB_GPU(PoolingLayer);
 #endif
-
-// Creator
-
-static shared_ptr<Layer> CreateLayer(const LayerParameter& param) {
-  PoolingParameter pooling_param = param.pooling_param();
-#ifdef USE_CUDNN
-  if (param.top_size() == 1) {
-    return shared_ptr<Layer>(new CuDNNPoolingLayer(param));
-  }
-#endif  // USE_CUDNN
-  return shared_ptr<Layer>(new PoolingLayer(param));
-}
-
-REGISTER_LAYER_CREATOR(Pooling, CreateLayer);
 
 }  // namespace caffe

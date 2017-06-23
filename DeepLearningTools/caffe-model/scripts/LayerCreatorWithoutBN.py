@@ -7,9 +7,9 @@ import math
 def conv_bn_scale_relu(bottom, num_output=64, kernel_size=3, stride=1, pad=0):
     conv = L.Convolution(bottom, num_output=num_output, kernel_size=kernel_size, stride=stride, pad=pad,
                          param=[dict(lr_mult=1, decay_mult=1), dict(lr_mult=2, decay_mult=0)],
-                         weight_filler=dict(type='gaussian', std=0.01),
+                         weight_filler=dict(type='xavier'),
                          bias_filler=dict(type='constant', value=0))
-    conv_relu = L.ReLU(conv, in_place=True)
+    conv_relu = L.PReLU(conv, in_place=True)
 
     return conv, conv_relu
 
@@ -17,14 +17,14 @@ def conv_bn_scale_relu(bottom, num_output=64, kernel_size=3, stride=1, pad=0):
 def conv_bn_scale(bottom, num_output=64, kernel_size=3, stride=1, pad=0):
     conv = L.Convolution(bottom, num_output=num_output, kernel_size=kernel_size, stride=stride, pad=pad,
                          param=[dict(lr_mult=1, decay_mult=1), dict(lr_mult=2, decay_mult=0)],
-                         weight_filler=dict(type='gaussian', std=0.01),
-                         bias_filler=dict(type='constant', value=0.2))
+                         weight_filler=dict(type='xavier'),
+                         bias_filler=dict(type='constant', value=0))
 
     return conv
 
 def eltwize_relu(bottom1, bottom2):
     residual_eltwise = L.Eltwise(bottom1, bottom2, eltwise_param=dict(operation=1))
-    residual_eltwise_relu = L.ReLU(residual_eltwise, in_place=True)
+    residual_eltwise_relu = L.PReLU(residual_eltwise, in_place=True)
 
     return residual_eltwise, residual_eltwise_relu
 
@@ -38,9 +38,9 @@ def residual_branch(bottom, base_output=64, num_output=256):
     :return: layers
     """
     branch2a, branch2a_relu = \
-        conv_bn_scale_relu(bottom, num_output=base_output, kernel_size=1)  # base_output x n x n
+        conv_bn_scale_relu(bottom, num_output=64, kernel_size=1)  # base_output x n x n
     branch2b, branch2b_relu = \
-        conv_bn_scale_relu(branch2a, num_output=base_output, kernel_size=3, pad=1)  # base_output x n x n
+        conv_bn_scale_relu(branch2a, num_output=64, kernel_size=3, pad=1)  # base_output x n x n
     branch2c = \
         conv_bn_scale(branch2b, num_output=num_output, kernel_size=1)  # 4*base_output x n x n
 
@@ -99,7 +99,7 @@ class LayerCreator(object):
         self.residual_idx = start_residual_idx
         self.deconv_idx = start_deconv_idx
         self.add_idx = start_add_idx
-        self.conv_idx = 0
+        self.conv_idx = 5
         self.bn_idx = 0
         self.concat_idx = 0
         self.relu_idx = 0
@@ -291,4 +291,32 @@ class LayerCreator(object):
         val_string = self.str_replace(val_string, 'loss_idx', str(self.loss_idx))
         exec val_string
         self.loss_idx += 1
+        return output
+    
+    def Concat(self, L1, L2):
+        concat_string = "self.n.concat(concat_idx)= L.Concat(L1, L2)"
+        concat_string = self.str_replace(concat_string, 'concat_idx', str(self.concat_idx))
+
+        exec concat_string
+
+        output = None
+        val_string = 'output = self.n.concat(concat_idx)'
+        val_string = self.str_replace(val_string, 'concat_idx', str(self.concat_idx))
+        exec val_string
+
+        self.concat_idx += 1
+        return output
+    
+    def Concat_3(self, L1, L2, L3):
+        concat_string = "self.n.concat(concat_idx)= L.Concat(L1, L2, L3)"
+        concat_string = self.str_replace(concat_string, 'concat_idx', str(self.concat_idx))
+
+        exec concat_string
+
+        output = None
+        val_string = 'output = self.n.concat(concat_idx)'
+        val_string = self.str_replace(val_string, 'concat_idx', str(self.concat_idx))
+        exec val_string
+
+        self.concat_idx += 1
         return output

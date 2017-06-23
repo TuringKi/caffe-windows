@@ -2,8 +2,8 @@
 #include <cfloat>
 #include <vector>
 
-#include "./pooling_layer.hpp"
-#include "../util/math_functions.hpp"
+#include "caffe/layers/pooling_layer.hpp"
+#include "caffe/util/math_functions.hpp"
 
 namespace caffe {
 
@@ -25,12 +25,14 @@ __global__ void MaxPoolForward(const int nthreads,
     hstart = max(hstart, 0);
     wstart = max(wstart, 0);
     real_t maxval = -FLT_MAX;
+    int maxidx = -1;
     const real_t* const bottom_slice =
         bottom_data + (n * channels + c) * height * width;
     for (int h = hstart; h < hend; ++h) {
       for (int w = wstart; w < wend; ++w) {
         if (bottom_slice[h * width + w] > maxval) {
-          maxval = bottom_slice[h * width + w];
+          maxidx = h * width + w;
+          maxval = bottom_slice[maxidx];
         }
       }
     }

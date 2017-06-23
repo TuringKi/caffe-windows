@@ -2,10 +2,20 @@
 
 #include <vector>
 
-#include "./dropout_layer.hpp"
-#include "../util/math_functions.hpp"
+#include "caffe/layers/dropout_layer.hpp"
+#include "caffe/util/math_functions.hpp"
 
 namespace caffe {
+
+void DropoutLayer::LayerSetUp(const vector<Blob*>& bottom,
+                              const vector<Blob*>& top) {
+  NeuronLayer::LayerSetUp(bottom, top);
+}
+
+void DropoutLayer::Reshape(const vector<Blob*>& bottom,
+                           const vector<Blob*>& top) {
+  NeuronLayer::Reshape(bottom, top);
+}
 
 void DropoutLayer::Forward_cpu(const vector<Blob*>& bottom,
                                const vector<Blob*>& top) {

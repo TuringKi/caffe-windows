@@ -1,12 +1,8 @@
 #include <algorithm>
 #include <vector>
 
-#include "./softmax_layer.hpp"
-#include "../util/math_functions.hpp"
-
-#ifdef USE_CUDNN
-#include "./cudnn/cudnn_softmax_layer.hpp"
-#endif  // USE_CUDNN
+#include "caffe/layers/softmax_layer.hpp"
+#include "caffe/util/math_functions.hpp"
 
 namespace caffe {
 
@@ -65,17 +61,5 @@ void SoftmaxLayer::Forward_cpu(const vector<Blob*>& bottom,
 #ifndef USE_CUDA
 STUB_GPU(SoftmaxLayer);
 #endif
-
-// Creator
-
-static shared_ptr<Layer> CreateLayer(const LayerParameter& param) {
-#ifdef USE_CUDNN
-  return shared_ptr<Layer>(new CuDNNSoftmaxLayer(param));
-#else
-  return shared_ptr<Layer>(new SoftmaxLayer(param));
-#endif  // USE_CUDNN
-}
-
-REGISTER_LAYER_CREATOR(Softmax, CreateLayer);
 
 }  // namespace caffe

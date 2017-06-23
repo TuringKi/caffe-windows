@@ -5,7 +5,8 @@
 
 #include <cmath>
 
-#include "./math_functions.hpp"
+#include "caffe/common.hpp"
+#include "caffe/util/math_functions.hpp"
 
 namespace caffe {
 

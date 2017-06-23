@@ -2,8 +2,8 @@
 #include <cfloat>
 #include <vector>
 
-#include "./softmax_layer.hpp"
-#include "../util/math_functions.hpp"
+#include "caffe/layers/softmax_layer.hpp"
+#include "caffe/util/math_functions.hpp"
 
 namespace caffe {
 

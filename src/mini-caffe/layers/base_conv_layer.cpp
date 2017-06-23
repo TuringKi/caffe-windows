@@ -1,10 +1,13 @@
 #include <algorithm>
 #include <vector>
 
-#include "./base_conv_layer.hpp"
-#include "../filler.hpp"
-#include "../util/im2col.hpp"
-#include "../util/math_functions.hpp"
+#include "caffe/layers/base_conv_layer.hpp"
+#include "caffe/filler.hpp"
+#include "caffe/util/im2col.hpp"
+#include "caffe/util/math_functions.hpp"
+//#include "sparese_gemm.h"
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 namespace caffe {
 
@@ -249,23 +252,65 @@ void BaseConvolutionLayer::Reshape(const vector<Blob*>& bottom,
   }
 }
 
+
+
+#include<cstring>
+#include <windows.h>
+#include <set>
+using namespace std;
+set<int> GetZeroColumn(const float *data, int M, int N)
+{
+	set<int> res;
+	for (int j = 0; j < N; j++)
+	{
+		int i;
+		for (i = 0; i < M; i++)
+		{
+			if (data[i*N+j] != 0)
+			{
+				break;
+			}
+		}
+		if (i == M)
+		{
+			res.insert(j);
+		}
+	}
+	return res;
+}
+void ClearZeroCol(set<int>& zero_col, const float *input, float* output, int row_num, int col_num)
+{
+	int k = 0;
+	for (int i = 0; i < row_num; i++)
+	{
+		for (int j = 0; j < col_num; j++)
+		{
+			if (zero_col.count(j) == 0)
+			{
+				output[k++] = input[i*col_num + j];
+			}
+		}
+	}
+}
+
 void BaseConvolutionLayer::forward_cpu_gemm(const real_t* input,
-                                            const real_t* weights,
-                                            real_t* output,
-                                            bool skip_im2col) {
-  const real_t* col_buff = input;
-  if (!is_1x1_) {
-    if (!skip_im2col) {
-      conv_im2col_cpu(input, col_buffer_.mutable_cpu_data());
-    }
-    col_buff = col_buffer_.cpu_data();
-  }
-  for (int g = 0; g < group_; ++g) {
-    caffe_cpu_gemm(CblasNoTrans, CblasNoTrans, conv_out_channels_ / group_,
-      conv_out_spatial_dim_, kernel_dim_,
-      static_cast<real_t>(1), weights + weight_offset_ * g, col_buff + col_offset_ * g,
-      static_cast<real_t>(0), output + output_offset_ * g);
-  }
+	const real_t* weights,
+	real_t* output,
+	bool skip_im2col) {
+	const real_t* col_buff = input;
+	if (!is_1x1_) {
+		if (!skip_im2col) {
+			conv_im2col_cpu(input, col_buffer_.mutable_cpu_data());
+		}
+		col_buff = col_buffer_.cpu_data();
+	}
+	for (int g = 0; g < group_; ++g) {
+		caffe_cpu_gemm(CblasNoTrans, CblasNoTrans, conv_out_channels_ /
+			group_, conv_out_spatial_dim_, kernel_dim_,
+			(real_t)1., weights + weight_offset_ * g, col_buff + col_offset_ * g,
+			(real_t)0., output + output_offset_ * g);
+	}
+
 }
 
 void BaseConvolutionLayer::forward_cpu_bias(real_t* output,

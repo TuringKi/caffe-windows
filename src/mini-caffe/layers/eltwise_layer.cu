@@ -1,9 +1,8 @@
-#include <cfloat>
 #include <vector>
 #include <limits>
 
-#include "./eltwise_layer.hpp"
-#include "../util/math_functions.hpp"
+#include "caffe/layers/eltwise_layer.hpp"
+#include "caffe/util/math_functions.hpp"
 
 namespace caffe {
 
@@ -11,7 +10,17 @@ __global__ void MaxForward(const int nthreads, const real_t* bottom_data_a,
                            const real_t* bottom_data_b, const int blob_idx,
                            real_t* top_data) {
   CUDA_KERNEL_LOOP(index, nthreads) {
-    top_data[index] = max(bottom_data_a[index], bottom_data_b[index]);
+    real_t maxval = static_cast<real_t>(-FLT_MAX);
+    if (bottom_data_a[index] > bottom_data_b[index]) {
+      // only update for very first bottom_data blob (blob_idx == 0)
+      if (blob_idx == 0) {
+        maxval = bottom_data_a[index];
+        top_data[index] = maxval;
+      }
+    } else {
+      maxval = bottom_data_b[index];
+      top_data[index] = maxval;
+    }
   }
 }
 

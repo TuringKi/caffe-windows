@@ -1,4 +1,4 @@
-#include "./parameter_layer.hpp"
+#include "caffe/layers/parameter_layer.hpp"
 
 namespace caffe {
 

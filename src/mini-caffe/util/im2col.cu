@@ -1,7 +1,7 @@
 #include <algorithm>
 
-#include "./im2col.hpp"
-#include "../common.hpp"
+#include "caffe/common.hpp"
+#include "caffe/util/im2col.hpp"
 
 namespace caffe {
 

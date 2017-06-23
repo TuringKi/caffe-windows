@@ -1,8 +1,8 @@
 #include <vector>
-#include <cfloat>
+#include <limits>
 
-#include "./eltwise_layer.hpp"
-#include "../util/math_functions.hpp"
+#include "caffe/layers/eltwise_layer.hpp"
+#include "caffe/util/math_functions.hpp"
 
 namespace caffe {
 
@@ -57,18 +57,24 @@ void EltwiseLayer::Forward_cpu(const vector<Blob*>& bottom,
     break;
   case EltwiseParameter_EltwiseOp_MAX:
     // Initialize
-    caffe_set(count, static_cast<real_t>(-FLT_MAX), top_data);
+    caffe_set(count, -std::numeric_limits<real_t>::max(), top_data);
     // bottom 0 & 1
     bottom_data_a = bottom[0]->cpu_data();
     bottom_data_b = bottom[1]->cpu_data();
     for (int idx = 0; idx < count; ++idx) {
-      top_data[idx] = std::max(bottom_data_a[idx], bottom_data_b[idx]);
+      if (bottom_data_a[idx] > bottom_data_b[idx]) {
+        top_data[idx] = bottom_data_a[idx];  // maxval
+      } else {
+        top_data[idx] = bottom_data_b[idx];  // maxval
+      }
     }
     // bottom 2++
     for (int blob_idx = 2; blob_idx < bottom.size(); ++blob_idx) {
       bottom_data_b = bottom[blob_idx]->cpu_data();
       for (int idx = 0; idx < count; ++idx) {
-        top_data[idx] = std::max(top_data[idx], bottom_data_b[idx]);
+        if (bottom_data_b[idx] > top_data[idx]) {
+          top_data[idx] = bottom_data_b[idx];  // maxval
+        }
       }
     }
     break;

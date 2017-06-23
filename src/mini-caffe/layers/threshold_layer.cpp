@@ -1,6 +1,6 @@
 #include <vector>
 
-#include "./threshold_layer.hpp"
+#include "caffe/layers/threshold_layer.hpp"
 
 namespace caffe {
 
