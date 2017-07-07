@@ -108,3 +108,5 @@ build/
 *.pyc
 
 DeepLearningTools/caffe-model/scripts/prototxt
+include/mini-caffe
+src/mini-caffe

@@ -159,21 +159,15 @@
     <CudaCompile Include="..\..\src\mini-caffe\util\math_functions.cu">
       <Filter>cu</Filter>
     </CudaCompile>
+    <CudaCompile Include="..\..\src\mini-caffe\layers\conv_dw_layer.cu">
+      <Filter>cu</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\mini-caffe\blob.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\mini-caffe\common.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\mini-caffe\data_reader.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\mini-caffe\data_transformer.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\mini-caffe\internal_thread.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\mini-caffe\layer.cpp">
@@ -183,9 +177,6 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\mini-caffe\net.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\mini-caffe\parallel.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\mini-caffe\syncedmem.cpp">
@@ -198,9 +189,6 @@
       <Filter>src\layers</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\mini-caffe\layers\base_conv_layer.cpp">
-      <Filter>src\layers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\mini-caffe\layers\base_data_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\mini-caffe\layers\batch_norm_layer.cpp">
@@ -290,9 +278,6 @@
     <ClCompile Include="..\..\src\mini-caffe\layers\lrn_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\mini-caffe\layers\memory_data_layer.cpp">
-      <Filter>src\layers</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\mini-caffe\layers\mvn_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
@@ -353,9 +338,6 @@
     <ClCompile Include="..\..\src\mini-caffe\layers\tile_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\mini-caffe\util\blocking_queue.cpp">
-      <Filter>src\util</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\mini-caffe\util\cudnn.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
@@ -374,6 +356,9 @@
     <ClCompile Include="..\..\src\mini-caffe\util\upgrade_proto.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\mini-caffe\proto\caffe.pb.cc">
+      <Filter>src\proto</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\absval_layer.hpp">
@@ -383,9 +368,6 @@
       <Filter>include\layers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\base_conv_layer.hpp">
-      <Filter>include\layers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\base_data_layer.hpp">
       <Filter>include\layers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\batch_norm_layer.hpp">
@@ -476,9 +458,6 @@
       <Filter>include\layers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\lrn_layer.hpp">
-      <Filter>include\layers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\memory_data_layer.hpp">
       <Filter>include\layers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\mvn_layer.hpp">
@@ -586,16 +565,7 @@
     <ClInclude Include="..\..\include\mini-caffe\caffe\common.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\mini-caffe\caffe\data_reader.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\mini-caffe\caffe\data_transformer.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\mini-caffe\caffe\filler.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\mini-caffe\caffe\internal_thread.hpp">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\mini-caffe\caffe\layer.hpp">
@@ -608,9 +578,6 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\mini-caffe\caffe\net.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\mini-caffe\caffe\parallel.hpp">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\mini-caffe\caffe\syncedmem.hpp">

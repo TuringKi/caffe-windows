@@ -1,7 +1,7 @@
 set SOLUTION_DIR=%~1%
 set PROTO_DIR=%~2%
 
-set INCLUDE_PROTO_DIR=%SOLUTION_DIR%..\src\mini-caffe\proto
+set INCLUDE_PROTO_DIR=%SOLUTION_DIR%..\include\mini-caffe\caffe\proto
 SET SRC_PROTO_DIR=%SOLUTION_DIR%..\src\mini-caffe\proto
 set PROTO_TEMP_DIR=%SRC_PROTO_DIR%\temp
 

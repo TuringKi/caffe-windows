@@ -23,6 +23,7 @@
     <CudaCompile Include="..\..\src\mini-caffe\layers\bias_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\bnll_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\concat_layer.cu" />
+    <CudaCompile Include="..\..\src\mini-caffe\layers\conv_dw_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\conv_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\crop_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\cudnn_conv_layer.cu" />
@@ -64,14 +65,10 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\mini-caffe\blob.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\common.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\data_reader.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\data_transformer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\internal_thread.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\layer.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\layers\absval_layer.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\layers\argmax_layer.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\layers\base_conv_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\base_data_layer.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\layers\batch_norm_layer.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\layers\bias_layer.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\layers\bnll_layer.cpp" />
@@ -101,7 +98,6 @@
     <ClCompile Include="..\..\src\mini-caffe\layers\input_layer.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\layers\log_layer.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\layers\lrn_layer.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\layers\memory_data_layer.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\layers\mvn_layer.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\layers\neuron_layer.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\layers\nms_layer.cpp" />
@@ -124,9 +120,8 @@
     <ClCompile Include="..\..\src\mini-caffe\layers\tile_layer.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\layer_factory.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\net.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\parallel.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\proto\caffe.pb.cc" />
     <ClCompile Include="..\..\src\mini-caffe\syncedmem.cpp" />
-    <ClCompile Include="..\..\src\mini-caffe\util\blocking_queue.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\util\cudnn.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\util\im2col.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\util\insert_splits.cpp" />
@@ -138,15 +133,11 @@
     <ClInclude Include="..\..\include\mini-caffe\caffe\blob.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\caffe.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\common.hpp" />
-    <ClInclude Include="..\..\include\mini-caffe\caffe\data_reader.hpp" />
-    <ClInclude Include="..\..\include\mini-caffe\caffe\data_transformer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\filler.hpp" />
-    <ClInclude Include="..\..\include\mini-caffe\caffe\internal_thread.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\absval_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\argmax_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\base_conv_layer.hpp" />
-    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\base_data_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\batch_norm_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\bias_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\bnll_layer.hpp" />
@@ -177,7 +168,6 @@
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\input_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\log_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\lrn_layer.hpp" />
-    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\memory_data_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\mvn_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\neuron_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\nms_layer.hpp" />
@@ -203,7 +193,6 @@
     <ClInclude Include="..\..\include\mini-caffe\caffe\layer_factory.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\logging.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\net.hpp" />
-    <ClInclude Include="..\..\include\mini-caffe\caffe\parallel.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\syncedmem.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\util\blocking_queue.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\util\cudnn.hpp" />
@@ -247,6 +236,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>$(ProjectName)d</TargetName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetName>caffe</TargetName>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -278,7 +270,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>$(CudaDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_world310.lib;$(CudaDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>F:\CoreLib\opencv\3.1.0\windows\x64\vc12\lib;%(AdditionalLibraryDirectories);$(CudaToolkitLibDir)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
       <Command>"$(ScriptsDir)\ProtoCompile-mini-caffe.cmd" "$(SolutionDir)" "$(ProtocDir)"</Command>
@@ -293,7 +286,7 @@
     </CudaCompile>
     <ClCompile>
       <DisableSpecificWarnings>4661;4005;4812;4715;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\include\mini-caffe;F:\CoreLib\opencv\3.1.0\windows\include;$(SolutionDir)\..\src\mini-caffe;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\include\mini-caffe;F:\CoreLib\opencv\3.1.0\windows\include;$(SolutionDir)\..\src\mini-caffe;$(SolutionDir)..\include\mini-caffe\caffe\proto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>false</TreatWarningAsError>
       <PreprocessorDefinitions>WIN32;CAFFE_EXPORTS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
