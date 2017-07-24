@@ -381,6 +381,9 @@
     <ClCompile Include="..\..\src\caffe\layers\conv_dw_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\include\caffe\layers\suncg_data_layer.cpp">
+      <Filter>src\layers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\caffe\proto\caffe.pb.h">
@@ -719,6 +722,15 @@
     <ClInclude Include="..\..\include\caffe\layers\conv_dw_layer.hpp">
       <Filter>include\layers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\caffe\layers\suncg_fusion.hpp">
+      <Filter>cu\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\caffe\layers\suncg_util.hpp">
+      <Filter>cu\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\caffe\layers\suncg_data_layer.hpp">
+      <Filter>include\layers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\..\src\caffe\layers\contrastive_loss_layer.cu">
@@ -923,6 +935,12 @@
       <Filter>cu\layers</Filter>
     </CudaCompile>
     <CudaCompile Include="..\..\src\caffe\layers\conv_dw_layer.cu">
+      <Filter>cu\layers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\..\src\caffe\layers\suncg_data_layer.cu">
+      <Filter>cu\layers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\..\src\caffe\layers\suncg_fusion.cu">
       <Filter>cu\layers</Filter>
     </CudaCompile>
   </ItemGroup>

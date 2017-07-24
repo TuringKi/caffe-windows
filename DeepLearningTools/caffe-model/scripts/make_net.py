@@ -4,7 +4,7 @@ sys.path.append('../../../Build/x64/Release/pycaffe')
 import inception_v3
 import vggnet
 # import HandHourglassNetWithoutBN as HandHourglassNet
-import resnext_withoutbn
+import resface
 
 import HandDepthWiseResidual
 def save_proto(proto, prototxt):
@@ -22,7 +22,7 @@ def vgg():
     save_proto(train_proto, 'vgg_train.prototxt')
     save_proto(test_proto, 'vgg_test.prototxt')
 def demo():
-    model = resnext_withoutbn.ResNeXt('imagenet_test_lmdb', 'imagenet_train_lmdb', 1000)
+    model = resface.ResNeXt('imagenet_test_lmdb', 'imagenet_train_lmdb', 1000)
 
     train_proto = model.resnext_layers_proto(64)
     test_proto = model.resnext_layers_proto(64, phase='TEST')

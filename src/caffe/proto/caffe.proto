@@ -422,7 +422,47 @@ message LayerParameter {
   
   optional CPMTransformationParameter cpm_transform_param = 205;
     optional CPMHandTransformationParameter cpm_hand_transform_param = 206;
-       
+    
+    optional ChannelShuffleParameter channel_shuffle_param = 207;   
+
+    optional SuncgDataParameter suncg_data_param = 208;
+}
+
+
+
+message SuncgDataParameter {
+  repeated string file_data = 1;
+  optional string file_list = 2;
+  optional float vox_unit = 3 [default = 0.02];
+  optional float vox_margin = 4 [default = 0.4];
+  repeated uint32 vox_size = 5;
+  repeated uint32 crop_size = 6;
+  repeated uint32 label_size = 7;
+  optional uint32 seg_classes = 8;
+  optional bool shuffle = 9 [default = true];
+  optional bool with_height = 10 [default = false];
+  optional bool occ_empty_only = 11 [default = false];
+  optional float neg_obj_sample_ratio = 12 [default = 0.0];
+  repeated uint32 seg_class_map = 13;
+  repeated float seg_class_weight = 14;
+  repeated float occ_class_weight = 15;
+  optional bool with_projection_tsdf = 16 [default = false];
+  optional uint32 batch_size = 17;
+  optional uint32 tsdf_type = 18;
+  enum DATA {
+    TSDF = 1;
+    OCCUPANCY = 2;
+  }
+  optional DATA data_type = 19 [default = TSDF];
+  optional bool surf_only = 20 [default = false];
+}
+
+
+message ChannelShuffleParameter {
+  optional int32 shuffle_pattern = 1 [default = 1]; // 0 or 1, so far two patterns.
+  optional int32 shuffle_channel_num = 2 [default = 1]; // exchange how many channels each time [pattern 1]
+  // group number, the same as previous ConV layer setting [pattern 1]
+  optional uint32 group = 3 [default = 1]; 
 }
 
 
@@ -1089,13 +1129,13 @@ message PoolingParameter {
   optional PoolMethod pool = 1 [default = MAX]; // The pooling method
   // Pad, kernel size, and stride are all given as a single value for equal
   // dimensions in height and width or as Y, X pairs.
-  optional uint32 pad = 4 [default = 0]; // The padding size (equal in Y, X)
+  repeated uint32 pad = 4 ; // The padding size (equal in Y, X)
   optional uint32 pad_h = 9 [default = 0]; // The padding height
   optional uint32 pad_w = 10 [default = 0]; // The padding width
-  optional uint32 kernel_size = 2; // The kernel size (square)
+  repeated uint32 kernel_size = 2; // The kernel size (square)
   optional uint32 kernel_h = 5; // The kernel height
   optional uint32 kernel_w = 6; // The kernel width
-  optional uint32 stride = 3 [default = 1]; // The stride (equal in Y, X)
+  repeated uint32 stride = 3 ; // The stride (equal in Y, X)
   optional uint32 stride_h = 7; // The stride height
   optional uint32 stride_w = 8; // The stride width
   enum Engine {

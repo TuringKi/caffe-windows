@@ -16,26 +16,27 @@ def resnext_block(bottom, base_output=64, card=32):
         card:
     """
     conv1 = L.Convolution(bottom, num_output=base_output * (card / 16), kernel_size=1, stride=1, pad=0, bias_term=False,
-                          param=[dict(lr_mult=1, decay_mult=1)], weight_filler=dict(type='xavier'),bias_filler=dict(type='constant', value=0))
-    #conv1_bn = L.BatchNorm(conv1, use_global_stats=False, in_place=True)
-    #conv1_scale = L.Scale(conv1, scale_param=dict(bias_term=True), in_place=True)
-    conv1_relu = L.PReLU(conv1, in_place=True)
+                          param=[dict(lr_mult=1, decay_mult=1)], weight_filler=dict(type='xavier'))
+    conv1_bn = L.BatchNorm(conv1, use_global_stats=False, in_place=True)
+    conv1_scale = L.Scale(conv1, scale_param=dict(bias_term=True), in_place=True)
+    conv1_relu = L.ReLU(conv1, in_place=True)
 
     conv2 = L.Convolution(conv1, num_output=base_output * (card / 16), kernel_size=3, stride=1, pad=1, group=card,
-                          bias_term=False, param=[dict(lr_mult=1, decay_mult=1)], weight_filler=dict(type='xavier'),bias_filler=dict(type='constant', value=0))
-    #conv2_bn = L.BatchNorm(conv2, use_global_stats=False, in_place=True)
-    #conv2_scale = L.Scale(conv2, scale_param=dict(bias_term=True), in_place=True)
-    conv2_relu = L.PReLU(conv2, in_place=True)
+                          bias_term=False, param=[dict(lr_mult=1, decay_mult=1)], weight_filler=dict(type='xavier'))
+    conv2_bn = L.BatchNorm(conv2, use_global_stats=False, in_place=True)
+    conv2_scale = L.Scale(conv2, scale_param=dict(bias_term=True), in_place=True)
+    conv2_relu = L.ReLU(conv2, in_place=True)
 
     conv3 = L.Convolution(conv2, num_output=base_output * 4, kernel_size=1, stride=1, pad=0, bias_term=False,
-                          param=[dict(lr_mult=1, decay_mult=1)], weight_filler=dict(type='xavier'),bias_filler=dict(type='constant', value=0))
-    #conv3_bn = L.BatchNorm(conv3, use_global_stats=False, in_place=True)
-    #conv3_scale = L.Scale(conv3, scale_param=dict(bias_term=True), in_place=True)
+                          param=[dict(lr_mult=1, decay_mult=1)], weight_filler=dict(type='xavier'))
+    conv3_bn = L.BatchNorm(conv3, use_global_stats=False, in_place=True)
+    conv3_scale = L.Scale(conv3, scale_param=dict(bias_term=True), in_place=True)
 
     eltwise = L.Eltwise(bottom, conv3, eltwise_param=dict(operation=1))
-    eltwise_relu = L.PReLU(eltwise, in_place=True)
+    eltwise_relu = L.ReLU(eltwise, in_place=True)
 
-    return conv1,  conv1_relu, conv2, conv2_relu, conv3,  eltwise, eltwise_relu
+    return conv1, conv1_bn, conv1_scale, conv1_relu, conv2, conv2_bn, conv2_scale, conv2_relu, \
+           conv3, conv3_bn, conv3_scale, eltwise, eltwise_relu
 
 
 def match_block(bottom, base_output=64, stride=2, card=32):
@@ -47,41 +48,42 @@ def match_block(bottom, base_output=64, stride=2, card=32):
     :return: layers
     """
     conv1 = L.Convolution(bottom, num_output=base_output * (card / 16), kernel_size=1, stride=1, pad=0, bias_term=False,
-                          param=[dict(lr_mult=1, decay_mult=1)], weight_filler=dict(type='xavier'),bias_filler=dict(type='constant', value=0))
-    #conv1_bn = L.BatchNorm(conv1, use_global_stats=False, in_place=True)
-    #conv1_scale = L.Scale(conv1, scale_param=dict(bias_term=True), in_place=True)
-    conv1_relu = L.PReLU(conv1, in_place=True)
+                          param=[dict(lr_mult=1, decay_mult=1)], weight_filler=dict(type='xavier'))
+    conv1_bn = L.BatchNorm(conv1, use_global_stats=False, in_place=True)
+    conv1_scale = L.Scale(conv1, scale_param=dict(bias_term=True), in_place=True)
+    conv1_relu = L.ReLU(conv1, in_place=True)
 
     conv2 = L.Convolution(conv1, num_output=base_output * (card / 16), kernel_size=3, stride=stride, pad=1, group=card,
-                          bias_term=False, param=[dict(lr_mult=1, decay_mult=1)], weight_filler=dict(type='xavier'),bias_filler=dict(type='constant', value=0))
-    #conv2_bn = L.BatchNorm(conv2, use_global_stats=False, in_place=True)
-    #conv2_scale = L.Scale(conv2, scale_param=dict(bias_term=True), in_place=True)
-    conv2_relu = L.PReLU(conv2, in_place=True)
+                          bias_term=False, param=[dict(lr_mult=1, decay_mult=1)], weight_filler=dict(type='xavier'))
+    conv2_bn = L.BatchNorm(conv2, use_global_stats=False, in_place=True)
+    conv2_scale = L.Scale(conv2, scale_param=dict(bias_term=True), in_place=True)
+    conv2_relu = L.ReLU(conv2, in_place=True)
 
     conv3 = L.Convolution(conv2, num_output=base_output * 4, kernel_size=1, stride=1, pad=0, bias_term=False,
-                          param=[dict(lr_mult=1, decay_mult=1)], weight_filler=dict(type='xavier'),bias_filler=dict(type='constant', value=0))
-    #conv3_bn = L.BatchNorm(conv3, use_global_stats=False, in_place=True)
-    #conv3_scale = L.Scale(conv3, scale_param=dict(bias_term=True), in_place=True)
+                          param=[dict(lr_mult=1, decay_mult=1)], weight_filler=dict(type='xavier'))
+    conv3_bn = L.BatchNorm(conv3, use_global_stats=False, in_place=True)
+    conv3_scale = L.Scale(conv3, scale_param=dict(bias_term=True), in_place=True)
 
     match = L.Convolution(bottom, num_output=base_output * 4, kernel_size=1, stride=stride, pad=0, bias_term=False,
-                          param=[dict(lr_mult=1, decay_mult=1)], weight_filler=dict(type='xavier'),bias_filler=dict(type='constant', value=0))
-    #match_bn = L.BatchNorm(match, use_global_stats=False, in_place=True)
-    #match_scale = L.Scale(match, scale_param=dict(bias_term=True), in_place=True)
+                          param=[dict(lr_mult=1, decay_mult=1)], weight_filler=dict(type='xavier'))
+    match_bn = L.BatchNorm(match, use_global_stats=False, in_place=True)
+    match_scale = L.Scale(match, scale_param=dict(bias_term=True), in_place=True)
 
     eltwise = L.Eltwise(match, conv3, eltwise_param=dict(operation=1))
-    eltwise_relu = L.PReLU(eltwise, in_place=True)
+    eltwise_relu = L.ReLU(eltwise, in_place=True)
 
-    return conv1, conv1_relu, conv2,  conv2_relu, conv3, match,  eltwise, eltwise_relu
+    return conv1, conv1_bn, conv1_scale, conv1_relu, conv2, conv2_bn, conv2_scale, conv2_relu, \
+           conv3, conv3_bn, conv3_scale, match, match_bn, match_scale, eltwise, eltwise_relu
 
 
-resnext_string = 'n.resx(n)_conv1,  n.resx(n)_conv1_relu, \
-        n.resx(n)_conv2,  n.resx(n)_conv2_relu, n.resx(n)_conv3, \
-         n.resx(n)_elewise, n.resx(n)_elewise_relu = \
+resnext_string = 'n.resx(n)_conv1, n.resx(n)_conv1_bn, n.resx(n)_conv1_scale, n.resx(n)_conv1_relu, \
+        n.resx(n)_conv2, n.resx(n)_conv2_bn, n.resx(n)_conv2_scale, n.resx(n)_conv2_relu, n.resx(n)_conv3, \
+        n.resx(n)_conv3_bn, n.resx(n)_conv3_scale, n.resx(n)_elewise, n.resx(n)_elewise_relu = \
             resnext_block((bottom), base_output=(base), card=(c))'
 
-match_string = 'n.resx(n)_conv1, n.resx(n)_conv1_relu, \
-    n.resx(n)_conv2, n.resx(n)_conv2_relu, n.resx(n)_conv3, \
-    n.resx(n)_match_conv, \
+match_string = 'n.resx(n)_conv1, n.resx(n)_conv1_bn, n.resx(n)_conv1_scale, n.resx(n)_conv1_relu, \
+    n.resx(n)_conv2, n.resx(n)_conv2_bn, n.resx(n)_conv2_scale, n.resx(n)_conv2_relu, n.resx(n)_conv3, \
+    n.resx(n)_conv3_bn, n.resx(n)_conv3_scale, n.resx(n)_match_conv, n.resx(n)_match_conv_bn, n.resx(n)_match_conv_scale,\
     n.resx(n)_elewise, n.resx(n)_elewise_relu = match_block((bottom), base_output=(base), stride=(s), card=(c))'
 
 
@@ -113,16 +115,16 @@ class ResNeXt(object):
 
         n.conv1a = L.Convolution(n.data, num_output=64, kernel_size=3, stride=1, pad=1, bias_term=True,
                                 param=[dict(lr_mult=1, decay_mult=1)], weight_filler=dict(type='xavier'),bias_filler=dict(type='constant', value=0))
-        #n.conv1_bn = L.BatchNorm(n.conv1, use_global_stats=False, in_place=True)
-        #n.conv1_scale = L.Scale(n.conv1, scale_param=dict(bias_term=True), in_place=True)
-        n.conv1a_relu = L.PReLU(n.conv1a, in_place=True)  # 64x112x112
+        n.conv1a_bn = L.BatchNorm(n.conv1a, use_global_stats=False, in_place=True)
+        n.conv1a_scale = L.Scale(n.conv1a, scale_param=dict(bias_term=True), in_place=True)
+        n.conv1a_relu = L.ReLU(n.conv1a, in_place=True)  # 64x112x112
 
 
         n.conv1b = L.Convolution(n.conv1a, num_output=64, kernel_size=3, stride=1, pad=3, bias_term=True,
                                 param=[dict(lr_mult=1, decay_mult=1)], weight_filler=dict(type='xavier'),bias_filler=dict(type='constant', value=0))
-        #n.conv1_bn = L.BatchNorm(n.conv1, use_global_stats=False, in_place=True)
-        #n.conv1_scale = L.Scale(n.conv1, scale_param=dict(bias_term=True), in_place=True)
-        n.conv1b_relu = L.PReLU(n.conv1b, in_place=True)  # 64x112x112
+        n.conv1b_bn = L.BatchNorm(n.conv1b, use_global_stats=False, in_place=True)
+        n.conv1b_scale = L.Scale(n.conv1b, scale_param=dict(bias_term=True), in_place=True)
+        n.conv1b_relu = L.ReLU(n.conv1b, in_place=True)  # 64x112x112
 
         n.pool1 = L.Pooling(n.conv1b, kernel_size=3, stride=2, pad=1, ceil_mode=False, pool=P.Pooling.MAX)  # 64x56x56
 

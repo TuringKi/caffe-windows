@@ -43,6 +43,7 @@
       <AdditionalDependencies>opencv_world310d.lib;libcaffe.lib;$(CudaDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>F:\CoreLib\opencv\3.1.0\windows\x64\vc12\lib;</AdditionalLibraryDirectories>
+      <AdditionalOptions>/WHOLEARCHIVE:libcaffe %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Command>"$(ScriptsDir)\FixGFlagsNaming.cmd" "$(OutDir)" $(Configuration)</Command>

@@ -93,6 +93,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\include\caffe\layers\suncg_data_layer.cpp" />
     <ClCompile Include="..\..\src\caffe\blob.cpp" />
     <ClCompile Include="..\..\src\caffe\common.cpp" />
     <ClCompile Include="..\..\src\caffe\cpm_data_transformer.cpp" />
@@ -291,6 +292,7 @@
     <ClInclude Include="..\..\include\caffe\layers\softmax_loss_layer.hpp" />
     <ClInclude Include="..\..\include\caffe\layers\split_layer.hpp" />
     <ClInclude Include="..\..\include\caffe\layers\spp_layer.hpp" />
+    <ClInclude Include="..\..\include\caffe\layers\suncg_data_layer.hpp" />
     <ClInclude Include="..\..\include\caffe\layers\tanh_layer.hpp" />
     <ClInclude Include="..\..\include\caffe\layers\threshold_layer.hpp" />
     <ClInclude Include="..\..\include\caffe\layers\tile_layer.hpp" />
@@ -320,6 +322,8 @@
     <ClInclude Include="..\..\include\caffe\util\rng.hpp" />
     <ClInclude Include="..\..\include\caffe\util\signal_handler.h" />
     <ClInclude Include="..\..\include\caffe\util\upgrade_proto.hpp" />
+    <ClInclude Include="..\..\src\caffe\layers\suncg_fusion.hpp" />
+    <ClInclude Include="..\..\src\caffe\layers\suncg_util.hpp" />
   </ItemGroup>
   <ItemGroup Condition="'$(CpuOnlyBuild)'=='false'">
     <CudaCompile Include="..\..\src\caffe\layers\absval_layer.cu" />
@@ -396,6 +400,8 @@
     <CudaCompile Include="..\..\src\caffe\layers\smooth_l1_loss_layer.cu" />
     <CudaCompile Include="..\..\src\caffe\layers\smooth_L1_loss_ohem_layer.cu" />
     <CudaCompile Include="..\..\src\caffe\layers\softmax_loss_ohem_layer.cu" />
+    <CudaCompile Include="..\..\src\caffe\layers\suncg_data_layer.cu" />
+    <CudaCompile Include="..\..\src\caffe\layers\suncg_fusion.cu" />
     <CudaCompile Include="..\..\src\caffe\layers\xcorr_layer.cu" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
