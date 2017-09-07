@@ -46,6 +46,8 @@
     <CudaCompile Include="..\..\src\mini-caffe\layers\log_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\lrn_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\mvn_layer.cu" />
+    <CudaCompile Include="..\..\src\mini-caffe\layers\normalize_layer.cu" />
+    <CudaCompile Include="..\..\src\mini-caffe\layers\permute_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\pooling_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\power_layer.cu" />
     <CudaCompile Include="..\..\src\mini-caffe\layers\prelu_layer.cu" />
@@ -85,6 +87,7 @@
     <ClCompile Include="..\..\src\mini-caffe\layers\cudnn_softmax_layer.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\layers\cudnn_tanh_layer.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\layers\deconv_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\detection_output_layer.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\layers\dropout_layer.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\layers\eltwise_layer.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\layers\elu_layer.cpp" />
@@ -101,7 +104,9 @@
     <ClCompile Include="..\..\src\mini-caffe\layers\mvn_layer.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\layers\neuron_layer.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\layers\nms_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\normalize_layer.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\layers\parameter_layer.cpp" />
+    <ClCompile Include="..\..\src\mini-caffe\layers\permute_layer.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\layers\pooling_layer.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\layers\power_layer.cpp" />
     <ClCompile Include="..\..\src\mini-caffe\layers\prelu_layer.cpp" />
@@ -155,6 +160,7 @@
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\cudnn_tanh_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\data_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\deconv_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\detection_output_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\dropout_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\eltwise_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\elu_layer.hpp" />
@@ -166,15 +172,19 @@
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\imresize_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\inner_product_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\input_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\loc_concat_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\log_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\lrn_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\mvn_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\neuron_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\nms_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\normalize_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\parameter_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\permute_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\pooling_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\power_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\prelu_layer.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\prior_box_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\reduction_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\relu_layer.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\layers\reshape_layer.hpp" />
@@ -194,6 +204,7 @@
     <ClInclude Include="..\..\include\mini-caffe\caffe\logging.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\net.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\syncedmem.hpp" />
+    <ClInclude Include="..\..\include\mini-caffe\caffe\util\bbox_util.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\util\blocking_queue.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\util\cudnn.hpp" />
     <ClInclude Include="..\..\include\mini-caffe\caffe\util\format.hpp" />

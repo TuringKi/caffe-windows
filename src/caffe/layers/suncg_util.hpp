@@ -212,7 +212,7 @@ void GetFilesInDir(const std::vector<std::string> &directories,
 				//cout<<file.name<<endl;  
 				std::string filename = file.name;
 				if (filename.find(search_string) != std::string::npos && filename != "." && filename != ".."){
-					filename = cate_dir + "/" + filename;
+					filename = cate_dir_ + "/" + filename;
 					files.push_back(filename);
 				}
 			}

@@ -162,6 +162,12 @@
     <CudaCompile Include="..\..\src\mini-caffe\layers\conv_dw_layer.cu">
       <Filter>cu</Filter>
     </CudaCompile>
+    <CudaCompile Include="..\..\src\mini-caffe\layers\normalize_layer.cu">
+      <Filter>cu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\..\src\mini-caffe\layers\permute_layer.cu">
+      <Filter>cu</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\mini-caffe\blob.cpp">
@@ -358,6 +364,15 @@
     </ClCompile>
     <ClCompile Include="..\..\src\mini-caffe\proto\caffe.pb.cc">
       <Filter>src\proto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mini-caffe\layers\normalize_layer.cpp">
+      <Filter>src\layers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mini-caffe\layers\permute_layer.cpp">
+      <Filter>src\layers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mini-caffe\layers\detection_output_layer.cpp">
+      <Filter>src\layers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -582,6 +597,24 @@
     </ClInclude>
     <ClInclude Include="..\..\include\mini-caffe\caffe\syncedmem.hpp">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\normalize_layer.hpp">
+      <Filter>include\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\permute_layer.hpp">
+      <Filter>include\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\loc_concat_layer.hpp">
+      <Filter>include\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\detection_output_layer.hpp">
+      <Filter>include\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\mini-caffe\caffe\layers\prior_box_layer.hpp">
+      <Filter>include\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\mini-caffe\caffe\util\bbox_util.hpp">
+      <Filter>include\util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

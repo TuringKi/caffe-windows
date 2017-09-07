@@ -7,6 +7,11 @@ import vggnet
 import resface
 
 import HandDepthWiseResidual
+
+import inception_resnet_v1
+
+import inception_resnet_v2
+
 def save_proto(proto, prototxt):
     with open(prototxt, 'w') as f:
         f.write(str(proto))
@@ -31,9 +36,30 @@ def demo():
     save_proto(test_proto, 'prototxt/imagenet_test.prototxt')
 
 
-if __name__ == '__main__':
-    demo()
+def output_inception_resnet_v1():
+    model = inception_resnet_v1.InceptionResNet('imagenet_test_lmdb', 'imagenet_train_lmdb', 1000)
 
+    train_proto = model.inception_resnet_v2_proto(64)
+    test_proto = model.inception_resnet_v2_proto(64, phase='TEST')
+
+    save_proto(train_proto, 'prototxt/inception_resnet_v1_train.prototxt')
+    save_proto(test_proto, 'prototxt/inception_resnet_v1_test.prototxt')
+
+
+def output_inception_resnet_v2():
+    model = inception_resnet_v2.InceptionResNet('imagenet_test_lmdb', 'imagenet_train_lmdb', 1000)
+
+    train_proto = model.inception_resnet_v2_proto(64)
+    test_proto = model.inception_resnet_v2_proto(64, phase='TEST')
+
+    save_proto(train_proto, 'prototxt/inception_resnet_v2_train.prototxt')
+    save_proto(test_proto, 'prototxt/inception_resnet_v2_test.prototxt')
+
+
+
+if __name__ == '__main__':
+    #demo()
+    output_inception_resnet_v1()
     #model = HandDepthWiseResidual.HandDepthWiseResidual('/home/maxiao/Works/HandPose/data/dataset_3/lmdb')
     #train_proto = model.layers_proto()
     #save_proto(train_proto, 'prototxt/pose_train_test.prototxt')

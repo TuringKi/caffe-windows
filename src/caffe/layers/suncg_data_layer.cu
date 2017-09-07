@@ -40,7 +40,7 @@ namespace caffe{
 		}
 
 		num_segmentation_class = *std::max_element(segmentation_class_map.begin(), segmentation_class_map.end()) + 1;
-		LOG(INFO) << "num_segmentation_class" << num_segmentation_class;
+		LOG(INFO) << "num_segmentation_class: " << num_segmentation_class;
 
 		for (int i = 0; i < data_param.seg_class_weight_size(); ++i) {
 			segmentation_class_weight.push_back(data_param.seg_class_weight(i));
@@ -428,7 +428,13 @@ namespace caffe{
 					int num_blocks = data_crop_vox_size[2];
 					int num_threads = data_crop_vox_size[1];
 					GPU_set_zeros(num_crop_voxels, vox_weight_GPU);
-					Integrate << < data_crop_vox_size[2], data_crop_vox_size[1] >> > (cam_info_GPU, vox_info_GPU, depth_data_GPU, tmp_tsdf_data_GPU, vox_weight_GPU, tmp_vox_height_GPU);
+					Integrate << < data_crop_vox_size[2], data_crop_vox_size[1] >> > 
+						(cam_info_GPU, 
+						vox_info_GPU, 
+						depth_data_GPU, 
+						tmp_tsdf_data_GPU, 
+						vox_weight_GPU, 
+						tmp_vox_height_GPU);
 					CUDA_CHECK(cudaGetLastError());
 				}
 				else{

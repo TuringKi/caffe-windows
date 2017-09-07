@@ -91,7 +91,7 @@ def setLayers_twoBranches(data_source, batch_size, layername, kernel, stride, ou
                 else:
                     lr_m = lr_mult_distro[1]
             else: # fuse
-                conv_name = 'Mconv%d_stage%d' % (conv_counter, stage)
+                conv_name = 'conv%d_stage%d' % (conv_counter, stage)
                 lr_m = lr_mult_distro[2]
                 conv_counter += 1
             #if stage == 1:
@@ -120,12 +120,12 @@ def setLayers_twoBranches(data_source, batch_size, layername, kernel, stride, ou
                     n.tops[ReLUname] = L.ReLU(n.tops[last_layer[0]], in_place=True)
                 else:
                     if(batchnorm == 1):
-                        batchnorm_name = 'Mbn%d_stage%d' % (conv_counter, stage)
+                        batchnorm_name = 'bn%d_stage%d' % (conv_counter, stage)
                         n.tops[batchnorm_name] = L.BatchNorm(n.tops[last_layer[0]], 
                                                              param=[dict(lr_mult=0), dict(lr_mult=0), dict(lr_mult=0)])
                                                              #scale_filler=dict(type='constant', value=1), shift_filler=dict(type='constant', value=0.001))
                         last_layer[0] = batchnorm_name
-                    ReLUname = 'Mrelu%d_stage%d' % (conv_counter, stage)
+                    ReLUname = 'relu%d_stage%d' % (conv_counter, stage)
                     n.tops[ReLUname] = L.ReLU(n.tops[last_layer[0]], in_place=True)
                 #last_layer = ReLUname
                 # print ReLUname
@@ -134,7 +134,7 @@ def setLayers_twoBranches(data_source, batch_size, layername, kernel, stride, ou
             local_counter += 1
 
         elif layername[l] == 'C2':
-            for level in range(0,2):
+            for level in range(0,1):
                 if state == 'image':
                     #conv_name = 'conv%d_stage%d' % (conv_counter, stage)
                     conv_name = 'conv%d_%d_CPM_L%d' % (pool_counter, local_counter, level+1) # no image state in subsequent stages
@@ -143,7 +143,7 @@ def setLayers_twoBranches(data_source, batch_size, layername, kernel, stride, ou
                     else:
                         lr_m = lr_mult_distro[1]
                 else: # fuse
-                    conv_name = 'Mconv%d_stage%d_L%d' % (conv_counter, stage, level+1)
+                    conv_name = 'conv%d_stage%d_L%d' % (conv_counter, stage, level+1)
                     lr_m = lr_mult_distro[2]
                     #conv_counter += 1
                 #if stage == 1:
@@ -151,11 +151,11 @@ def setLayers_twoBranches(data_source, batch_size, layername, kernel, stride, ou
                 #else:
                 #    lr_m = lr_sub
                 if layername[l+1] == 'L2' or layername[l+1] == 'L3':
-                    if level == 0:
-                        outCH[l] = 40
-                    else:
-                        outCH[l] = 22
-
+                #    if level == 0:
+                 #       outCH[l] = 40
+               #     else:
+                 #       outCH[l] = 22
+                    outCH[l] = 22
                 n.tops[conv_name] = L.Convolution(n.tops[last_layer[level]], kernel_size=kernel[l],
                                                       num_output=outCH[l], pad=int(math.floor(kernel[l]/2)),
                                                       param=[dict(lr_mult=lr_m, decay_mult=1), dict(lr_mult=lr_m*2, decay_mult=0)],
@@ -177,12 +177,12 @@ def setLayers_twoBranches(data_source, batch_size, layername, kernel, stride, ou
                         n.tops[ReLUname] = L.ReLU(n.tops[last_layer[level]], in_place=True)
                     else:
                         if(batchnorm == 1):
-                            batchnorm_name = 'Mbn%d_stage%d_L%d' % (conv_counter, stage, level+1)
+                            batchnorm_name = 'bn%d_stage%d_L%d' % (conv_counter, stage, level+1)
                             n.tops[batchnorm_name] = L.BatchNorm(n.tops[last_layer[level]], 
                                                                  param=[dict(lr_mult=0), dict(lr_mult=0), dict(lr_mult=0)])
                                                                  #scale_filler=dict(type='constant', value=1), shift_filler=dict(type='constant', value=0.001))
                             last_layer[level] = batchnorm_name
-                        ReLUname = 'Mrelu%d_stage%d_L%d' % (conv_counter, stage, level+1)
+                        ReLUname = 'relu%d_stage%d_L%d' % (conv_counter, stage, level+1)
                         n.tops[ReLUname] = L.ReLU(n.tops[last_layer[level]], in_place=True)
                     # print ReLUname
 
@@ -204,7 +204,7 @@ def setLayers_twoBranches(data_source, batch_size, layername, kernel, stride, ou
                 n.tops['map_vec_stage%d' % stage] = L.Flatten(n.tops[last_layer[0]])
                 n.tops['loss_stage%d' % stage] = L.EuclideanLoss(n.tops['map_vec_stage%d' % stage], n.tops[label_name[1]])
             elif deploy == False:
-                level = 1
+                level = 0
                 # name = 'weight_stage%d' % stage
                 # n.tops[name] = L.Eltwise(n.tops[last_layer[level]], n.tops[label_name[(level+2)]], operation=P.Eltwise.PROD)
                 n.tops['loss_stage%d' % stage] = L.EuclideanLoss(n.tops[last_layer[level]], n.tops[label_name[level]])
@@ -221,7 +221,7 @@ def setLayers_twoBranches(data_source, batch_size, layername, kernel, stride, ou
             # Loss: n.loss layer is only in training and testing nets, but not in deploy net.
             weight = [lr_mult_distro[3],1];
             # print lr_mult_distro[3]
-            for level in range(0,2):
+            for level in range(0,1):
                 if deploy == False and "lmdb" not in data_source:
                     n.tops['map_vec_stage%d_L%d' % (stage, level+1)] = L.Flatten(n.tops[last_layer[level]])
                     n.tops['loss_stage%d_L%d' % (stage, level+1)] = L.EuclideanLoss(n.tops['map_vec_stage%d' % stage], n.tops[label_name[level]], loss_weight=weight[level])
@@ -246,8 +246,8 @@ def setLayers_twoBranches(data_source, batch_size, layername, kernel, stride, ou
             weight = [lr_mult_distro[3],1];
             # print lr_mult_distro[3]
             if deploy == False:
-                level = 0
-                n.tops['loss_stage%d_L%d' % (stage, level+1)] = L.Euclidean2Loss(n.tops[last_layer[level]], n.tops[label_name[level]], n.tops[label_name[2]], loss_weight=weight[level])
+                #level = 0
+                #n.tops['loss_stage%d_L%d' % (stage, level+1)] = L.Euclidean2Loss(n.tops[last_layer[level]], n.tops[label_name[level]], n.tops[label_name[2]], loss_weight=weight[level])
                 # print 'loss %d level %d' % (stage, level+1)
                 level = 1
                 n.tops['loss_stage%d_L%d' % (stage, level+1)] = L.EuclideanLoss(n.tops[last_layer[level]], n.tops[label_name[level]], loss_weight=weight[level])
@@ -269,7 +269,7 @@ def setLayers_twoBranches(data_source, batch_size, layername, kernel, stride, ou
         elif layername[l] == '@':
             #if not share_point:
             #    share_point = last_layer
-            n.tops['concat_stage%d' % stage] = L.Concat(n.tops[last_layer[0]], n.tops[last_layer[1]], n.tops[share_point], concat_param=dict(axis=1))
+            n.tops['concat_stage%d' % stage] = L.Concat(n.tops[last_layer[0]], n.tops[share_point], concat_param=dict(axis=1))
             
             local_counter = 1
             state = 'fuse'
@@ -458,7 +458,7 @@ if __name__ == "__main__":
         nCP = 3
         if not os.path.exists(directory):
             os.makedirs(directory)
-        stage = 2
+        stage = 6
 
         for nc in range(0,1):
             layername = ['V','V','P'] * 2  +  ['V'] * 4 + ['P']  +  ['V'] * 2 + ['C'] * 2     + ['$'] + ['C2'] * 3 + ['C2'] * 2    + ['L2'] # first-stage

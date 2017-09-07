@@ -372,7 +372,10 @@ void ComputeTSDF(Dtype * cam_info_CPU, Dtype * vox_info_CPU,
 // Integrate voxel volume
 
 template <typename Dtype>
-__global__ void Integrate(Dtype * cam_info, Dtype * vox_info, Dtype * depth_data, Dtype * vox_tsdf, Dtype * vox_weight, Dtype * vox_height) {
+__global__ void Integrate(Dtype * cam_info,
+	Dtype * vox_info, 
+	Dtype * depth_data, 
+	Dtype * vox_tsdf, Dtype * vox_weight, Dtype * vox_height) {
 
   // Get camera information
   int frame_width = cam_info[0];
