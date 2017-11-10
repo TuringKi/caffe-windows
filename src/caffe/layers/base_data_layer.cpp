@@ -1,6 +1,6 @@
 #include <boost/thread.hpp>
 #include <vector>
-
+#include <opencv/cv.hpp>
 #include "caffe/blob.hpp"
 #include "caffe/data_transformer.hpp"
 #include "caffe/internal_thread.hpp"
@@ -120,6 +120,33 @@ void BasePrefetchingDataLayer<Dtype>::Forward_cpu(
     caffe_copy(batch->label_.count(), batch->label_.cpu_data(),
         top[1]->mutable_cpu_data());
   }
+
+
+  Dtype *vis_data_0 = top[0]->mutable_cpu_data();
+
+  vector<cv::Mat > vis_channels_0;
+  int crop_size = 120;
+  int stride = 8;
+
+  for (int i = 0; i < 3; i++)
+  {
+	  cv::Mat vis_transformed_data(112, 96, CV_32FC1, vis_data_0);
+	  cv::Mat tmp;
+	  vis_transformed_data.copyTo(tmp);
+
+	  //tmp.convertTo(tmp, CV_8U);
+	  vis_channels_0.push_back(tmp);
+	  vis_data_0 += 112 * 96;
+  }
+
+
+  Dtype *vis_data_1 = top[1]->mutable_cpu_data();
+
+  cv::Mat show_img(112, 96, CV_32FC3);
+  cv::merge(vis_channels_0, show_img);
+
+
+
 
   prefetch_free_.push(batch);
 }
